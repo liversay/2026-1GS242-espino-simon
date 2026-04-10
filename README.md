@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![foto](https://res.cloudinary.com/dfqkfx44c/image/upload/v1775781137/foto_hm3ojs.jpg)
+<img src="https://res.cloudinary.com/dfqkfx44c/image/upload/v1775781137/foto_hm3ojs.jpg" alt="Foto de perfil" width="280" style="border-radius: 10px;">
 
 **Desarrollo de Software IX**
 
@@ -12,7 +12,7 @@
 
 ## Mi pasión por el desarrollo
 
-Me encanta programar porque me motiva crear soluciones a problemas.
+Empecé a desarrollar por que no sabía que carrera estudiar, me terminó gustando crear, diseñar y que cualquiera pueda ver lo que construí.
 
 ## Qué busco en este curso
 
