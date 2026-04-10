@@ -4,6 +4,8 @@
 
 <img src="https://res.cloudinary.com/dfqkfx44c/image/upload/v1775781137/foto_hm3ojs.jpg" alt="Foto de perfil" width="280" style="border-radius: 10px;">
 
+Tenía un par de balboas en está foto 👆
+
 **Desarrollo de Software IX**
 
 </div>
