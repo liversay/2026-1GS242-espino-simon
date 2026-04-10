@@ -1,8 +1,8 @@
 # Hola, soy Simon Espino 
 
 <div align="center">
-  
-![Foto de perfil](./foto.jpg)
+
+![foto](https://res.cloudinary.com/dfqkfx44c/image/upload/v1775781137/foto_hm3ojs.jpg)
 
 **Desarrollo de Software IX**
 
