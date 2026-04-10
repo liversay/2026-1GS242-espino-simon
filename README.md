@@ -19,9 +19,3 @@ Me encanta programar porque me motiva crear soluciones a problemas reales. Para 
 Espero potenciar mis habilidades en el fascinante mundo de la IA agéntica y convertirme en un verdadero experto en la materia. Quiero llegar al punto donde pueda dominar estas tecnologías y aplicarlas de forma práctica en mis proyectos.
 
 ---
-
-<div align="center">
-
-**Listo para aprender, crear y crecer** 🚀
-
-</div>
