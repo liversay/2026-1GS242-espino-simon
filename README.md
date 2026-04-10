@@ -12,7 +12,7 @@
 
 ## Mi pasión por el desarrollo
 
-Me encanta programar porque me motiva crear soluciones a problemas reales. Para mí, lo más emocionante es el proceso de transformar una idea en código funcional — esa capacidad de crear algo que realmente impacte y resuelva necesidades. No es solo escribir líneas de código, es materializar soluciones.
+Me encanta programar porque me motiva crear soluciones a problemas.
 
 ## Qué busco en este curso
 
