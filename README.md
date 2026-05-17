@@ -14,10 +14,10 @@ Tenía un par de balboas en está foto 👆
 
 ## Mi pasión por el desarrollo
 
-Empecé a desarrollar por que no sabía que carrera estudiar, me terminó gustando crear, diseñar y que cualquiera pueda ver lo que construí.
+Empecé a desarrollar por que me gusta diseñar, crear y resolver problemas con software.
 
 ## Qué busco en este curso
 
-Espero potenciar mis habilidades en el fascinante mundo de la IA agéntica y convertirme en un verdadero experto en la materia. Quiero llegar al punto donde pueda dominar estas tecnologías y aplicarlas de forma práctica en mis proyectos.
+Espero potenciar mis habilidades en la IA agéntica y llegar al punto donde pueda dominar estas tecnologías y aplicarlas de forma práctica en mis proyectos.
 
 ---
