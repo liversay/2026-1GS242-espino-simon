@@ -14,7 +14,7 @@ Tenía un par de balboas en está foto 👆
 
 ## Mi pasión por el desarrollo
 
-Empecé a desarrollar por que me gusta diseñar, crear y resolver problemas con software.
+Empecé a desarrollar por que me gusta diseñar, crear y resolver problemas con software. Además, me gusta el aprendizaje constante.
 
 ## Qué busco en este curso
 
