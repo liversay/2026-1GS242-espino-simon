@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# dotenv
+.env
+.env.*
+
+# lockfiles
+bun.lock
+
+# AI tools
+.claude/
+.agents/
+skills-lock.json

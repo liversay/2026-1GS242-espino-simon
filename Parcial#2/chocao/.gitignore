@@ -1,5 +1,16 @@
 node_modules/
 dist/
 .env
+.env.*
 *.local
 .DS_Store
+
+# AI tools
+.claude/
+.agents/
+CLAUDE.md
+skills-lock.json
+
+# Editor
+.cursor/
+.idea/

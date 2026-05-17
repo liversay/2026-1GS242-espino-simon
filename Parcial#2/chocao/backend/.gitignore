@@ -17,10 +17,20 @@ report.[0-9]_.[0-9]_.[0-9]_.[0-9]_.json
 
 # dotenv environment variable files
 .env
+.env.*
 .env.development.local
 .env.test.local
 .env.production.local
 .env.local
+
+# lockfiles
+package-lock.json
+bun.lock
+
+# AI tools
+.claude/
+.cursor/
+CLAUDE.md
 
 # caches
 .eslintcache
