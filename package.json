@@ -1,0 +1,17 @@
+{
+  "name": "pollclass",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently \"bun run server\" \"bun run client\"",
+    "server": "cd server && bun run dev",
+    "client": "cd client && bun run dev",
+    "install-all": "bun install && cd server && bun install && cd ../client && bun install"
+  },
+  "dependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@types/node": "^25.6.0"
+  }
+}
