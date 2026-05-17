@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun init *)",
+      "Bash(bun add *)",
+      "Bash(bun create *)",
+      "Bash(bun install *)",
+      "Bash(bun run *)",
+      "Bash(mongosh *)",
+      "Bash(curl -s http://localhost:3000/)",
+      "Bash(kill %1)",
+      "Bash(echo \"Frontend PID: $!\")",
+      "Bash(curl -s http://localhost:3000/api/vehicles)",
+      "Bash(curl -s http://localhost:5173/ -o /dev/null)",
+      "Bash(lsof -ti:3000)",
+      "Bash(xargs kill *)",
+      "Bash(node *)",
+      "Bash(npm show *)"
+    ]
+  }
+}
