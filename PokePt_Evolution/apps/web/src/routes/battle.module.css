@@ -74,6 +74,25 @@
 .flashLow   { background: rgba(82, 147, 236, 0.4); }
 .flashNone  { background: rgba(185, 196, 216, 0.55); }
 
+.separator {
+  height: 5px;
+  background: var(--pp-ink);
+  border-top: 3px solid var(--pp-hot);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  margin: -4px 0 0;
+  position: relative;
+}
+.separator::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(248,225,108,0.15) 20%,
+    rgba(248,225,108,0.3) 50%,
+    rgba(248,225,108,0.15) 80%, transparent 100%
+  );
+}
+
 .controls {
   display: grid;
   grid-template-columns: 2fr 1fr;

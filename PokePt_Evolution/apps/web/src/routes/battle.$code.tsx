@@ -253,6 +253,8 @@ function BattlePage() {
         )}
       </section>
 
+      <div className={styles.separator} />
+
       <section className={styles.controls}>
         {/* Left panel: action menu or moves */}
         {isMyTurn && !mustSwitch && !coinFlipping && !finished ? (

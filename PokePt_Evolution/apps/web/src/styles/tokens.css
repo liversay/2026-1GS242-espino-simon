@@ -44,7 +44,7 @@
   --type-fairy:    #f0b6bc;
 
   /* Tipografías */
-  --font-display: 'Silkscreen', 'Press Start 2P', monospace;
+  --font-display: 'Press Start 2P', 'Silkscreen', monospace;
   --font-sub:     'Jersey 15', 'Silkscreen', sans-serif;
   --font-body:    'VT323', 'Courier New', monospace;
 

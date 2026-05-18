@@ -17,15 +17,6 @@
   width: 22%;
 }
 
-.platform {
-  width: 110%;
-  height: 26px;
-  background: radial-gradient(ellipse 90% 100% at 50% 50%, rgba(0,0,0,0.55) 0%, rgba(0,0,0,0.25) 50%, transparent 75%);
-  margin-top: -20px;
-  margin-left: -5%;
-  border-radius: 50%;
-}
-
 .spriteWrap {
   position: relative;
   width: 100%;
@@ -35,6 +26,28 @@
   align-items: flex-end;
   justify-content: center;
 }
+
+.platform {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 98%;
+  height: 22px;
+  border-radius: 50%;
+  z-index: 0;
+}
+.platformAlly {
+  background:
+    radial-gradient(ellipse 100% 100% at 50% 100%, #1f4010 0%, #2d6018 30%, #4a8c28 52%, transparent 72%),
+    radial-gradient(ellipse 90% 60% at 50% 95%, rgba(0,0,0,0.6) 0%, transparent 70%);
+}
+.platformFoe {
+  background:
+    radial-gradient(ellipse 100% 100% at 50% 100%, #3b2408 0%, #6b4518 30%, #a07238 52%, transparent 72%),
+    radial-gradient(ellipse 90% 60% at 50% 95%, rgba(0,0,0,0.55) 0%, transparent 70%);
+}
+
 .sprite {
   position: absolute;
   bottom: 0;
@@ -44,6 +57,7 @@
   image-rendering: pixelated;
   filter: drop-shadow(4px 6px 0 rgba(0,0,0,0.35));
   transform-origin: bottom center;
+  z-index: 1;
 }
 .fallback {
   position: absolute;

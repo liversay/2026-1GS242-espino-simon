@@ -18,8 +18,8 @@ export function PokemonStage({ pokemon, side, animation, damageNumber }: Props) 
 
   return (
     <div className={`${styles.stage} ${styles[side]}`}>
-      <div className={styles.platform} />
       <div className={styles.spriteWrap}>
+        <div className={`${styles.platform} ${side === 'ally' ? styles.platformAlly : styles.platformFoe}`} />
         {pokemon.spriteUrl ? (
           <img
             src={pokemon.spriteUrl}
