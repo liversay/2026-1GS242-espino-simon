@@ -1,0 +1,21 @@
+{
+  "name": "pokept-evolution",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PokePt Evolution — batallas Pokémon 1v1 con salas por código (DSIX final project)",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "bun --filter '*' dev",
+    "build": "bun --filter '*' build",
+    "dev:api": "bun --filter @pokept/api dev",
+    "dev:web": "bun --filter @pokept/web dev",
+    "import": "bun --filter @pokept/api import",
+    "seed": "bun --filter @pokept/api import"
+  },
+  "devDependencies": {
+    "typescript": "^5.5.4"
+  }
+}

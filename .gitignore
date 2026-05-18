@@ -1,0 +1,3 @@
+# Repo-level ignores. El proyecto PokePt_Evolution tiene su propio .gitignore.
+.claude/
+.DS_Store
