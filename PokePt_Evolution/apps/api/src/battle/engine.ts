@@ -32,13 +32,14 @@ export function applyCoinFlipChoice(battle: Battle, choice: CoinFace): Battle {
     result,
     winnerId,
     completedAt: new Date().toISOString(),
+    acknowledgedAt: null,
   }
   battle.status = 'in-progress'
   battle.currentTurnPlayerId = winnerId
   battle.turn = 1
   battle.log.push({
     kind: 'announce',
-    text: `La moneda cayó en ${result === 'heads' ? 'cara' : 'cruz'}. ¡${winnerName} ataca primero!`,
+    text: `The coin landed on ${result === 'heads' ? 'HEADS' : 'TAILS'}. ${winnerName} attacks first!`,
   })
   battle.log.push({ kind: 'turn-start', playerId: winnerId, playerName: winnerName })
   battle.updatedAt = new Date().toISOString()
@@ -75,7 +76,7 @@ async function applyAction(
   if (action.type === 'switch') {
     const target = player.team[action.targetIndex]
     if (!target || target.fainted || action.targetIndex === player.activeIndex) {
-      log.push({ kind: 'announce', text: `${player.name} intentó cambiar inválidamente.` })
+      log.push({ kind: 'announce', text: `${player.name} attempted an invalid switch.` })
       return
     }
     clearOnSwitch(active)
@@ -95,7 +96,7 @@ async function applyAction(
 
   const move = active.moves.find((m) => m.moveId === action.moveId)
   if (!move) {
-    log.push({ kind: 'announce', text: `Movimiento inválido.` })
+    log.push({ kind: 'announce', text: `Invalid move.` })
     return
   }
 
@@ -197,7 +198,7 @@ export async function applyTurn(
     if (wasForcedSwitch) {
       // Recién resolví MI switch forzado: NO pierdo el turno, sigo yo. Eligir
       // el siguiente Pokémon no consume el turno (regla del juego).
-      log.push({ kind: 'announce', text: `¡${actor.name} ahora puede atacar!` })
+      log.push({ kind: 'announce', text: `${actor.name} can now attack!` })
       log.push({ kind: 'turn-start', playerId: actor.id, playerName: actor.name })
     } else {
       // Turno normal (move o switch voluntario): paso al rival.
