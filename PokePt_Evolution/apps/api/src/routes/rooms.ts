@@ -1,4 +1,147 @@
 import { Hono } from 'hono'
-// stub: la implementación completa llega en la fase de salas
+import { z } from 'zod'
+import { customAlphabet } from 'nanoid'
+import { getDb } from '../db/mongo'
+import { insertRoom, getRoom, updateRoom } from '../db/repo/roomRepo'
+import { getPokemonByDexIds } from '../db/repo/pokemonRepo'
+import { insertBattle } from '../db/repo/battleRepo'
+import { buildInitialBattle } from '../battle/init'
+import { ALL_STAGE_IDS, type Room, type RoomPlayer, type StageId } from '@pokept/shared'
+
+const codeNano = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6)
+const playerNano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 16)
+
 export const roomRoutes = new Hono()
-roomRoutes.get('/', (c) => c.json({ stub: 'rooms' }))
+
+const nameSchema = z.string().trim().min(1).max(24)
+
+// ─── POST /rooms { playerName } ───────────────────────────────────────────
+roomRoutes.post('/', async (c) => {
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = z.object({ playerName: nameSchema }).safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_name' }, 400)
+
+  const db = await getDb()
+  const code = codeNano()
+  const playerId = playerNano()
+  const room: Room = {
+    code,
+    status: 'waiting',
+    hostPlayerId: playerId,
+    stageId: 'pradera-sinnoh',
+    players: [{ id: playerId, name: parsed.data.playerName, ready: false, teamPokemonIds: [] }],
+    createdAt: new Date().toISOString(),
+  }
+  await insertRoom(db, room)
+  return c.json({ code, playerId, room })
+})
+
+// ─── GET /rooms/:code ─────────────────────────────────────────────────────
+roomRoutes.get('/:code', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const db = await getDb()
+  const room = await getRoom(db, code)
+  if (!room) return c.json({ error: 'not_found' }, 404)
+  return c.json(room)
+})
+
+// ─── POST /rooms/:code/join { playerName } ───────────────────────────────
+roomRoutes.post('/:code/join', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = z.object({ playerName: nameSchema }).safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_name' }, 400)
+
+  const db = await getDb()
+  const room = await getRoom(db, code)
+  if (!room) return c.json({ error: 'not_found' }, 404)
+  if (room.status !== 'waiting') return c.json({ error: 'room_already_started' }, 409)
+  if (room.players.length >= 2) return c.json({ error: 'room_full' }, 409)
+
+  const playerId = playerNano()
+  const newPlayer: RoomPlayer = { id: playerId, name: parsed.data.playerName, ready: false, teamPokemonIds: [] }
+  const updated = await updateRoom(db, code, { players: [...room.players, newPlayer] })
+  return c.json({ playerId, room: updated })
+})
+
+// ─── POST /rooms/:code/team { playerId, pokedexIds } ─────────────────────
+roomRoutes.post('/:code/team', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = z.object({
+    playerId: z.string().min(1),
+    pokedexIds: z.array(z.number().int().positive()).min(1).max(6),
+  }).safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+
+  const db = await getDb()
+  const room = await getRoom(db, code)
+  if (!room) return c.json({ error: 'not_found' }, 404)
+  if (room.status !== 'waiting') return c.json({ error: 'room_already_started' }, 409)
+
+  const player = room.players.find((p) => p.id === parsed.data.playerId)
+  if (!player) return c.json({ error: 'player_not_in_room' }, 403)
+
+  const unique = [...new Set(parsed.data.pokedexIds)]
+  if (unique.length !== parsed.data.pokedexIds.length) {
+    return c.json({ error: 'duplicate_pokemon' }, 400)
+  }
+  const found = await getPokemonByDexIds(db, unique)
+  if (found.length !== unique.length) {
+    return c.json({ error: 'unknown_pokemon' }, 400)
+  }
+
+  const newPlayers = room.players.map((p) =>
+    p.id === parsed.data.playerId
+      ? { ...p, teamPokemonIds: unique, ready: true }
+      : p,
+  )
+  const updated = await updateRoom(db, code, { players: newPlayers })
+  return c.json({ room: updated })
+})
+
+// ─── POST /rooms/:code/stage { playerId, stageId } ───────────────────────
+roomRoutes.post('/:code/stage', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = z.object({
+    playerId: z.string().min(1),
+    stageId: z.enum(ALL_STAGE_IDS as [StageId, ...StageId[]]),
+  }).safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+
+  const db = await getDb()
+  const room = await getRoom(db, code)
+  if (!room) return c.json({ error: 'not_found' }, 404)
+  if (room.status !== 'waiting') return c.json({ error: 'room_already_started' }, 409)
+  if (room.hostPlayerId !== parsed.data.playerId) {
+    return c.json({ error: 'only_host_can_pick_stage' }, 403)
+  }
+  const updated = await updateRoom(db, code, { stageId: parsed.data.stageId })
+  return c.json({ room: updated })
+})
+
+// ─── POST /rooms/:code/start { playerId } ────────────────────────────────
+roomRoutes.post('/:code/start', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = z.object({ playerId: z.string().min(1) }).safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+
+  const db = await getDb()
+  const room = await getRoom(db, code)
+  if (!room) return c.json({ error: 'not_found' }, 404)
+  if (room.status !== 'waiting') return c.json({ error: 'already_started' }, 409)
+  if (room.hostPlayerId !== parsed.data.playerId) {
+    return c.json({ error: 'only_host_can_start' }, 403)
+  }
+  if (room.players.length !== 2) return c.json({ error: 'need_two_players' }, 409)
+  if (!room.players.every((p) => p.ready && p.teamPokemonIds.length >= 1)) {
+    return c.json({ error: 'players_not_ready' }, 409)
+  }
+
+  const battle = await buildInitialBattle(db, room)
+  await insertBattle(db, battle)
+  await updateRoom(db, code, { status: 'playing' })
+  return c.json({ battle })
+})
