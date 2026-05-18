@@ -47,16 +47,19 @@
   clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
 }
 
+/* Cada HpBox va al MISMO lado que su sprite:
+   - rival (foe): arriba a la DERECHA (junto al sprite del rival)
+   - aliado (ally): abajo a la IZQUIERDA (junto al sprite del aliado) */
 .foeBox {
   position: absolute;
-  top: 12px;
-  left: 16px;
+  top: 14px;
+  right: 16px;
   z-index: 4;
 }
 .allyBox {
   position: absolute;
-  bottom: 12px;
-  right: 16px;
+  bottom: 14px;
+  left: 16px;
   z-index: 4;
 }
 

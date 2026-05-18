@@ -179,7 +179,10 @@ export interface Battle {
   stageId: StageId
   hostPlayerId: string
   players: BattlePlayer[]
+  /** Quien tiene el turno actual. null durante coin-flip y al finished. */
   currentTurnPlayerId: string | null
+  /** Si != null, ese jugador debe enviar SOLO una acción 'switch' antes de continuar. */
+  mustSwitchPlayerId: string | null
   coinFlip: CoinFlipState
   log: LogEntry[]
   winnerId?: string

@@ -1,17 +1,18 @@
 .box {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 10px 14px;
+  gap: 4px;
+  padding: 8px 12px;
   background: var(--pp-paper);
   color: var(--pp-ink);
   border: var(--panel-border);
   box-shadow: var(--panel-shadow);
-  min-width: 280px;
-  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  min-width: 220px;
+  max-width: 260px;
+  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
 }
-.ally  { align-self: flex-start; }
-.foe   { align-self: flex-end; min-width: 240px; }
+.ally  { min-width: 240px; }
+.foe   { min-width: 220px; }
 
 .row {
   display: flex;
@@ -20,9 +21,10 @@
 }
 .name {
   font-family: var(--font-sub);
-  font-size: 26px;
+  font-size: 22px;
   text-transform: capitalize;
   flex: 1;
+  line-height: 1;
 }
 .lvl {
   font-family: var(--font-display);

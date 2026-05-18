@@ -6,17 +6,29 @@ interface Props {
   onSwitch: (targetIndex: number) => void
   onClose: () => void
   disabled?: boolean
+  /** Si true, no se puede cerrar — el jugador DEBE elegir. */
+  forced?: boolean
 }
 
-export function SwitchMenu({ player, onSwitch, onClose, disabled }: Props) {
+export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Props) {
+  const stopProp = (e: React.MouseEvent) => e.stopPropagation()
+  const handleBackdrop = () => { if (!forced) onClose() }
+
   return (
-    <div className={styles.backdrop} onClick={onClose}>
-      <div className={`${styles.panel} panel`} onClick={(e) => e.stopPropagation()}>
-        <span className="panel__chip">PP-EVO / SWITCH</span>
+    <div className={styles.backdrop} onClick={handleBackdrop}>
+      <div className={`${styles.panel} panel`} onClick={stopProp}>
+        <span className="panel__chip">PP-EVO / {forced ? 'ELIGE OBLIGATORIO' : 'SWITCH'}</span>
         <header className={styles.head}>
-          <h3>Cambiar Pokémon</h3>
-          <button className="btn" onClick={onClose} type="button">✕</button>
+          <h3>{forced ? '¡Tu Pokémon fue debilitado!' : 'Cambiar Pokémon'}</h3>
+          {!forced && (
+            <button className="btn" onClick={onClose} type="button">✕</button>
+          )}
         </header>
+        {forced && (
+          <p className={styles.forcedMsg}>
+            Tenés que elegir el próximo Pokémon que va a pelear.
+          </p>
+        )}
         <ul className={styles.list}>
           {player.team.map((pkmn, idx) => {
             const isActive = idx === player.activeIndex

@@ -1,5 +1,9 @@
 // Motor turno-por-turno. Cada llamada aplica UNA acción del jugador cuyo turno
 // es actualmente, luego avanza el turno al rival (o termina la batalla).
+//
+// Cuando un Pokémon es debilitado, su dueño debe ELEGIR el siguiente (switch
+// forzado). El campo battle.mustSwitchPlayerId señala quién debe actuar; ese
+// jugador solo puede enviar acciones de tipo 'switch' hasta resolverlo.
 
 import type { Db } from 'mongodb'
 import type {
@@ -12,6 +16,34 @@ import type {
 } from '@pokept/shared'
 import { calculateDamage } from './damage'
 import { applyStatus, clearOnSwitch, tickStatus } from './status'
+
+// ─── Coin flip ────────────────────────────────────────────────────────────
+export function applyCoinFlipChoice(battle: Battle, choice: CoinFace): Battle {
+  const guest = battle.players.find((p) => p.id !== battle.hostPlayerId)
+  const host = battle.players.find((p) => p.id === battle.hostPlayerId)
+  if (!guest || !host) throw new Error('battle players invalid')
+
+  const result: CoinFace = Math.random() < 0.5 ? 'heads' : 'tails'
+  const winnerId = result === choice ? guest.id : host.id
+  const winnerName = battle.players.find((p) => p.id === winnerId)!.name
+
+  battle.coinFlip = {
+    guestChoice: choice,
+    result,
+    winnerId,
+    completedAt: new Date().toISOString(),
+  }
+  battle.status = 'in-progress'
+  battle.currentTurnPlayerId = winnerId
+  battle.turn = 1
+  battle.log.push({
+    kind: 'announce',
+    text: `La moneda cayó en ${result === 'heads' ? 'cara' : 'cruz'}. ¡${winnerName} ataca primero!`,
+  })
+  battle.log.push({ kind: 'turn-start', playerId: winnerId, playerName: winnerName })
+  battle.updatedAt = new Date().toISOString()
+  return battle
+}
 
 function getActive(player: BattlePlayer): BattlePokemon {
   return player.team[player.activeIndex]!
@@ -39,7 +71,6 @@ async function applyAction(
   const player = me(battle, playerId)
   const other = opponent(battle, playerId)
   const active = getActive(player)
-  if (active.fainted) return
 
   if (action.type === 'switch') {
     const target = player.team[action.targetIndex]
@@ -59,6 +90,8 @@ async function applyAction(
     })
     return
   }
+
+  if (active.fainted) return  // no debería pasar; la ruta valida
 
   const move = active.moves.find((m) => m.moveId === action.moveId)
   if (!move) {
@@ -104,34 +137,6 @@ async function applyAction(
   }
 }
 
-// ─── Coin flip ────────────────────────────────────────────────────────────
-export function applyCoinFlipChoice(battle: Battle, choice: CoinFace): Battle {
-  const guest = battle.players.find((p) => p.id !== battle.hostPlayerId)
-  const host = battle.players.find((p) => p.id === battle.hostPlayerId)
-  if (!guest || !host) throw new Error('battle players invalid')
-
-  const result: CoinFace = Math.random() < 0.5 ? 'heads' : 'tails'
-  const winnerId = result === choice ? guest.id : host.id
-  const winnerName = battle.players.find((p) => p.id === winnerId)!.name
-
-  battle.coinFlip = {
-    guestChoice: choice,
-    result,
-    winnerId,
-    completedAt: new Date().toISOString(),
-  }
-  battle.status = 'in-progress'
-  battle.currentTurnPlayerId = winnerId
-  battle.turn = 1
-  battle.log.push({
-    kind: 'announce',
-    text: `La moneda cayó en ${result === 'heads' ? 'cara' : 'cruz'}. ¡${winnerName} ataca primero!`,
-  })
-  battle.log.push({ kind: 'turn-start', playerId: winnerId, playerName: winnerName })
-  battle.updatedAt = new Date().toISOString()
-  return battle
-}
-
 // ─── Aplicar el turno de UN jugador y pasar al rival ─────────────────────
 export async function applyTurn(
   db: Db,
@@ -142,49 +147,19 @@ export async function applyTurn(
   const log: LogEntry[] = []
   const actor = me(battle, playerId)
   const other = opponent(battle, playerId)
+  const wasForcedSwitch = battle.mustSwitchPlayerId === playerId
 
   await applyAction(db, battle, playerId, action, log)
 
-  // Tick status sobre el activo del que acabó de actuar (burn/poison le pega).
-  const myActiveAfter = getActive(actor)
-  if (!myActiveAfter.fainted) {
-    tickStatus(myActiveAfter, log, actor.id, actor.activeIndex)
-  }
-
-  // Auto-switch si el rival quedó debilitado por mi ataque pero tiene equipo vivo.
-  const otherActive = getActive(other)
-  if (otherActive.fainted && teamAlive(other)) {
-    const next = other.team.findIndex((p) => !p.fainted)
-    if (next >= 0 && next !== other.activeIndex) {
-      const fromIndex = other.activeIndex
-      other.activeIndex = next
-      log.push({
-        kind: 'switch',
-        playerId: other.id,
-        fromIndex,
-        toIndex: next,
-        pokemonName: other.team[next]!.name,
-      })
+  // Tick status al activo del que acabó de actuar (no aplica si la acción fue switch).
+  if (action.type === 'move') {
+    const myActiveAfter = getActive(actor)
+    if (!myActiveAfter.fainted) {
+      tickStatus(myActiveAfter, log, actor.id, actor.activeIndex)
     }
   }
 
-  // Auto-switch si yo me KOe por status tick.
-  if (myActiveAfter.fainted && teamAlive(actor)) {
-    const next = actor.team.findIndex((p) => !p.fainted)
-    if (next >= 0 && next !== actor.activeIndex) {
-      const fromIndex = actor.activeIndex
-      actor.activeIndex = next
-      log.push({
-        kind: 'switch',
-        playerId: actor.id,
-        fromIndex,
-        toIndex: next,
-        pokemonName: actor.team[next]!.name,
-      })
-    }
-  }
-
-  // Victoria
+  // ─── Detectar victoria ──────────────────────────────────────────────────
   const actorAlive = teamAlive(actor)
   const otherAlive = teamAlive(other)
   if (!actorAlive || !otherAlive) {
@@ -192,10 +167,42 @@ export async function applyTurn(
     battle.status = 'finished'
     battle.winnerId = winner.id
     battle.currentTurnPlayerId = null
+    battle.mustSwitchPlayerId = null
     log.push({ kind: 'victory', winnerId: winner.id, winnerName: winner.name })
-  } else {
+    battle.log = [...battle.log, ...log]
+    battle.turn += 1
+    battle.updatedAt = new Date().toISOString()
+    return battle
+  }
+
+  // ─── Pendientes de switch forzado ───────────────────────────────────────
+  // Si mi activo se debilitó por tick de status → yo debo switchar.
+  // Si el activo del rival se debilitó por mi ataque → él debe switchar.
+  const myActiveAfter = getActive(actor)
+  const otherActiveAfter = getActive(other)
+
+  if (myActiveAfter.fainted) {
+    // Caso raro: status tick me mató. Yo elijo el siguiente; el turno sigue siendo mío
+    // hasta resolverlo.
+    battle.mustSwitchPlayerId = actor.id
+    battle.currentTurnPlayerId = actor.id
+  } else if (otherActiveAfter.fainted) {
+    // El rival debe elegir nuevo Pokémon; entonces es su turno (forzado a switch).
+    battle.mustSwitchPlayerId = other.id
     battle.currentTurnPlayerId = other.id
     log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
+  } else {
+    // No hay switch forzado pendiente.
+    battle.mustSwitchPlayerId = null
+    if (wasForcedSwitch) {
+      // Acabo de resolver MI switch forzado: el turno pasa al rival.
+      battle.currentTurnPlayerId = other.id
+      log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
+    } else {
+      // Turno normal: paso al rival.
+      battle.currentTurnPlayerId = other.id
+      log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
+    }
   }
 
   battle.log = [...battle.log, ...log]

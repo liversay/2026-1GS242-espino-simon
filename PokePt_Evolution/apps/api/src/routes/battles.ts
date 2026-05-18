@@ -63,9 +63,20 @@ battleRoutes.post('/:code/action', async (c) => {
   const battle = await getBattle(db, code)
   if (!battle) return c.json({ error: 'not_found' }, 404)
   if (battle.status !== 'in-progress') return c.json({ error: 'battle_not_in_progress' }, 409)
-  if (battle.currentTurnPlayerId !== playerId) {
+
+  // Si hay un switch forzado pendiente, solo ese jugador puede actuar y solo
+  // con una acción de tipo 'switch'.
+  if (battle.mustSwitchPlayerId) {
+    if (battle.mustSwitchPlayerId !== playerId) {
+      return c.json({ error: 'waiting_for_forced_switch' }, 409)
+    }
+    if (action.type !== 'switch') {
+      return c.json({ error: 'must_switch_first' }, 400)
+    }
+  } else if (battle.currentTurnPlayerId !== playerId) {
     return c.json({ error: 'not_your_turn' }, 409)
   }
+
   const player = battle.players.find((p) => p.id === playerId)
   if (!player) return c.json({ error: 'player_not_in_battle' }, 403)
 

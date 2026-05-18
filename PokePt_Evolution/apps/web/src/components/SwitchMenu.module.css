@@ -19,6 +19,15 @@
 .head { display: flex; align-items: center; justify-content: space-between; }
 .head h3 { font-family: var(--font-sub); font-size: 28px; color: var(--pp-ink); }
 
+.forcedMsg {
+  font-family: var(--font-body);
+  font-size: 20px;
+  color: var(--pp-hot);
+  background: rgba(255, 91, 62, 0.12);
+  border-left: 4px solid var(--pp-hot);
+  padding: 8px 12px;
+}
+
 .list { display: flex; flex-direction: column; gap: 10px; }
 
 .row {
