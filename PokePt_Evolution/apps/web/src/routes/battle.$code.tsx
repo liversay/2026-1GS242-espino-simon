@@ -146,8 +146,9 @@ function BattlePage() {
     try {
       await api.acknowledgeFlip(code, playerId)
       refetch()
-    } catch {
-      // polling will update both screens on next tick
+    } catch (err) {
+      if (err instanceof ApiError) setErrorMsg(err.message)
+      else setErrorMsg('Could not start battle.')
     }
   }
   async function handleForfeit() {
