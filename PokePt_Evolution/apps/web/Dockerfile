@@ -1,8 +1,9 @@
-FROM oven/bun:1.1-alpine AS builder
+FROM oven/bun:1-alpine AS builder
 WORKDIR /app
 
 COPY package.json bun.lock tsconfig.base.json ./
 COPY packages/shared/package.json packages/shared/
+COPY apps/api/package.json apps/api/
 COPY apps/web/package.json apps/web/
 
 RUN bun install --frozen-lockfile
@@ -16,7 +17,7 @@ ENV VITE_API_BASE=$VITE_API_BASE
 RUN bun run vite build
 
 # ─── Runtime: serve estáticos con un Node minimal vía bun ──
-FROM oven/bun:1.1-alpine AS runner
+FROM oven/bun:1-alpine AS runner
 WORKDIR /app
 COPY --from=builder /app/apps/web/dist ./dist
 COPY --from=builder /app/apps/web/package.json ./package.json
