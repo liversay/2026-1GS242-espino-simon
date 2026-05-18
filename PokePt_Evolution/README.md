@@ -1,6 +1,6 @@
 # PokePt Evolution
 
-Aplicación web de batallas Pokémon 1P vs 1P por salas con código, look retro/arcade inspirado en Pokémon Platinum. Proyecto final del curso **DSIX 2026-1**.
+Aplicación web de batallas Pokémon 1P vs 1P por salas con código, look retro/arcade inspirado en Pokémon Platinum.
 
 > **Stack**: TanStack Router · React 18 · Vite · Bun · Hono · MongoDB · Docker Compose.
 > **Datos**: ≥300 Pokémon importados desde [PokéAPI](https://pokeapi.co/) y persistidos en MongoDB. La aplicación no consulta a PokéAPI durante el juego.
@@ -195,4 +195,3 @@ Las animaciones se orquestan turn-by-turn en `battle.$code.tsx` mediante un redu
 
 - Datos: [PokéAPI](https://pokeapi.co/).
 - Sprites: Game Freak / Nintendo (vía PokéAPI Gen-IV Platinum).
-- Autor: **Simon Espino** · DSIX 2026-1 · `liversay`.

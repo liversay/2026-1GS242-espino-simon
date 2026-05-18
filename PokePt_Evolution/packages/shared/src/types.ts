@@ -158,18 +158,29 @@ export type LogEntry =
   | { kind: 'switch'; playerId: string; fromIndex: number; toIndex: number; pokemonName: string }
   | { kind: 'faint'; playerId: string; pokemonName: string }
   | { kind: 'effectiveness'; effectiveness: LogEffectiveness }
+  | { kind: 'turn-start'; playerId: string; playerName: string }
   | { kind: 'victory'; winnerId: string; winnerName: string }
 
-export type BattleStatus = 'in-progress' | 'finished'
+export type BattleStatus = 'coin-flip' | 'in-progress' | 'finished'
+
+export type CoinFace = 'heads' | 'tails'
+
+export interface CoinFlipState {
+  guestChoice: CoinFace | null
+  result: CoinFace | null
+  winnerId: string | null
+  completedAt: string | null
+}
 
 export interface Battle {
   roomCode: string
   turn: number
   status: BattleStatus
   stageId: StageId
+  hostPlayerId: string
   players: BattlePlayer[]
-  pendingActions: Record<string, BattleAction>
-  awaitingPlayers: string[]
+  currentTurnPlayerId: string | null
+  coinFlip: CoinFlipState
   log: LogEntry[]
   winnerId?: string
   createdAt: string

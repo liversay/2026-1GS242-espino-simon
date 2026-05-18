@@ -8,6 +8,8 @@ import { TeamPicker } from '../components/TeamPicker'
 import { StagePicker } from '../components/StagePicker'
 import styles from './lobby.module.css'
 
+const TEAM_SIZE = 6
+
 export const Route = createFileRoute('/lobby/$code')({
   component: LobbyPage,
 })
@@ -20,6 +22,8 @@ function LobbyPage() {
   const [copyMsg, setCopyMsg] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
+  const [draftTeam, setDraftTeam] = useState<number[]>([])
+  const [confirming, setConfirming] = useState(false)
 
   const { data: room } = usePolling(
     () => api.getRoom(code),
@@ -27,30 +31,46 @@ function LobbyPage() {
     [code],
   )
 
-  // Redirect a /battle si la sala arrancó
   useEffect(() => {
     if (room?.status === 'playing') {
       navigate({ to: '/battle/$code', params: { code } })
     }
   }, [room?.status, code, navigate])
 
-  const isHost = !!room && !!playerId && room.hostPlayerId === playerId
-  const myTeam = useMemo<number[]>(
-    () => room?.players.find((p) => p.id === playerId)?.teamPokemonIds ?? [],
+  const myPlayer = useMemo(
+    () => room?.players.find((p) => p.id === playerId),
     [room, playerId],
   )
-  const myReady = !!room?.players.find((p) => p.id === playerId)?.ready
-  const bothPresent = (room?.players.length ?? 0) === 2
-  const bothReady = !!room && room.players.length === 2 && room.players.every((p) => p.ready)
+  const myServerTeam = myPlayer?.teamPokemonIds ?? []
+  const myReady = !!myPlayer?.ready
 
-  const onTeamChange = useCallback(async (ids: number[]) => {
-    if (!playerId) return
+  // Sincronizar draft con servidor cuando llega/cambia
+  useEffect(() => {
+    if (myReady && myServerTeam.length === TEAM_SIZE) {
+      setDraftTeam(myServerTeam)
+    }
+  }, [myReady, myServerTeam.join(',')])
+
+  const isHost = !!room && !!playerId && room.hostPlayerId === playerId
+  const bothPresent = (room?.players.length ?? 0) === 2
+  const bothReady = !!room && room.players.length === 2 && room.players.every((p) => p.ready && p.teamPokemonIds.length === TEAM_SIZE)
+
+  const onTeamChange = useCallback((ids: number[]) => {
+    setDraftTeam(ids)
+  }, [])
+
+  const onConfirmTeam = useCallback(async () => {
+    if (!playerId || draftTeam.length !== TEAM_SIZE) return
+    setConfirming(true)
+    setError(null)
     try {
-      await api.setTeam(code, playerId, ids)
+      await api.setTeam(code, playerId, draftTeam)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'No se pudo guardar el equipo.')
+    } finally {
+      setConfirming(false)
     }
-  }, [code, playerId])
+  }, [code, playerId, draftTeam])
 
   const onStageChange = useCallback(async (id: StageId) => {
     if (!playerId || !isHost) return
@@ -88,7 +108,6 @@ function LobbyPage() {
       </main>
     )
   }
-
   if (!room) {
     return <main className={styles.shell}><p className={styles.muted}>Cargando lobby…</p></main>
   }
@@ -97,7 +116,7 @@ function LobbyPage() {
     <main className={styles.shell}>
       <header className={styles.topbar}>
         <a href="/" className={styles.back}>← Salir</a>
-        <span className="kicker">Lobby · {isHost ? 'Host' : 'Guest'}</span>
+        <span className="kicker">Lobby · {isHost ? 'Host' : 'Retador'}</span>
       </header>
 
       <section className={styles.codeBlock}>
@@ -124,7 +143,7 @@ function LobbyPage() {
                   <span className="kicker">{room.hostPlayerId === p.id ? 'Host' : 'Retador'}{isMe && ' · vos'}</span>
                   <span className={styles.pName}>{p.name}</span>
                   <span className={`${styles.status} ${p.ready ? styles.statusReady : ''}`}>
-                    {p.ready ? '● LISTO' : '○ Eligiendo…'}
+                    {p.ready ? `● LISTO (6/6)` : '○ Eligiendo equipo…'}
                   </span>
                 </>
               ) : (
@@ -144,16 +163,30 @@ function LobbyPage() {
       {bothPresent && (
         <>
           <section className="panel panel--dark">
-            <span className="panel__chip">PP-EVO / TEAM</span>
+            <span className="panel__chip">PP-EVO / TEAM · {draftTeam.length}/6</span>
             <TeamPicker
-              selected={myTeam}
+              selected={draftTeam}
               disabled={myReady}
               onChange={onTeamChange}
             />
+            {!myReady && (
+              <div className={styles.teamActions}>
+                <span className={styles.teamCounter}>
+                  {draftTeam.length === TEAM_SIZE
+                    ? '✓ Equipo completo'
+                    : `Te faltan ${TEAM_SIZE - draftTeam.length} Pokémon`}
+                </span>
+                <button
+                  className="btn btn--hot"
+                  onClick={onConfirmTeam}
+                  disabled={confirming || draftTeam.length !== TEAM_SIZE}
+                >
+                  {confirming ? 'Guardando…' : 'Confirmar equipo'}
+                </button>
+              </div>
+            )}
             {myReady && (
-              <p className={styles.hint}>
-                ✓ Equipo guardado. Esperando a tu rival.
-              </p>
+              <p className={styles.hint}>✓ Equipo confirmado. Esperando a tu rival.</p>
             )}
           </section>
 

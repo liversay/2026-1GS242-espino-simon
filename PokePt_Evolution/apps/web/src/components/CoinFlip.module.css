@@ -1,0 +1,176 @@
+.shell {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  background: linear-gradient(180deg, rgba(14, 18, 48, 0.85), rgba(7, 9, 26, 0.92));
+  z-index: 20;
+  padding: 24px;
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: clamp(36px, 6vw, 64px);
+  color: var(--pp-paper);
+  text-shadow: 3px 3px 0 var(--pp-shadow), 6px 6px 0 var(--pp-hot);
+  letter-spacing: 0.04em;
+}
+
+.body {
+  font-family: var(--font-body);
+  font-size: 22px;
+  color: var(--pp-platinum);
+  max-width: 50ch;
+}
+
+.choices {
+  display: flex;
+  gap: 28px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.choiceBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 36px;
+  border: 4px solid var(--pp-ink);
+  box-shadow: 6px 6px 0 var(--pp-shadow);
+  font-family: var(--font-display);
+  color: var(--pp-ink);
+  transition: transform 100ms, box-shadow 100ms, filter 120ms;
+  cursor: pointer;
+}
+.choiceBtn:hover:not(:disabled) {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--pp-shadow);
+  filter: brightness(1.05);
+}
+.choiceBtn:active:not(:disabled) {
+  transform: translate(4px, 4px);
+  box-shadow: 2px 2px 0 var(--pp-shadow);
+}
+.choiceBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+.heads {
+  background: linear-gradient(135deg, #f8e16c 0%, #d8a838 100%);
+}
+.tails {
+  background: linear-gradient(135deg, #ff5b3e 0%, #c43726 100%);
+  color: var(--pp-paper);
+}
+
+.bigLabel { font-size: 36px; letter-spacing: 0.06em; }
+.subLabel { font-size: 11px; letter-spacing: 0.2em; opacity: 0.75; }
+
+.error {
+  color: var(--pp-hot);
+  font-family: var(--font-body);
+  font-size: 20px;
+}
+
+/* ────────── Coin spin animation ────────── */
+
+.coinWrap {
+  perspective: 1000px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.coin {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  transform-style: preserve-3d;
+  animation-duration: 2.4s;
+  animation-timing-function: cubic-bezier(.2, .6, .3, 1);
+  animation-fill-mode: forwards;
+  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.45));
+}
+.coin[data-result="heads"] { animation-name: coin-spin-heads; }
+.coin[data-result="tails"] { animation-name: coin-spin-tails; }
+
+@keyframes coin-spin-heads {
+  0%   { transform: rotateX(0deg) translateY(0); }
+  40%  { transform: rotateX(1080deg) translateY(-60px); }
+  100% { transform: rotateX(2160deg) translateY(0); }
+}
+@keyframes coin-spin-tails {
+  0%   { transform: rotateX(0deg) translateY(0); }
+  40%  { transform: rotateX(1080deg) translateY(-60px); }
+  100% { transform: rotateX(2340deg) translateY(0); }
+}
+
+.face {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 6px solid var(--pp-ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-display);
+  color: var(--pp-ink);
+  backface-visibility: hidden;
+  box-shadow:
+    inset 0 6px 0 rgba(255, 255, 255, 0.4),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.2);
+}
+.faceHeads {
+  background: radial-gradient(circle at 35% 30%, #fff09a 0%, #f8e16c 40%, #d8a838 80%);
+}
+.faceTails {
+  transform: rotateX(180deg);
+  background: radial-gradient(circle at 35% 30%, #ff8a72 0%, #ff5b3e 40%, #c43726 80%);
+  color: var(--pp-paper);
+}
+.faceLabel { font-size: 64px; line-height: 1; }
+.faceSmall { font-size: 10px; letter-spacing: 0.2em; margin-top: 8px; }
+
+.coinShadow {
+  width: 120px;
+  height: 14px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 50%;
+  filter: blur(6px);
+  animation: shadow-pulse 2.4s cubic-bezier(.2, .6, .3, 1) forwards;
+}
+@keyframes shadow-pulse {
+  0%   { transform: scaleX(1) translateY(0); opacity: 0.6; }
+  40%  { transform: scaleX(0.5) translateY(0); opacity: 0.3; }
+  100% { transform: scaleX(1) translateY(0); opacity: 0.6; }
+}
+
+.bannerPlaceholder { height: 80px; }
+
+.banner {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 14px 24px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: 4px solid var(--pp-ink);
+  box-shadow: 6px 6px 0 var(--pp-shadow);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+}
+.bannerHead {
+  font-family: var(--font-body);
+  font-size: 22px;
+}
+.bannerHead strong { color: var(--pp-hot); }
+.bannerWinner {
+  font-family: var(--font-display);
+  font-size: 24px;
+  letter-spacing: 0.04em;
+}

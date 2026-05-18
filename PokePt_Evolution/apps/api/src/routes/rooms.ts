@@ -15,6 +15,8 @@ export const roomRoutes = new Hono()
 
 const nameSchema = z.string().trim().min(1).max(24)
 
+const TEAM_SIZE = 6
+
 // ─── POST /rooms { playerName } ───────────────────────────────────────────
 roomRoutes.post('/', async (c) => {
   const body = await c.req.json().catch(() => ({}))
@@ -70,9 +72,9 @@ roomRoutes.post('/:code/team', async (c) => {
   const body = await c.req.json().catch(() => ({}))
   const parsed = z.object({
     playerId: z.string().min(1),
-    pokedexIds: z.array(z.number().int().positive()).min(1).max(6),
+    pokedexIds: z.array(z.number().int().positive()).length(TEAM_SIZE),
   }).safeParse(body)
-  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+  if (!parsed.success) return c.json({ error: 'team_must_be_6' }, 400)
 
   const db = await getDb()
   const room = await getRoom(db, code)
@@ -136,7 +138,7 @@ roomRoutes.post('/:code/start', async (c) => {
     return c.json({ error: 'only_host_can_start' }, 403)
   }
   if (room.players.length !== 2) return c.json({ error: 'need_two_players' }, 409)
-  if (!room.players.every((p) => p.ready && p.teamPokemonIds.length >= 1)) {
+  if (!room.players.every((p) => p.ready && p.teamPokemonIds.length === TEAM_SIZE)) {
     return c.json({ error: 'players_not_ready' }, 409)
   }
 

@@ -17,11 +17,23 @@
   font-family: var(--font-body);
   font-size: 20px;
   color: var(--pp-platinum);
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
 }
 .vs strong {
   color: var(--pp-paper);
   font-family: var(--font-sub);
   font-size: 24px;
+  padding: 2px 8px;
+  border: 2px solid transparent;
+  transition: border-color 200ms, color 200ms;
+}
+.vsLabel { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em; color: var(--pp-steel); }
+.activePlayer {
+  color: var(--pp-electric);
+  border-color: var(--pp-hot);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
 }
 
 .field {
@@ -86,6 +98,10 @@
   font-family: var(--font-body);
   font-size: 18px;
   color: var(--pp-platinum);
+}
+.turnInfoMine {
+  color: var(--pp-electric);
+  font-weight: bold;
 }
 .error {
   font-family: var(--font-body);

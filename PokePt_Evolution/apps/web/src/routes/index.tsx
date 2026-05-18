@@ -13,7 +13,7 @@ function SplashPage() {
       <div className={styles.pokeball} aria-hidden />
       <header className={styles.headerBlock}>
         <span className="kicker anim-title-drop" style={{ animationDelay: '50ms' }}>
-          Pokémon Battle Rooms · DSIX 2026
+          Pokémon Battle Rooms
         </span>
         <h1 className={styles.title}>
           {TITLE.split('').map((c, i) => (
@@ -50,7 +50,7 @@ function SplashPage() {
           <span className="kicker">Nº</span>
           <span>0231 / PP-EVO</span>
         </div>
-        <p>Por Simon Espino · Universidad · DSIX</p>
+        <p>Pokémon Battle Rooms</p>
       </footer>
     </main>
   )

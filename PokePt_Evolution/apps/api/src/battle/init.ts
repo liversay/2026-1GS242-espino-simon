@@ -1,4 +1,5 @@
 // Construye el estado inicial de batalla a partir de la Room + DB.
+// El Battle nace en status 'coin-flip' esperando que el guest elija cara/cruz.
 
 import type { Db } from 'mongodb'
 import type {
@@ -64,13 +65,14 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
   const now = new Date().toISOString()
   return {
     roomCode: room.code,
-    turn: 1,
-    status: 'in-progress',
+    turn: 0,
+    status: 'coin-flip',
     stageId: room.stageId,
+    hostPlayerId: room.hostPlayerId,
     players,
-    pendingActions: {},
-    awaitingPlayers: players.map((p) => p.id),
-    log: [{ kind: 'announce', text: '¡La batalla comienza!' }],
+    currentTurnPlayerId: null,
+    coinFlip: { guestChoice: null, result: null, winnerId: null, completedAt: null },
+    log: [{ kind: 'announce', text: '¡La batalla comienza! El visitante elige cara o cruz.' }],
     createdAt: now,
     updatedAt: now,
   }

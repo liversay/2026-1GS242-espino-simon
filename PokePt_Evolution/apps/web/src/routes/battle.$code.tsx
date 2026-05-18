@@ -10,7 +10,8 @@ import { HpBox } from '../components/HpBox'
 import { MoveButton } from '../components/MoveButton'
 import { SwitchMenu } from '../components/SwitchMenu'
 import { BattleLog } from '../components/BattleLog'
-import { VictoryScreen } from '../components/VictoryScreen'
+import { VictoryBanner } from '../components/VictoryBanner'
+import { CoinFlip, isCoinFlipPhase } from '../components/CoinFlip'
 import styles from './battle.module.css'
 
 export const Route = createFileRoute('/battle/$code')({
@@ -27,9 +28,9 @@ interface AnimState {
   shake: boolean
 }
 
-function initialAnimState(initialLogLen: number): AnimState {
+function initialAnimState(): AnimState {
   return {
-    lastSeenLogLen: initialLogLen,
+    lastSeenLogLen: 0,
     allyAnim: null,
     foeAnim: null,
     allyDmg: null,
@@ -46,7 +47,7 @@ function BattlePage() {
   const [showSwitch, setShowSwitch] = useState(false)
   const [actionPending, setActionPending] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
-  const [anim, setAnim] = useState<AnimState>(initialAnimState(0))
+  const [anim, setAnim] = useState<AnimState>(initialAnimState)
 
   const { data: battle, refetch } = usePolling(
     () => api.getBattle(code),
@@ -58,16 +59,20 @@ function BattlePage() {
   const foe = useMemo(() => battle?.players.find((p) => p.id !== playerId), [battle, playerId])
   const myActive = me ? me.team[me.activeIndex] : null
   const foeActive = foe ? foe.team[foe.activeIndex] : null
-  const iAlreadyActed = !!(playerId && battle?.pendingActions[playerId])
-  const inputsBlocked = !!battle && (battle.status === 'finished' || iAlreadyActed || actionPending || (myActive?.fainted ?? false))
 
-  // Procesar log nuevo: dispara animaciones para los eventos recién entrados.
+  // Solo puedo actuar si: status in-progress, es MI turno, no estoy en coin flip animation, mi activo no esta fainted
+  const isMyTurn = !!battle && battle.status === 'in-progress' && battle.currentTurnPlayerId === playerId
+  const coinFlipping = !!battle && isCoinFlipPhase(battle)
+  const inputsBlocked = !battle || coinFlipping || !isMyTurn || actionPending || (myActive?.fainted ?? false)
+
+  // Procesar log nuevo: dispara animaciones para los eventos recién entrados
   useEffect(() => {
     if (!battle) return
     if (battle.log.length === anim.lastSeenLogLen) return
     const newEntries = battle.log.slice(anim.lastSeenLogLen)
     runAnimations(newEntries, me?.id, foe?.id, setAnim, battle.log.length)
-  }, [battle, anim.lastSeenLogLen, me?.id, foe?.id])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [battle?.log.length])
 
   async function send(action: BattleAction) {
     if (!playerId || inputsBlocked) return
@@ -94,14 +99,36 @@ function BattlePage() {
     return <main className={styles.shell}><p>Esta batalla no corresponde a tu sesión.</p></main>
   }
 
+  const turnPlayerName = battle.currentTurnPlayerId
+    ? battle.players.find((p) => p.id === battle.currentTurnPlayerId)?.name
+    : null
+
+  const turnInfo = (() => {
+    if (battle.status === 'finished') return 'Batalla finalizada.'
+    if (coinFlipping) return 'Coin flip en curso…'
+    if (myActive.fainted) return 'Tu Pokémon está debilitado.'
+    if (isMyTurn) return 'Tu turno · elegí movimiento o cambio.'
+    return `Turno de ${turnPlayerName ?? foe.name}…`
+  })()
+
   return (
     <main className={`${styles.shell} ${anim.shake ? 'anim-shake' : ''}`}>
       <header className={styles.topbar}>
         <span className="kicker">Turno {battle.turn}</span>
         <span className={styles.vs}>
-          <strong>{me.name}</strong> · vs · <strong>{foe.name}</strong>
+          <strong className={isMyTurn ? styles.activePlayer : ''}>{me.name}</strong>
+          <span className={styles.vsLabel}>vs</span>
+          <strong className={!isMyTurn && battle.currentTurnPlayerId === foe.id ? styles.activePlayer : ''}>{foe.name}</strong>
         </span>
       </header>
+
+      {battle.status === 'finished' && battle.winnerId && (
+        <VictoryBanner
+          winnerName={battle.players.find((p) => p.id === battle.winnerId)?.name ?? '???'}
+          loserName={battle.players.find((p) => p.id !== battle.winnerId)?.name ?? '???'}
+          isMe={battle.winnerId === playerId}
+        />
+      )}
 
       <section className={styles.field}>
         <Stage id={battle.stageId} />
@@ -132,6 +159,8 @@ function BattlePage() {
         <div className={styles.allyBox}>
           <HpBox pokemon={myActive} side="ally" />
         </div>
+
+        {coinFlipping && <CoinFlip battle={battle} myPlayerId={playerId} />}
       </section>
 
       <section className={styles.controls}>
@@ -154,12 +183,8 @@ function BattlePage() {
           >
             ⇄ Cambiar Pokémon
           </button>
-          <p className={styles.turnInfo}>
-            {iAlreadyActed
-              ? '✓ Acción enviada. Esperando rival…'
-              : myActive.fainted
-                ? 'Tu Pokémon está debilitado.'
-                : 'Tu turno. Elegí movimiento o cambio.'}
+          <p className={`${styles.turnInfo} ${isMyTurn ? styles.turnInfoMine : ''}`}>
+            {turnInfo}
           </p>
           {errorMsg && <p className={styles.error}>⚠ {errorMsg}</p>}
         </div>
@@ -175,22 +200,11 @@ function BattlePage() {
           onClose={() => setShowSwitch(false)}
         />
       )}
-
-      {battle.status === 'finished' && battle.winnerId && (
-        <VictoryScreen
-          winnerName={battle.players.find((p) => p.id === battle.winnerId)?.name ?? '???'}
-          loserName={battle.players.find((p) => p.id !== battle.winnerId)?.name ?? '???'}
-          isMe={battle.winnerId === playerId}
-        />
-      )}
     </main>
   )
 }
 
 // ──────────────────────────────────────────────────────────────────────────
-// Coreografía de animaciones a partir de los log entries nuevos.
-// Procesa los eventos en orden con pequeños sleeps para que las animaciones
-// se reproduzcan secuencialmente (no todas al mismo tiempo).
 async function runAnimations(
   entries: LogEntry[],
   myId: string | undefined,
@@ -209,7 +223,7 @@ async function runAnimations(
       await sleep(500)
       setAnim((s) => ({ ...s, allyAnim: null, foeAnim: null }))
     } else if (e.kind === 'damage') {
-      const targetIsAlly = e.playerId === foeId  // si el atacante es foe, el target es ally
+      const targetIsAlly = e.playerId === foeId
       setAnim((s) => ({
         ...s,
         allyAnim: targetIsAlly ? 'anim-hit-shake' : s.allyAnim,

@@ -104,3 +104,19 @@
   font-size: 28px;
   padding: 14px 32px;
 }
+
+.teamActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 2px dashed rgba(185, 196, 216, 0.3);
+}
+.teamCounter {
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.1em;
+  color: var(--pp-paper);
+}

@@ -4,6 +4,7 @@
 import type {
   Battle,
   BattleAction,
+  CoinFace,
   Pokemon,
   Room,
   StageId,
@@ -65,6 +66,12 @@ export const api = {
     }),
 
   getBattle: (code: string) => req<Battle>(`/battles/${code}`),
+
+  coinFlipChoice: (code: string, playerId: string, choice: CoinFace) =>
+    req<Battle>(`/battles/${code}/coin-flip-choice`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId, choice }),
+    }),
 
   sendAction: (code: string, playerId: string, action: BattleAction) =>
     req<Battle>(`/battles/${code}/action`, {
