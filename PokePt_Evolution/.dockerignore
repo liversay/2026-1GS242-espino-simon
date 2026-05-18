@@ -1,0 +1,12 @@
+node_modules
+**/node_modules
+dist
+**/dist
+.output
+.vinxi
+.tanstack
+.env
+.env.local
+.DS_Store
+*.log
+.git

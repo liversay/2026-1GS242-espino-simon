@@ -1,0 +1,40 @@
+name: pokept-evolution
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: pp-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: pp-api
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      MONGO_DB: "pokept"
+      PORT: "3001"
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE: "http://localhost:3001"
+    container_name: pp-web
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo-data:
