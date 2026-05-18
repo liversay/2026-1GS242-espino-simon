@@ -1,0 +1,94 @@
+.shell {
+  min-height: 100vh;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 2vh 3vw 3vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+.vs {
+  font-family: var(--font-body);
+  font-size: 20px;
+  color: var(--pp-platinum);
+}
+.vs strong {
+  color: var(--pp-paper);
+  font-family: var(--font-sub);
+  font-size: 24px;
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  min-height: 320px;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
+}
+
+.foeBox {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  z-index: 4;
+}
+.allyBox {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  z-index: 4;
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.flashSuper { background: rgba(255, 91, 62, 0.7); }
+.flashLow   { background: rgba(82, 147, 236, 0.4); }
+.flashNone  { background: rgba(185, 196, 216, 0.55); }
+
+.controls {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 14px;
+}
+@media (max-width: 760px) { .controls { grid-template-columns: 1fr; } }
+
+.moves {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.side {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 12px;
+  background: var(--pp-deep);
+  color: var(--pp-paper);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+}
+.turnInfo {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-platinum);
+}
+.error {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--pp-hot);
+}
