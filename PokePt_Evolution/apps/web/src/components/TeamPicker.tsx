@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Pokemon } from '@pokept/shared'
+import { LEGENDARY_IDS } from '@pokept/shared'
 import { api } from '../lib/api'
 import { TypeChip } from './TypeChip'
 import styles from './TeamPicker.module.css'
@@ -30,27 +31,34 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
   }, [page, search])
 
   const selectedSet = new Set(selected)
+  const selectedLegendaryCount = selected.filter((id) => LEGENDARY_IDS.includes(id)).length
+
   const toggle = (id: number) => {
     if (disabled) return
-    if (selectedSet.has(id)) onChange(selected.filter((x) => x !== id))
-    else if (selected.length < MAX_TEAM) onChange([...selected, id])
+    if (selectedSet.has(id)) {
+      onChange(selected.filter((x) => x !== id))
+    } else if (selected.length < MAX_TEAM) {
+      if (LEGENDARY_IDS.includes(id) && selectedLegendaryCount >= 1) return
+      onChange([...selected, id])
+    }
   }
 
   return (
     <div className={styles.wrap}>
       <header className={styles.header}>
-        <span className="kicker">Catálogo · Pokémon</span>
-        <h3 className={styles.h3}>Elegí tu equipo (hasta 6)</h3>
+        <span className="kicker">Catalog · Pokémon</span>
+        <h3 className={styles.h3}>Pick your team (up to 6)</h3>
+        <p className={styles.legendaryNote}>★ Legendary — max 1 per team</p>
         <input
           className="input"
-          placeholder="Buscar por nombre…"
+          placeholder="Search by name…"
           value={search}
           onChange={(e) => { setSearch(e.target.value); setPage(1) }}
         />
       </header>
 
       {loading && !data ? (
-        <p className={styles.muted}>Cargando…</p>
+        <p className={styles.muted}>Loading…</p>
       ) : error ? (
         <p className={styles.error}>Error: {error}</p>
       ) : !data ? null : (
@@ -58,16 +66,19 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
           <div className={styles.grid}>
             {data.items.map((p) => {
               const picked = selectedSet.has(p.pokedexId)
+              const isLegendary = LEGENDARY_IDS.includes(p.pokedexId)
+              const legendaryBlocked = isLegendary && !picked && selectedLegendaryCount >= 1
               return (
                 <button
                   key={p.pokedexId}
                   type="button"
-                  className={`${styles.card} ${picked ? styles.cardPicked : ''}`}
+                  className={`${styles.card} ${picked ? styles.cardPicked : ''} ${isLegendary ? styles.cardLegendary : ''}`}
                   onClick={() => toggle(p.pokedexId)}
-                  disabled={disabled || (!picked && selected.length >= MAX_TEAM)}
+                  disabled={disabled || (!picked && selected.length >= MAX_TEAM) || legendaryBlocked}
                   data-primary-type={p.types[0]}
                   style={{ ['--type-glow' as string]: `var(--type-${p.types[0]})` }}
                 >
+                  {isLegendary && <span className={styles.legendaryBadge}>★</span>}
                   <span className={styles.dexId}>Nº{String(p.pokedexId).padStart(3, '0')}</span>
                   <img src={p.spriteUrl} alt={p.name} loading="lazy" />
                   <span className={styles.name}>{p.name}</span>
@@ -86,16 +97,16 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
               className="btn"
               disabled={page === 1}
               onClick={() => setPage((p) => p - 1)}
-            >← Anterior</button>
+            >← Previous</button>
             <span className={styles.pageInfo}>
-              Pág. {data.totalPages === 0 ? 0 : page} / {data.totalPages} · {data.total} Pokémon
+              Page {data.totalPages === 0 ? 0 : page} / {data.totalPages} · {data.total} Pokémon
             </span>
             <button
               type="button"
               className="btn"
               disabled={page >= data.totalPages}
               onClick={() => setPage((p) => p + 1)}
-            >Siguiente →</button>
+            >Next →</button>
           </footer>
         </>
       )}

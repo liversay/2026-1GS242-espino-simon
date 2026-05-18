@@ -17,16 +17,16 @@ export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Prop
   return (
     <div className={styles.backdrop} onClick={handleBackdrop}>
       <div className={`${styles.panel} panel`} onClick={stopProp}>
-        <span className="panel__chip">PP-EVO / {forced ? 'ELIGE OBLIGATORIO' : 'SWITCH'}</span>
+        <span className="panel__chip">PP-EVO / {forced ? 'FORCED SWITCH' : 'SWITCH'}</span>
         <header className={styles.head}>
-          <h3>{forced ? '¡Tu Pokémon fue debilitado!' : 'Cambiar Pokémon'}</h3>
+          <h3>{forced ? 'Your Pokémon fainted!' : 'Switch Pokémon'}</h3>
           {!forced && (
             <button className="btn" onClick={onClose} type="button">✕</button>
           )}
         </header>
         {forced && (
           <p className={styles.forcedMsg}>
-            Tenés que elegir el próximo Pokémon que va a pelear.
+            You must choose the next Pokémon to fight.
           </p>
         )}
         <ul className={styles.list}>
@@ -47,8 +47,8 @@ export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Prop
                   <span className={styles.info}>
                     <span className={styles.name}>{pkmn.name}</span>
                     <span className={styles.hp}>HP {pkmn.currentHp}/{pkmn.stats.maxHp}</span>
-                    {isActive && <span className={styles.tag}>ACTIVO</span>}
-                    {isFainted && <span className={styles.tag}>DEBILITADO</span>}
+                    {isActive && <span className={styles.tag}>ACTIVE</span>}
+                    {isFainted && <span className={styles.tag}>FAINTED</span>}
                   </span>
                 </button>
               </li>

@@ -16,12 +16,12 @@ interface StageProps {
 }
 
 const LABELS: Record<StageId, string> = {
-  'pradera-sinnoh': 'Pradera de Sinnoh',
-  'mt-coronet': 'Cueva Mt. Coronet',
-  'lago-veraz': 'Lago Veraz',
-  'liga-pokemon': 'Estadio Liga Pokémon',
-  'bosque-eterno': 'Bosque Eterno',
-  'cumbre-nevada': 'Cumbre Nevada',
+  'pradera-sinnoh': 'Sinnoh Meadow',
+  'mt-coronet': 'Mt. Coronet Cave',
+  'lago-veraz': 'Lake Valor',
+  'liga-pokemon': 'Pokémon League Stadium',
+  'bosque-eterno': 'Eterna Forest',
+  'cumbre-nevada': 'Snowy Summit',
 }
 
 export const STAGE_LABELS = LABELS

@@ -52,6 +52,7 @@
   pointer-events: none;
   color: transparent;
   display: block;
+  text-shadow: none;
 }
 
 .tagline {

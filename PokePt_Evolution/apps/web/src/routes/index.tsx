@@ -30,18 +30,18 @@ function SplashPage() {
           </span>
         </h1>
         <p className={styles.tagline}>
-          Una batalla está a punto de comenzar.
+          A battle is about to begin.
           <br />
-          Elige tu sala. Elige tu campo. Elige a tu campeón.
+          Choose your room. Choose your field. Choose your champion.
         </p>
       </header>
 
       <nav className={styles.ctas}>
         <Link to="/create" className="btn btn--hot">
-          → Crear sala
+          → Create room
         </Link>
         <Link to="/join" className="btn">
-          Unirse con código
+          Join with code
         </Link>
       </nav>
 

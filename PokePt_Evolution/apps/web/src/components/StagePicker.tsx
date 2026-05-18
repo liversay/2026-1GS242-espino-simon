@@ -25,7 +25,7 @@ export function StagePicker({ selected, isHost, onChange }: Props) {
   return (
     <div className={styles.wrap}>
       <header className={styles.header}>
-        <span className="kicker">Escenario · {isHost ? 'Elige uno (host)' : 'Definido por el host'}</span>
+        <span className="kicker">Stage · {isHost ? 'Choose one (host)' : 'Set by the host'}</span>
         <h3 className={styles.h3}>{STAGE_LABELS[selected]}</h3>
       </header>
       <div className={styles.carousel}>
@@ -39,14 +39,14 @@ export function StagePicker({ selected, isHost, onChange }: Props) {
               onClick={() => isHost && onChange(id)}
               disabled={!isHost}
               aria-pressed={active}
-              aria-label={`Escenario ${STAGE_LABELS[id]}`}
+              aria-label={`Stage ${STAGE_LABELS[id]}`}
             >
               <div className={styles.previewWrap}>
                 <Stage id={id} />
               </div>
               <div className={styles.cardFoot}>
                 <span className={styles.cardName}>{STAGE_LABELS[id]}</span>
-                {active && <span className={styles.badge}>ELEGIDO</span>}
+                {active && <span className={styles.badge}>SELECTED</span>}
               </div>
             </button>
           )

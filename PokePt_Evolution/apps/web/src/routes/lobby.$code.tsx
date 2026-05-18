@@ -66,7 +66,7 @@ function LobbyPage() {
     try {
       await api.setTeam(code, playerId, draftTeam)
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudo guardar el equipo.')
+      setError(e instanceof ApiError ? e.message : 'Could not save team.')
     } finally {
       setConfirming(false)
     }
@@ -77,7 +77,7 @@ function LobbyPage() {
     try {
       await api.setStage(code, playerId, id)
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudo cambiar el escenario.')
+      setError(e instanceof ApiError ? e.message : 'Could not change stage.')
     }
   }, [code, playerId, isHost])
 
@@ -95,7 +95,7 @@ function LobbyPage() {
       await api.startBattle(code, playerId)
       navigate({ to: '/battle/$code', params: { code } })
     } catch (e) {
-      setError(e instanceof ApiError ? e.message : 'No se pudo iniciar.')
+      setError(e instanceof ApiError ? e.message : 'Could not start battle.')
       setStarting(false)
     }
   }
@@ -103,28 +103,28 @@ function LobbyPage() {
   if (!playerId) {
     return (
       <main className={styles.shell}>
-        <p className={styles.muted}>No tenemos tu sesión para esta sala. Volvé al inicio.</p>
-        <a href="/" className="btn">← Inicio</a>
+        <p className={styles.muted}>No session found for this room. Go back to home.</p>
+        <a href="/" className="btn">← Home</a>
       </main>
     )
   }
   if (!room) {
-    return <main className={styles.shell}><p className={styles.muted}>Cargando lobby…</p></main>
+    return <main className={styles.shell}><p className={styles.muted}>Loading lobby…</p></main>
   }
 
   return (
     <main className={styles.shell}>
       <header className={styles.topbar}>
-        <a href="/" className={styles.back}>← Salir</a>
-        <span className="kicker">Lobby · {isHost ? 'Host' : 'Retador'}</span>
+        <a href="/" className={styles.back}>← Exit</a>
+        <span className="kicker">Lobby · {isHost ? 'Host' : 'Challenger'}</span>
       </header>
 
       <section className={styles.codeBlock}>
-        <span className="kicker">Código de sala</span>
-        <button type="button" onClick={onCopy} className={styles.codeBtn} aria-label="Copiar código">
+        <span className="kicker">Room code</span>
+        <button type="button" onClick={onCopy} className={styles.codeBtn} aria-label="Copy code">
           <span className="hero-code">{code}</span>
           <span className={styles.copyTip}>
-            {copyMsg ? '¡Copiado!' : 'Click para copiar'}
+            {copyMsg ? 'Copied!' : 'Click to copy'}
           </span>
         </button>
       </section>
@@ -140,14 +140,14 @@ function LobbyPage() {
             >
               {p ? (
                 <>
-                  <span className="kicker">{room.hostPlayerId === p.id ? 'Host' : 'Retador'}{isMe && ' · vos'}</span>
+                  <span className="kicker">{room.hostPlayerId === p.id ? 'Host' : 'Challenger'}{isMe && ' · you'}</span>
                   <span className={styles.pName}>{p.name}</span>
                   <span className={`${styles.status} ${p.ready ? styles.statusReady : ''}`}>
-                    {p.ready ? `● LISTO (6/6)` : '○ Eligiendo equipo…'}
+                    {p.ready ? `● READY (6/6)` : '○ Picking team…'}
                   </span>
                 </>
               ) : (
-                <span className={styles.waiting}>Esperando entrenador…</span>
+                <span className={styles.waiting}>Waiting for trainer…</span>
               )}
             </div>
           )
@@ -156,7 +156,7 @@ function LobbyPage() {
 
       {!bothPresent && (
         <p className={styles.hint}>
-          Compartí el código con tu rival. Esta pantalla se actualiza sola cuando se conecte.
+          Share the code with your rival. This screen updates automatically when they connect.
         </p>
       )}
 
@@ -173,20 +173,20 @@ function LobbyPage() {
               <div className={styles.teamActions}>
                 <span className={styles.teamCounter}>
                   {draftTeam.length === TEAM_SIZE
-                    ? '✓ Equipo completo'
-                    : `Te faltan ${TEAM_SIZE - draftTeam.length} Pokémon`}
+                    ? '✓ Team complete'
+                    : `You need ${TEAM_SIZE - draftTeam.length} more Pokémon`}
                 </span>
                 <button
                   className="btn btn--hot"
                   onClick={onConfirmTeam}
                   disabled={confirming || draftTeam.length !== TEAM_SIZE}
                 >
-                  {confirming ? 'Guardando…' : 'Confirmar equipo'}
+                  {confirming ? 'Saving…' : 'Confirm team'}
                 </button>
               </div>
             )}
             {myReady && (
-              <p className={styles.hint}>✓ Equipo confirmado. Esperando a tu rival.</p>
+              <p className={styles.hint}>✓ Team confirmed. Waiting for your rival.</p>
             )}
           </section>
 
@@ -205,11 +205,11 @@ function LobbyPage() {
 
       {isHost && bothReady && (
         <button className={`btn btn--hot ${styles.startBtn}`} onClick={onStart} disabled={starting}>
-          {starting ? 'Iniciando…' : '⚡ ¡Iniciar batalla!'}
+          {starting ? 'Starting…' : '⚡ Start battle!'}
         </button>
       )}
       {!isHost && bothReady && (
-        <p className={styles.hint}>Esperando que el host inicie…</p>
+        <p className={styles.hint}>Waiting for the host to start…</p>
       )}
     </main>
   )

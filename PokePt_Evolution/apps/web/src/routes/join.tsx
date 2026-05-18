@@ -19,8 +19,8 @@ function JoinRoomPage() {
     e.preventDefault()
     const cleanName = name.trim()
     const cleanCode = code.trim().toUpperCase()
-    if (!cleanName) return setError('Ingresá tu nombre.')
-    if (!cleanCode || cleanCode.length < 4) return setError('Ingresá el código completo.')
+    if (!cleanName) return setError('Enter your name.')
+    if (!cleanCode || cleanCode.length < 4) return setError('Enter the full room code.')
     setLoading(true)
     setError(null)
     try {
@@ -29,10 +29,10 @@ function JoinRoomPage() {
       navigate({ to: '/lobby/$code', params: { code: cleanCode } })
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.status === 404) setError('No encontramos esa sala.')
-        else if (err.status === 409) setError('La sala ya está llena o empezó.')
+        if (err.status === 404) setError('Room not found.')
+        else if (err.status === 409) setError('Room is full or already started.')
         else setError(err.message)
-      } else setError('No se pudo unir.')
+      } else setError('Could not join.')
     } finally {
       setLoading(false)
     }
@@ -40,20 +40,20 @@ function JoinRoomPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Volver</a>
+      <a href="/" className={styles.back}>← Back</a>
       <div className={styles.layout}>
         <aside className={styles.aside}>
-          <span className="kicker">Ficha · Retador</span>
-          <h1 className={styles.title}>Unirse</h1>
+          <span className="kicker">Profile · Challenger</span>
+          <h1 className={styles.title}>Join Room</h1>
           <p className={styles.body}>
-            Pegá el <strong>código de sala</strong> que te compartieron. Si la
-            sala existe y tiene cupo, entrás directo al lobby.
+            Paste the <strong>room code</strong> your rival shared with you.
+            If the room exists and has a slot, you go straight to the lobby.
           </p>
         </aside>
         <form className={styles.formPanel + ' panel'} onSubmit={onSubmit}>
           <span className="panel__chip">PP-EVO / JOIN</span>
           <label className={styles.label}>
-            <span>Nombre del entrenador</span>
+            <span>Trainer name</span>
             <input
               className="input"
               autoFocus
@@ -64,7 +64,7 @@ function JoinRoomPage() {
             />
           </label>
           <label className={styles.label}>
-            <span>Código de sala</span>
+            <span>Room code</span>
             <input
               className="input"
               maxLength={6}
@@ -76,7 +76,7 @@ function JoinRoomPage() {
           </label>
           {error && <p className={styles.error}>{error}</p>}
           <button className="btn btn--hot" type="submit" disabled={loading}>
-            {loading ? 'Uniendo...' : '→ Entrar'}
+            {loading ? 'Joining...' : '→ Enter'}
           </button>
         </form>
       </div>

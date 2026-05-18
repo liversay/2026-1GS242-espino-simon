@@ -17,7 +17,7 @@ function CreateRoomPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     const clean = name.trim()
-    if (!clean) return setError('Ingresá tu nombre.')
+    if (!clean) return setError('Enter your name.')
     setLoading(true)
     setError(null)
     try {
@@ -25,7 +25,7 @@ function CreateRoomPage() {
       savePlayer(r.code, r.playerId, clean)
       navigate({ to: '/lobby/$code', params: { code: r.code } })
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'No se pudo crear la sala.')
+      setError(err instanceof ApiError ? err.message : 'Could not create room.')
     } finally {
       setLoading(false)
     }
@@ -33,20 +33,20 @@ function CreateRoomPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Volver</a>
+      <a href="/" className={styles.back}>← Back</a>
       <div className={styles.layout}>
         <aside className={styles.aside}>
-          <span className="kicker">Ficha · Entrenador</span>
-          <h1 className={styles.title}>Crear sala</h1>
+          <span className="kicker">Profile · Trainer</span>
+          <h1 className={styles.title}>Create Room</h1>
           <p className={styles.body}>
-            Vas a ser <strong>el anfitrión</strong>. Te toca elegir el escenario
-            de batalla. El código de sala se generará al confirmar.
+            You will be <strong>the host</strong>. You get to choose the
+            battle stage. The room code will be generated on confirm.
           </p>
         </aside>
         <form className={styles.formPanel + ' panel'} onSubmit={onSubmit}>
           <span className="panel__chip">PP-EVO / CREATE</span>
           <label className={styles.label}>
-            <span>Nombre del entrenador</span>
+            <span>Trainer name</span>
             <input
               className="input"
               autoFocus
@@ -58,7 +58,7 @@ function CreateRoomPage() {
           </label>
           {error && <p className={styles.error}>{error}</p>}
           <button className="btn btn--hot" type="submit" disabled={loading}>
-            {loading ? 'Creando...' : '→ Generar código'}
+            {loading ? 'Creating...' : '→ Generate code'}
           </button>
         </form>
       </div>

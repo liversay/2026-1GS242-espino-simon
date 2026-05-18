@@ -9,20 +9,20 @@ interface Props {
 function entryText(e: LogEntry): string {
   switch (e.kind) {
     case 'announce':       return e.text
-    case 'move':           return `¡${e.pokemonName} usó ${e.moveName}!`
-    case 'damage':         return e.isCrit ? `¡Golpe crítico! Daño: ${e.amount}.` : `Daño: ${e.amount}.`
-    case 'miss':           return `¡${e.pokemonName} falló!`
-    case 'status-apply':   return `Estado aplicado: ${e.status}.`
-    case 'status-tick':    return `El estado ${e.status} hizo ${e.amount} de daño.`
-    case 'status-end':     return `El estado ${e.status} terminó.`
-    case 'switch':         return `¡Adelante, ${e.pokemonName}!`
-    case 'faint':          return `¡${e.pokemonName} se debilitó!`
+    case 'move':           return `${e.pokemonName} used ${e.moveName}!`
+    case 'damage':         return e.isCrit ? `Critical hit! Damage: ${e.amount}.` : `Damage: ${e.amount}.`
+    case 'miss':           return `${e.pokemonName} missed!`
+    case 'status-apply':   return `${e.status} was applied.`
+    case 'status-tick':    return `${e.status} dealt ${e.amount} damage.`
+    case 'status-end':     return `${e.status} wore off.`
+    case 'switch':         return `Go, ${e.pokemonName}!`
+    case 'faint':          return `${e.pokemonName} fainted!`
     case 'effectiveness':
-      if (e.effectiveness === 'super') return '¡Es súper efectivo!'
-      if (e.effectiveness === 'low')   return 'No es muy efectivo…'
-      if (e.effectiveness === 'none')  return 'No tuvo efecto…'
+      if (e.effectiveness === 'super') return "It's super effective!"
+      if (e.effectiveness === 'low')   return "It's not very effective…"
+      if (e.effectiveness === 'none')  return "It had no effect…"
       return ''
-    case 'victory':        return `¡${e.winnerName} es el campeón!`
+    case 'victory':        return `${e.winnerName} is the champion!`
   }
 }
 

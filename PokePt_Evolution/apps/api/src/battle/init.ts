@@ -71,8 +71,8 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
     players,
     currentTurnPlayerId: null,
     mustSwitchPlayerId: null,
-    coinFlip: { guestChoice: null, result: null, winnerId: null, completedAt: null },
-    log: [{ kind: 'announce', text: '¡La batalla comienza! El visitante elige cara o cruz.' }],
+    coinFlip: { guestChoice: null, result: null, winnerId: null, completedAt: null, acknowledgedAt: null },
+    log: [{ kind: 'announce', text: 'Battle begins! The challenger picks heads or tails.' }],
     createdAt: now,
     updatedAt: now,
   }

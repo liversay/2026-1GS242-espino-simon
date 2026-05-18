@@ -35,16 +35,16 @@ export function VictoryBanner({ winnerName, loserName, isMe }: Props) {
       </div>
       <div className={`${styles.panel} bounce-in`}>
         <div className={styles.left}>
-          <span className="kicker">Resultado</span>
+          <span className="kicker">Result</span>
           <h2 className={`${styles.title} anim-shimmer`}>
-            {isMe ? '¡VICTORIA!' : 'DERROTA…'}
+            {isMe ? 'VICTORY!' : 'DEFEAT…'}
           </h2>
           <p className={styles.body}>
-            <strong>{winnerName}</strong> venció a <strong>{loserName}</strong>.
+            <strong>{winnerName}</strong> defeated <strong>{loserName}</strong>.
           </p>
         </div>
         <div className={styles.right}>
-          <Link to="/" className="btn btn--hot">→ Volver al inicio</Link>
+          <Link to="/" className="btn btn--hot">→ Back to home</Link>
         </div>
       </div>
     </>
