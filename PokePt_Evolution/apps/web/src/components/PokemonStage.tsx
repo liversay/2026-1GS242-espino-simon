@@ -39,7 +39,7 @@ export function PokemonStage({ pokemon, side, animation, damageNumber }: Props) 
               }}
             >
               -{damageNumber.value}
-              {damageNumber.isCrit && <span className={styles.critTag}>¡CRIT!</span>}
+              {damageNumber.isCrit && <span className={styles.critTag}>CRIT!</span>}
             </span>
           </div>
         )}
