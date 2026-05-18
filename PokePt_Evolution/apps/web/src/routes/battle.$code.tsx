@@ -12,6 +12,7 @@ import { SwitchMenu } from '../components/SwitchMenu'
 import { BattleLog } from '../components/BattleLog'
 import { VictoryBanner } from '../components/VictoryBanner'
 import { CoinFlip, isCoinFlipPhase } from '../components/CoinFlip'
+import { TypeChart } from '../components/TypeChart'
 import styles from './battle.module.css'
 
 export const Route = createFileRoute('/battle/$code')({
@@ -19,6 +20,7 @@ export const Route = createFileRoute('/battle/$code')({
 })
 
 type Effectiveness = 'super' | 'normal' | 'low' | 'none'
+type BattleMenuMode = 'main' | 'fight'
 
 interface AnimState {
   allyAnim: string | null
@@ -48,7 +50,10 @@ function BattlePage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [anim, setAnim] = useState<AnimState>(EMPTY_ANIM)
   const [showSwitchMenu, setShowSwitchMenu] = useState(false)
-  /** true cuando la cola de animaciones ya alcanzó el último log del backend. */
+  const [battleMenuMode, setBattleMenuMode] = useState<BattleMenuMode>('main')
+  const [showTypeChart, setShowTypeChart] = useState(false)
+  const [surrenderConfirm, setSurrenderConfirm] = useState(false)
+  /** true when the animation queue has caught up to the latest backend log. */
   const [animationDone, setAnimationDone] = useState(true)
 
   const { data: battle, refetch } = usePolling(
@@ -62,10 +67,7 @@ function BattlePage() {
   const myActive = me ? me.team[me.activeIndex] : null
   const foeActive = foe ? foe.team[foe.activeIndex] : null
 
-  // ─── Cola de animaciones con ref + lock ──────────────────────────────────
-  // Mantenemos un ref siempre actualizado al último log y un lock booleano
-  // para evitar reentries. Cuando llegan nuevos logs vía polling durante una
-  // animación en curso, el loop while sigue procesándolos sin duplicar.
+  // ─── Animation queue with ref + lock ─────────────────────────────────────
   const logRef = useRef<LogEntry[]>([])
   const seenRef = useRef(0)
   const animatingRef = useRef(false)
@@ -94,20 +96,26 @@ function BattlePage() {
     })()
   }, [battle?.log.length])
 
-  // ─── Switch forzado: abrir menú DESPUÉS de la animación de faint ────────
+  // ─── Forced switch: open menu AFTER faint animation ──────────────────────
   const mustSwitch = !!battle && battle.mustSwitchPlayerId === playerId
   useEffect(() => {
-    // Solo abrir cuando ya se procesó la animación de debilitamiento.
     if (mustSwitch && animationDone) setShowSwitchMenu(true)
   }, [mustSwitch, animationDone])
 
-  // ─── Permisos de input ──────────────────────────────────────────────────
+  // ─── Input permissions ────────────────────────────────────────────────────
   const isMyTurn = !!battle && battle.status === 'in-progress' && battle.currentTurnPlayerId === playerId
   const coinFlipping = !!battle && isCoinFlipPhase(battle)
   const finished = !!battle && battle.status === 'finished'
-  // Si debo switchar, solo puedo hacer switch (no atacar).
   const canAttack = !!battle && battle.status === 'in-progress' && isMyTurn && !mustSwitch && !coinFlipping && !actionPending
   const canSwitch = canAttack || mustSwitch
+
+  // Reset action menu when turn ends
+  useEffect(() => {
+    if (!isMyTurn) {
+      setBattleMenuMode('main')
+      setSurrenderConfirm(false)
+    }
+  }, [isMyTurn])
 
   async function sendMove(moveId: number) {
     if (!playerId || !canAttack) return
@@ -124,23 +132,48 @@ function BattlePage() {
     try {
       await api.sendAction(code, playerId, action)
       setShowSwitchMenu(false)
+      setBattleMenuMode('main')
       refetch()
     } catch (err) {
       if (err instanceof ApiError) setErrorMsg(err.message)
-      else setErrorMsg('No se pudo enviar la acción.')
+      else setErrorMsg('Could not send action.')
+    } finally {
+      setActionPending(false)
+    }
+  }
+  async function handleAcknowledgeFlip() {
+    if (!playerId) return
+    try {
+      await api.acknowledgeFlip(code, playerId)
+      refetch()
+    } catch {
+      // polling will update both screens on next tick
+    }
+  }
+  async function handleForfeit() {
+    if (!playerId) return
+    setActionPending(true)
+    setErrorMsg(null)
+    try {
+      await api.forfeit(code, playerId)
+      setSurrenderConfirm(false)
+      refetch()
+    } catch (err) {
+      if (err instanceof ApiError) setErrorMsg(err.message)
+      else setErrorMsg('Could not forfeit.')
     } finally {
       setActionPending(false)
     }
   }
 
   if (!playerId) {
-    return <main className={styles.shell}><p>Sin sesión. <a href="/">Volver</a></p></main>
+    return <main className={styles.shell}><p>No session. <a href="/">Go home</a></p></main>
   }
   if (!battle) {
-    return <main className={styles.shell}><p>Cargando batalla…</p></main>
+    return <main className={styles.shell}><p>Loading battle…</p></main>
   }
   if (!me || !foe || !myActive || !foeActive) {
-    return <main className={styles.shell}><p>Esta batalla no corresponde a tu sesión.</p></main>
+    return <main className={styles.shell}><p>This battle does not match your session.</p></main>
   }
 
   const turnPlayerName = battle.currentTurnPlayerId
@@ -149,18 +182,20 @@ function BattlePage() {
   const foeMustSwitch = battle.mustSwitchPlayerId === foe.id
 
   const turnInfo = (() => {
-    if (finished) return 'Batalla finalizada.'
-    if (coinFlipping) return 'Coin flip en curso…'
-    if (mustSwitch) return '¡Tu Pokémon fue debilitado! Elegí el siguiente.'
-    if (foeMustSwitch) return `${foe.name} está eligiendo su próximo Pokémon…`
-    if (isMyTurn) return 'Tu turno · elegí movimiento o cambio.'
-    return `Turno de ${turnPlayerName ?? foe.name}…`
+    if (finished) return 'Battle over.'
+    if (coinFlipping) return 'Coin flip in progress…'
+    if (mustSwitch) return 'Your Pokémon fainted! Choose the next one.'
+    if (foeMustSwitch) return `${foe.name} is choosing their next Pokémon…`
+    if (isMyTurn) return 'Your turn · choose a move or switch.'
+    return `${turnPlayerName ?? foe.name}'s turn…`
   })()
+
+  const noSwitchable = me.team.filter((p, i) => i !== me.activeIndex && !p.fainted).length === 0
 
   return (
     <main className={`${styles.shell} ${anim.shake ? 'anim-shake' : ''}`}>
       <header className={styles.topbar}>
-        <span className="kicker">Turno {Math.max(1, battle.turn)}</span>
+        <span className="kicker">Turn {Math.max(1, battle.turn)}</span>
         <span className={styles.vs}>
           <strong className={battle.currentTurnPlayerId === me.id ? styles.activePlayer : ''}>{me.name}</strong>
           <span className={styles.vsLabel}>vs</span>
@@ -208,32 +243,94 @@ function BattlePage() {
           <HpBox pokemon={myActive} side="ally" />
         </div>
 
-        {coinFlipping && <CoinFlip battle={battle} myPlayerId={playerId} />}
+        {coinFlipping && (
+          <CoinFlip
+            battle={battle}
+            myPlayerId={playerId}
+            onContinue={handleAcknowledgeFlip}
+          />
+        )}
       </section>
 
       <section className={styles.controls}>
-        <div className={styles.moves}>
-          {myActive.moves.map((m) => (
-            <MoveButton
-              key={m.moveId}
-              move={m}
-              disabled={!canAttack || myActive.fainted}
-              onUse={() => sendMove(m.moveId)}
-            />
-          ))}
-        </div>
+        {/* Left panel: action menu or moves */}
+        {isMyTurn && !mustSwitch && !coinFlipping && !finished ? (
+          battleMenuMode === 'fight' ? (
+            <div className={styles.moves}>
+              {myActive.moves.map((m) => (
+                <MoveButton
+                  key={m.moveId}
+                  move={m}
+                  disabled={actionPending || myActive.fainted}
+                  onUse={() => sendMove(m.moveId)}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.actionMenu}>
+              <button
+                className={`${styles.actionBtn} ${styles.actionFight}`}
+                type="button"
+                onClick={() => setBattleMenuMode('fight')}
+              >
+                ⚔ FIGHT
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.actionSwitch}`}
+                type="button"
+                onClick={() => setShowSwitchMenu(true)}
+                disabled={noSwitchable}
+              >
+                ↺ POKEMON
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.actionRun}`}
+                type="button"
+                onClick={() => setSurrenderConfirm(true)}
+              >
+                🏳 RUN
+              </button>
+              <button
+                className={`${styles.actionBtn} ${styles.actionHelp}`}
+                type="button"
+                onClick={() => setShowTypeChart(true)}
+              >
+                ? HELP
+              </button>
+            </div>
+          )
+        ) : (
+          <div className={styles.moves}>
+            {myActive.moves.map((m) => (
+              <MoveButton key={m.moveId} move={m} disabled={true} />
+            ))}
+          </div>
+        )}
+
+        {/* Right panel: info + back/confirm */}
         <div className={styles.side}>
-          <button
-            className="btn"
-            type="button"
-            onClick={() => setShowSwitchMenu(true)}
-            disabled={!canSwitch || me.team.filter((p, i) => i !== me.activeIndex && !p.fainted).length === 0}
-          >
-            ⇄ Cambiar Pokémon
-          </button>
-          <p className={`${styles.turnInfo} ${isMyTurn || mustSwitch ? styles.turnInfoMine : ''}`}>
-            {turnInfo}
-          </p>
+          {battleMenuMode === 'fight' && isMyTurn && !mustSwitch && (
+            <button className="btn" type="button" onClick={() => setBattleMenuMode('main')}>
+              ← Back
+            </button>
+          )}
+          {surrenderConfirm ? (
+            <div className={styles.confirmBox}>
+              <p className={styles.confirmMsg}>Forfeit the battle?</p>
+              <div className={styles.confirmBtns}>
+                <button className="btn btn--hot" type="button" onClick={handleForfeit} disabled={actionPending}>
+                  Yes, forfeit
+                </button>
+                <button className="btn" type="button" onClick={() => setSurrenderConfirm(false)}>
+                  Cancel
+                </button>
+              </div>
+            </div>
+          ) : (
+            <p className={`${styles.turnInfo} ${isMyTurn || mustSwitch ? styles.turnInfoMine : ''}`}>
+              {turnInfo}
+            </p>
+          )}
           {errorMsg && <p className={styles.error}>⚠ {errorMsg}</p>}
         </div>
       </section>
@@ -249,11 +346,13 @@ function BattlePage() {
           onClose={() => { if (!mustSwitch) setShowSwitchMenu(false) }}
         />
       )}
+
+      {showTypeChart && <TypeChart onClose={() => setShowTypeChart(false)} />}
     </main>
   )
 }
 
-// ─── Reproducir UNA entrada del log ──────────────────────────────────────
+// ─── Play ONE log entry ───────────────────────────────────────────────────
 async function playEntry(
   e: LogEntry,
   myId: string | undefined,
@@ -270,8 +369,6 @@ async function playEntry(
     await sleep(500)
     setAnim((s) => ({ ...s, allyAnim: null, foeAnim: null }))
   } else if (e.kind === 'damage') {
-    // target = el activo del jugador opuesto al atacante.
-    // e.playerId es el ATACANTE; el daño lo recibe el otro lado.
     const targetIsAlly = e.playerId === foeId
     setAnim((s) => ({
       ...s,
@@ -298,8 +395,6 @@ async function playEntry(
     }))
     await sleep(700)
   } else if (e.kind === 'switch') {
-    // Al cambiar Pokémon, limpiamos cualquier animación residual (faint/hit)
-    // del slot que cambia, así el nuevo sprite aparece limpio.
     const isAlly = e.playerId === myId
     setAnim((s) => ({
       ...s,

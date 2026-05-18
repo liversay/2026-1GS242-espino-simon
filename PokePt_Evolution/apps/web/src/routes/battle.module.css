@@ -39,27 +39,27 @@
 .field {
   position: relative;
   width: 100%;
-  aspect-ratio: 16 / 7;
-  min-height: 320px;
+  aspect-ratio: 16 / 8;
+  min-height: 370px;
   border: var(--panel-border);
   box-shadow: var(--panel-shadow);
   overflow: hidden;
   clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
 }
 
-/* Cada HpBox va al MISMO lado que su sprite:
-   - rival (foe): arriba a la DERECHA (junto al sprite del rival)
-   - aliado (ally): abajo a la IZQUIERDA (junto al sprite del aliado) */
+/* Classic Pokémon layout: each HpBox is on the OPPOSITE side from its sprite.
+   - foe sprite: top-right → HpBox at top-LEFT
+   - ally sprite: bottom-left → HpBox at bottom-RIGHT */
 .foeBox {
   position: absolute;
   top: 14px;
-  right: 16px;
+  left: 16px;
   z-index: 4;
 }
 .allyBox {
   position: absolute;
   bottom: 14px;
-  left: 16px;
+  right: 16px;
   z-index: 4;
 }
 
@@ -85,6 +85,72 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 10px;
+}
+
+/* ── Action menu (main battle options) ─────────────────────────────────── */
+.actionMenu {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  overflow: hidden;
+  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
+}
+
+.actionBtn {
+  height: 76px;
+  padding: 0 18px;
+  font-family: var(--font-display);
+  font-size: 18px;
+  letter-spacing: 0.1em;
+  color: var(--pp-paper);
+  background: var(--pp-deep);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  cursor: pointer;
+  transition: background 110ms, color 110ms;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.actionBtn:hover:not(:disabled) {
+  background: var(--pp-steel);
+  color: var(--pp-ink);
+}
+
+.actionBtn:active:not(:disabled) {
+  background: var(--pp-ink);
+  color: var(--pp-electric);
+}
+
+.actionBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.actionFight { border-right-color: rgba(255,255,255,0.18); }
+.actionSwitch { }
+.actionRun { color: var(--pp-hot); }
+.actionHelp { color: var(--pp-electric); }
+
+/* ── Surrender confirmation ────────────────────────────────────────────── */
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.confirmMsg {
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--pp-hot);
+  font-weight: bold;
+}
+.confirmBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
 .side {
