@@ -1,0 +1,73 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.header { display: flex; flex-direction: column; gap: 4px; }
+.h3 {
+  font-family: var(--font-sub);
+  font-size: 26px;
+  color: var(--pp-paper);
+}
+
+.carousel {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 6px 4px 14px;
+}
+.carousel::-webkit-scrollbar { height: 8px; }
+.carousel::-webkit-scrollbar-thumb { background: var(--pp-steel); }
+
+.card {
+  flex: 0 0 240px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  background: var(--pp-deep);
+  scroll-snap-align: start;
+  transition: transform 120ms, box-shadow 120ms, outline 120ms;
+  padding: 0;
+}
+.card:not(:disabled):hover {
+  transform: translateY(-3px);
+  box-shadow: 4px 7px 0 var(--pp-shadow);
+}
+.cardActive {
+  outline: 4px solid var(--pp-hot);
+  outline-offset: -4px;
+  transform: scale(1.04);
+}
+.card:disabled { cursor: not-allowed; }
+
+.previewWrap {
+  position: relative;
+  width: 100%;
+  height: 130px;
+  overflow: hidden;
+  border-bottom: 3px solid var(--pp-ink);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 10px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+}
+.cardName {
+  font-family: var(--font-sub);
+  font-size: 18px;
+}
+.badge {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  background: var(--pp-hot);
+  color: var(--pp-paper);
+  padding: 3px 6px;
+}

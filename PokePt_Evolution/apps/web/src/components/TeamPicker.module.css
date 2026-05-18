@@ -1,0 +1,104 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.h3 {
+  font-family: var(--font-sub);
+  font-size: 32px;
+  color: var(--pp-paper);
+  line-height: 1;
+}
+.muted { color: var(--pp-platinum); font-family: var(--font-body); }
+.error { color: var(--pp-hot); font-family: var(--font-body); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.grid::-webkit-scrollbar { width: 8px; }
+.grid::-webkit-scrollbar-thumb { background: var(--pp-steel); }
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  text-align: center;
+  font-family: var(--font-body);
+  transition: transform 100ms, box-shadow 100ms, filter 100ms;
+}
+.card img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2));
+}
+.card:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 4px 7px 0 var(--pp-shadow), 0 0 16px var(--type-glow, var(--pp-electric));
+}
+.card:disabled { opacity: 0.35; cursor: not-allowed; }
+.cardPicked {
+  background: var(--pp-electric);
+  outline: 3px solid var(--pp-hot);
+  outline-offset: -3px;
+}
+.checkmark {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-family: var(--font-display);
+  font-size: 16px;
+  color: var(--pp-hot);
+  background: var(--pp-paper);
+  border: 2px solid var(--pp-ink);
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.dexId {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--pp-steel);
+}
+.name {
+  font-family: var(--font-sub);
+  font-size: 20px;
+  text-transform: capitalize;
+}
+.types {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pageInfo {
+  font-family: var(--font-body);
+  color: var(--pp-platinum);
+}
