@@ -195,11 +195,12 @@ export async function applyTurn(
     // No hay switch forzado pendiente.
     battle.mustSwitchPlayerId = null
     if (wasForcedSwitch) {
-      // Acabo de resolver MI switch forzado: el turno pasa al rival.
-      battle.currentTurnPlayerId = other.id
-      log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
+      // Recién resolví MI switch forzado: NO pierdo el turno, sigo yo. Eligir
+      // el siguiente Pokémon no consume el turno (regla del juego).
+      log.push({ kind: 'announce', text: `¡${actor.name} ahora puede atacar!` })
+      log.push({ kind: 'turn-start', playerId: actor.id, playerName: actor.name })
     } else {
-      // Turno normal: paso al rival.
+      // Turno normal (move o switch voluntario): paso al rival.
       battle.currentTurnPlayerId = other.id
       log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
     }

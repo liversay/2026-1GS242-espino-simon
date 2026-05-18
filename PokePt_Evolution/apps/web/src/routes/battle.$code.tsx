@@ -48,6 +48,8 @@ function BattlePage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [anim, setAnim] = useState<AnimState>(EMPTY_ANIM)
   const [showSwitchMenu, setShowSwitchMenu] = useState(false)
+  /** true cuando la cola de animaciones ya alcanzó el último log del backend. */
+  const [animationDone, setAnimationDone] = useState(true)
 
   const { data: battle, refetch } = usePolling(
     () => api.getBattle(code),
@@ -77,6 +79,7 @@ function BattlePage() {
     logRef.current = battle.log
     if (animatingRef.current) return
     animatingRef.current = true
+    setAnimationDone(false)
     void (async () => {
       try {
         while (seenRef.current < logRef.current.length) {
@@ -86,15 +89,17 @@ function BattlePage() {
         }
       } finally {
         animatingRef.current = false
+        setAnimationDone(true)
       }
     })()
   }, [battle?.log.length])
 
-  // ─── Switch forzado: abrir menú automáticamente ──────────────────────────
+  // ─── Switch forzado: abrir menú DESPUÉS de la animación de faint ────────
   const mustSwitch = !!battle && battle.mustSwitchPlayerId === playerId
   useEffect(() => {
-    if (mustSwitch) setShowSwitchMenu(true)
-  }, [mustSwitch])
+    // Solo abrir cuando ya se procesó la animación de debilitamiento.
+    if (mustSwitch && animationDone) setShowSwitchMenu(true)
+  }, [mustSwitch, animationDone])
 
   // ─── Permisos de input ──────────────────────────────────────────────────
   const isMyTurn = !!battle && battle.status === 'in-progress' && battle.currentTurnPlayerId === playerId
@@ -182,6 +187,7 @@ function BattlePage() {
         )}
 
         <PokemonStage
+          key={`foe-${foe.activeIndex}-${foeActive.speciesId}`}
           pokemon={foeActive}
           side="foe"
           animation={anim.foeAnim ?? undefined}
@@ -192,6 +198,7 @@ function BattlePage() {
         </div>
 
         <PokemonStage
+          key={`ally-${me.activeIndex}-${myActive.speciesId}`}
           pokemon={myActive}
           side="ally"
           animation={anim.allyAnim ?? undefined}
@@ -291,6 +298,16 @@ async function playEntry(
     }))
     await sleep(700)
   } else if (e.kind === 'switch') {
+    // Al cambiar Pokémon, limpiamos cualquier animación residual (faint/hit)
+    // del slot que cambia, así el nuevo sprite aparece limpio.
+    const isAlly = e.playerId === myId
+    setAnim((s) => ({
+      ...s,
+      allyAnim: isAlly ? null : s.allyAnim,
+      foeAnim: !isAlly ? null : s.foeAnim,
+      allyDmg: isAlly ? null : s.allyDmg,
+      foeDmg: !isAlly ? null : s.foeDmg,
+    }))
     await sleep(350)
   } else {
     await sleep(180)
