@@ -153,6 +153,19 @@
 
 .bannerPlaceholder { height: 80px; }
 
+.continueBtn {
+  margin-top: 8px;
+  align-self: center;
+}
+
+.waitMsg {
+  margin-top: 10px;
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--pp-steel);
+  text-align: center;
+}
+
 .banner {
   display: flex;
   flex-direction: column;

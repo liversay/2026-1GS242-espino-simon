@@ -79,6 +79,18 @@ export const api = {
       body: JSON.stringify({ playerId, action }),
     }),
 
+  forfeit: (code: string, playerId: string) =>
+    req<Battle>(`/battles/${code}/forfeit`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId }),
+    }),
+
+  acknowledgeFlip: (code: string, playerId: string) =>
+    req<Battle>(`/battles/${code}/coinflip-acknowledge`, {
+      method: 'POST',
+      body: JSON.stringify({ playerId }),
+    }),
+
   listPokemon: (params: { page?: number; pageSize?: number; search?: string } = {}) => {
     const q = new URLSearchParams()
     if (params.page) q.set('page', String(params.page))

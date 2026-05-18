@@ -170,7 +170,12 @@ export interface CoinFlipState {
   result: CoinFace | null
   winnerId: string | null
   completedAt: string | null
+  /** Set when the guest clicks Continue; hides the overlay for both players. */
+  acknowledgedAt: string | null
 }
+
+/** Pokédex IDs of legendary/mythical Pokémon available in the first 340. */
+export const LEGENDARY_IDS: number[] = [144, 145, 146, 150, 151, 243, 244, 245, 249, 250, 251]
 
 export interface Battle {
   roomCode: string

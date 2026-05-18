@@ -5,6 +5,8 @@ import { getBattle, replaceBattle } from '../db/repo/battleRepo'
 import { applyCoinFlipChoice, applyTurn } from '../battle/engine'
 import type { BattleAction } from '@pokept/shared'
 
+
+
 export const battleRoutes = new Hono()
 
 // ─── GET /battles/:code ───────────────────────────────────────────────────
@@ -39,6 +41,29 @@ battleRoutes.post('/:code/coin-flip-choice', async (c) => {
   if (!player) return c.json({ error: 'player_not_in_battle' }, 403)
 
   applyCoinFlipChoice(battle, choice)
+  await replaceBattle(db, battle)
+  return c.json(battle)
+})
+
+// ─── POST /battles/:code/coinflip-acknowledge { playerId } ──────────────
+const acknowledgeSchema = z.object({ playerId: z.string().min(1) })
+
+battleRoutes.post('/:code/coinflip-acknowledge', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = acknowledgeSchema.safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+  const { playerId } = parsed.data
+
+  const db = await getDb()
+  const battle = await getBattle(db, code)
+  if (!battle) return c.json({ error: 'not_found' }, 404)
+  if (battle.coinFlip.acknowledgedAt) return c.json(battle) // already acknowledged
+  if (playerId === battle.hostPlayerId) return c.json({ error: 'only_guest_acknowledges' }, 403)
+  const player = battle.players.find((p) => p.id === playerId)
+  if (!player) return c.json({ error: 'player_not_in_battle' }, 403)
+
+  battle.coinFlip.acknowledgedAt = new Date().toISOString()
   await replaceBattle(db, battle)
   return c.json(battle)
 })
@@ -98,6 +123,33 @@ battleRoutes.post('/:code/action', async (c) => {
   }
 
   await applyTurn(db, battle, playerId, action as BattleAction)
+  await replaceBattle(db, battle)
+  return c.json(battle)
+})
+
+// ─── POST /battles/:code/forfeit { playerId } ────────────────────────────
+const forfeitSchema = z.object({ playerId: z.string().min(1) })
+
+battleRoutes.post('/:code/forfeit', async (c) => {
+  const code = c.req.param('code').toUpperCase()
+  const body = await c.req.json().catch(() => ({}))
+  const parsed = forfeitSchema.safeParse(body)
+  if (!parsed.success) return c.json({ error: 'invalid_payload' }, 400)
+  const { playerId } = parsed.data
+
+  const db = await getDb()
+  const battle = await getBattle(db, code)
+  if (!battle) return c.json({ error: 'not_found' }, 404)
+  if (battle.status !== 'in-progress') return c.json({ error: 'battle_not_in_progress' }, 409)
+
+  const loser = battle.players.find((p) => p.id === playerId)
+  if (!loser) return c.json({ error: 'player_not_in_battle' }, 403)
+
+  const winner = battle.players.find((p) => p.id !== playerId)!
+  battle.status = 'finished'
+  battle.winnerId = winner.id
+  battle.log.push({ kind: 'victory', winnerId: winner.id, winnerName: winner.name })
+
   await replaceBattle(db, battle)
   return c.json(battle)
 })
