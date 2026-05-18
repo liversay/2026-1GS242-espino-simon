@@ -6,7 +6,7 @@ import { insertRoom, getRoom, updateRoom } from '../db/repo/roomRepo'
 import { getPokemonByDexIds } from '../db/repo/pokemonRepo'
 import { insertBattle } from '../db/repo/battleRepo'
 import { buildInitialBattle } from '../battle/init'
-import { ALL_STAGE_IDS, type Room, type RoomPlayer, type StageId } from '@pokept/shared'
+import { ALL_STAGE_IDS, LEGENDARY_IDS, type Room, type RoomPlayer, type StageId } from '@pokept/shared'
 
 const codeNano = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6)
 const playerNano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 16)
@@ -87,6 +87,10 @@ roomRoutes.post('/:code/team', async (c) => {
   const unique = [...new Set(parsed.data.pokedexIds)]
   if (unique.length !== parsed.data.pokedexIds.length) {
     return c.json({ error: 'duplicate_pokemon' }, 400)
+  }
+  const legendaryCount = unique.filter((id) => LEGENDARY_IDS.includes(id)).length
+  if (legendaryCount > 1) {
+    return c.json({ error: 'too_many_legendaries' }, 400)
   }
   const found = await getPokemonByDexIds(db, unique)
   if (found.length !== unique.length) {
