@@ -1,0 +1,243 @@
+/* Catálogo de animaciones — PokePt Evolution
+   25 keyframes para escena de batalla, splash, status overlays, victory. */
+
+/* ---------- Sprites idle / movimiento ---------- */
+@keyframes idle-bob {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(-3px); }
+}
+.anim-idle { animation: idle-bob 1.2s ease-in-out infinite alternate; }
+
+@keyframes attack-lunge-ally {
+  0%   { transform: translate(0, 0); }
+  35%  { transform: translate(40px, -28px); }
+  60%  { transform: translate(36px, -24px); }
+  100% { transform: translate(0, 0); }
+}
+.anim-attack-ally { animation: attack-lunge-ally 500ms cubic-bezier(.42,0,.58,1); }
+
+@keyframes attack-lunge-foe {
+  0%   { transform: translate(0, 0); }
+  35%  { transform: translate(-40px, 28px); }
+  60%  { transform: translate(-36px, 24px); }
+  100% { transform: translate(0, 0); }
+}
+.anim-attack-foe { animation: attack-lunge-foe 500ms cubic-bezier(.42,0,.58,1); }
+
+@keyframes attack-flash {
+  0%, 100% { filter: brightness(1); }
+  20%      { filter: brightness(2.4) saturate(1.2); }
+  40%      { filter: brightness(1); }
+}
+.anim-attack-flash { animation: attack-flash 240ms ease-out; }
+
+/* ---------- Recibir daño ---------- */
+@keyframes hit-shake {
+  0%   { transform: translateX(0); }
+  15%  { transform: translateX(-10px); }
+  30%  { transform: translateX(8px); }
+  45%  { transform: translateX(-6px); }
+  60%  { transform: translateX(4px); }
+  75%  { transform: translateX(-2px); }
+  100% { transform: translateX(0); }
+}
+.anim-hit-shake { animation: hit-shake 400ms ease-in-out; }
+
+@keyframes hit-tint {
+  0%   { filter: brightness(1) sepia(0); }
+  20%  { filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+  40%  { filter: brightness(1) sepia(0); }
+  60%  { filter: brightness(2) sepia(1) hue-rotate(-50deg); }
+  100% { filter: brightness(1) sepia(0); }
+}
+.anim-hit-tint { animation: hit-tint 400ms ease-out; }
+
+@keyframes damage-popup {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6); }
+  15%  { opacity: 1; transform: translateY(-8px) scale(1.1); }
+  100% { opacity: 0; transform: translateY(-50px) scale(1); }
+}
+.anim-damage-popup { animation: damage-popup 800ms ease-out forwards; }
+
+@keyframes damage-popup-crit {
+  0%   { opacity: 0; transform: translateY(0) scale(0.6) rotate(-10deg); }
+  15%  { opacity: 1; transform: translateY(-10px) scale(1.8) rotate(-6deg); }
+  100% { opacity: 0; transform: translateY(-60px) scale(1.4) rotate(-6deg); }
+}
+.anim-damage-popup-crit { animation: damage-popup-crit 1000ms ease-out forwards; }
+
+@keyframes crit-burst {
+  0%   { opacity: 0; transform: scale(0); }
+  30%  { opacity: 1; transform: scale(1); }
+  100% { opacity: 0; transform: scale(1.8); }
+}
+.anim-crit-burst { animation: crit-burst 500ms ease-out forwards; }
+
+/* ---------- Efectividad de tipo (overlay full-screen) ---------- */
+@keyframes super-effective-strobe {
+  0%, 100% { opacity: 0; }
+  10%, 30%, 50% { opacity: 0.6; }
+  20%, 40%, 60% { opacity: 0; }
+}
+.anim-super-effective { animation: super-effective-strobe 600ms ease-in-out forwards; }
+
+@keyframes not-very-effective-mute {
+  0%   { opacity: 0; }
+  20%  { opacity: 0.35; }
+  100% { opacity: 0; }
+}
+.anim-low-effective { animation: not-very-effective-mute 350ms ease-out forwards; }
+
+@keyframes no-effect-puff {
+  0%   { opacity: 0; transform: scale(0.5); }
+  30%  { opacity: 1; transform: scale(1.2); }
+  100% { opacity: 0; transform: scale(1.6) translateY(-10px); }
+}
+.anim-no-effect { animation: no-effect-puff 500ms ease-out forwards; }
+
+/* ---------- Debilitarse / switch ---------- */
+@keyframes faint-fall {
+  0%   { opacity: 1; transform: translateY(0); filter: grayscale(0); }
+  100% { opacity: 0; transform: translateY(80px); filter: grayscale(1) brightness(0.7); }
+}
+.anim-faint { animation: faint-fall 700ms ease-in forwards; }
+
+@keyframes switch-recall {
+  0%   { transform: scale(1); opacity: 1; filter: brightness(1); }
+  40%  { transform: scaleY(1) scaleX(0.85); opacity: 1; filter: brightness(3); }
+  100% { transform: scaleY(0.1) scaleX(0.05); opacity: 0; filter: brightness(5); }
+}
+.anim-recall { animation: switch-recall 500ms ease-in forwards; }
+
+@keyframes switch-summon {
+  0%   { transform: scaleY(0.1) scaleX(0.05); opacity: 0; filter: brightness(5); }
+  60%  { transform: scale(1.15); opacity: 1; filter: brightness(2); }
+  100% { transform: scale(1); opacity: 1; filter: brightness(1); }
+}
+.anim-summon { animation: switch-summon 500ms ease-out; }
+
+/* ---------- HP bar ---------- */
+@keyframes hp-low-pulse {
+  0%, 100% { background: var(--pp-hp-red); }
+  50%      { background: #7d1e1a; }
+}
+.anim-hp-low { animation: hp-low-pulse 0.6s ease-in-out infinite; }
+
+/* ---------- Estados ---------- */
+@keyframes status-burn-flicker {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.85; }
+}
+.anim-burn { animation: status-burn-flicker 1.2s ease-in-out infinite; }
+
+@keyframes status-poison-bubble {
+  0%   { opacity: 0; transform: translateY(0) scale(0.8); }
+  40%  { opacity: 1; transform: translateY(-22px) scale(1); }
+  100% { opacity: 0; transform: translateY(-44px) scale(0.6); }
+}
+.anim-poison { animation: status-poison-bubble 1.4s ease-in-out infinite; }
+
+@keyframes status-paralysis-spark {
+  0%, 100% { opacity: 0; }
+  10%, 30% { opacity: 1; }
+  20%, 40% { opacity: 0; }
+}
+.anim-paralysis { animation: status-paralysis-spark 0.9s ease-in-out infinite; }
+
+@keyframes stat-down-arrow {
+  0%   { opacity: 0; transform: translateY(-12px); }
+  20%  { opacity: 1; }
+  100% { opacity: 0; transform: translateY(14px); }
+}
+.anim-stat-down { animation: stat-down-arrow 800ms ease-out forwards; }
+
+/* ---------- Diálogo ---------- */
+@keyframes dialog-typewriter {
+  from { clip-path: inset(0 100% 0 0); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.anim-typewriter { animation: dialog-typewriter linear forwards; }
+
+@keyframes dialog-arrow-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.2; }
+}
+.anim-dialog-arrow { animation: dialog-arrow-blink 0.5s ease-in-out infinite; }
+
+/* ---------- Victoria ---------- */
+@keyframes victory-confetti {
+  0%   { opacity: 1; transform: translate(0, -10vh) rotate(0); }
+  100% { opacity: 1; transform: translate(var(--sway, 0px), 120vh) rotate(720deg); }
+}
+.anim-confetti {
+  animation: victory-confetti 4s linear infinite;
+  animation-delay: var(--delay, 0s);
+}
+
+@keyframes victory-shimmer {
+  0%   { background-position: 0% 0; }
+  100% { background-position: 200% 0; }
+}
+.anim-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--pp-electric) 0%,
+    var(--pp-hot) 25%,
+    var(--pp-paper) 50%,
+    var(--pp-hot) 75%,
+    var(--pp-electric) 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: victory-shimmer 2s linear infinite;
+}
+
+/* ---------- Splash / title ---------- */
+@keyframes title-letter-drop {
+  0%   { opacity: 0; transform: translateY(-60px) rotate(-8deg); }
+  60%  { opacity: 1; transform: translateY(8px) rotate(2deg); }
+  100% { opacity: 1; transform: translateY(0) rotate(0); }
+}
+.anim-title-drop {
+  animation: title-letter-drop 600ms cubic-bezier(.34,1.56,.64,1) backwards;
+}
+
+@keyframes title-glow {
+  0%, 100% { filter: drop-shadow(0 0 4px var(--pp-hot)) drop-shadow(0 0 12px rgba(248,225,108,0.5)); }
+  50%      { filter: drop-shadow(0 0 12px var(--pp-electric)) drop-shadow(0 0 24px rgba(255,91,62,0.7)); }
+}
+.anim-title-glow { animation: title-glow 2s ease-in-out infinite alternate; }
+
+/* ---------- Screen shake (crit fuerte) ---------- */
+@keyframes screen-shake {
+  0%, 100% { transform: translate(0, 0); }
+  20%      { transform: translate(-3px, -2px); }
+  40%      { transform: translate(2px, -3px); }
+  60%      { transform: translate(-2px, 2px); }
+  80%      { transform: translate(3px, 1px); }
+}
+.anim-shake { animation: screen-shake 250ms ease-in-out; }
+
+/* ---------- Utilities ---------- */
+.spin-slow { animation: spin-slow 60s linear infinite; }
+@keyframes spin-slow { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+
+.bounce-in {
+  animation: bounce-in 400ms cubic-bezier(.34,1.56,.64,1) backwards;
+}
+@keyframes bounce-in {
+  0%   { transform: scale(0); opacity: 0; }
+  60%  { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.slide-in-left {
+  animation: slide-in-left 350ms ease-out backwards;
+}
+@keyframes slide-in-left {
+  0%   { transform: translateX(-30px); opacity: 0; }
+  100% { transform: translateX(0); opacity: 1; }
+}

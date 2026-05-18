@@ -1,0 +1,70 @@
+/* Design tokens — PokePt Evolution
+   Dirección estética: neo-pixel editorial (Platinum DS + magazine layout)
+   Paleta dominante violeta-acerado con acentos cálidos. */
+
+:root {
+  /* Backgrounds */
+  --pp-night:    #0e1230;
+  --pp-deep:     #1a2046;
+  --pp-steel:    #3d4677;
+  --pp-platinum: #b9c4d8;
+  --pp-paper:    #f4ecd8;
+
+  /* Foreground / accents */
+  --pp-ink:      #14172e;
+  --pp-hot:      #ff5b3e;
+  --pp-electric: #f8e16c;
+  --pp-shadow:   #07091a;
+  --pp-mist:     rgba(185, 196, 216, 0.18);
+
+  /* HP / battle states */
+  --pp-hp-green:  #5fcf65;
+  --pp-hp-yellow: #f8d030;
+  --pp-hp-red:    #e83020;
+  --pp-crit:      #ffe066;
+
+  /* Tipos Pokémon — colores oficiales aproximados */
+  --type-normal:   #a8a878;
+  --type-fire:     #ee7949;
+  --type-water:    #5293ec;
+  --type-electric: #f8d030;
+  --type-grass:    #62bc5a;
+  --type-ice:      #98d8d8;
+  --type-fighting: #c03028;
+  --type-poison:   #a040a0;
+  --type-ground:   #e0c068;
+  --type-flying:   #a890f0;
+  --type-psychic:  #f85888;
+  --type-bug:      #a8b820;
+  --type-rock:     #b8a038;
+  --type-ghost:    #705898;
+  --type-dragon:   #7038f8;
+  --type-dark:     #705848;
+  --type-steel:    #b8b8d0;
+  --type-fairy:    #f0b6bc;
+
+  /* Tipografías */
+  --font-display: 'Silkscreen', 'Press Start 2P', monospace;
+  --font-sub:     'Jersey 15', 'Silkscreen', sans-serif;
+  --font-body:    'VT323', 'Courier New', monospace;
+
+  /* Borders / sombras de paneles */
+  --panel-border: 3px solid var(--pp-ink);
+  --panel-shadow: 4px 4px 0 var(--pp-shadow);
+
+  /* Layout */
+  --max-w: 1280px;
+  --scanline: repeating-linear-gradient(
+    180deg,
+    rgba(0,0,0,0) 0,
+    rgba(0,0,0,0) 2px,
+    rgba(0,0,0,0.08) 2px,
+    rgba(0,0,0,0.08) 3px
+  );
+}
+
+@property --hp-pct {
+  syntax: '<percentage>';
+  initial-value: 100%;
+  inherits: false;
+}

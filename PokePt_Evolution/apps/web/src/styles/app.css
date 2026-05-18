@@ -1,0 +1,170 @@
+/* Estilos globales del shell + utilidades compartidas. */
+
+body {
+  font-family: var(--font-body);
+  font-size: 20px;
+  line-height: 1.2;
+  color: var(--pp-paper);
+  background: var(--pp-night);
+  min-height: 100vh;
+}
+
+#app {
+  min-height: 100vh;
+  position: relative;
+  isolation: isolate;
+}
+
+/* Fondo atmosférico global: gradiente + ruido SVG + scanlines + halos */
+.app-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(80% 60% at 20% 0%, rgba(248, 225, 108, 0.10), transparent 70%),
+    radial-gradient(60% 80% at 100% 100%, rgba(255, 91, 62, 0.10), transparent 70%),
+    radial-gradient(120% 100% at 50% 50%, var(--pp-deep) 0%, var(--pp-night) 70%);
+  position: relative;
+  overflow-x: clip;
+}
+.app-shell::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.95' numOctaves='2' stitchTiles='stitch'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.55'/></svg>");
+  mix-blend-mode: overlay;
+  opacity: 0.18;
+  z-index: 1;
+}
+.app-shell::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background: var(--scanline);
+  opacity: 0.4;
+  z-index: 1;
+}
+.app-shell > * { position: relative; z-index: 2; }
+
+/* Panel "DS-cartucho": borde grueso + sombra dura + corte de esquina */
+.panel {
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 18px 22px;
+  position: relative;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+}
+.panel--dark {
+  background: var(--pp-deep);
+  color: var(--pp-paper);
+}
+.panel__chip {
+  position: absolute;
+  top: -3px;
+  right: 22px;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  background: var(--pp-ink);
+  color: var(--pp-paper);
+  padding: 3px 6px;
+}
+
+/* Botones DS */
+.btn {
+  font-family: var(--font-sub);
+  font-size: 22px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+  padding: 10px 22px;
+  letter-spacing: 0.02em;
+  transition: transform 80ms, box-shadow 80ms, background 160ms;
+}
+.btn:hover:not(:disabled) { background: var(--pp-electric); }
+.btn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--pp-shadow);
+}
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn--hot {
+  background: var(--pp-hot);
+  color: var(--pp-paper);
+}
+.btn--hot:hover:not(:disabled) {
+  background: var(--pp-electric);
+  color: var(--pp-ink);
+}
+
+/* Inputs */
+.input {
+  font-family: var(--font-body);
+  font-size: 24px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.15);
+  padding: 8px 12px;
+  width: 100%;
+  caret-color: var(--pp-hot);
+}
+.input::placeholder { color: rgba(20, 23, 46, 0.4); }
+
+/* Chips de tipo */
+.type-chip {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: white;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+  padding: 4px 8px;
+  border: 2px solid var(--pp-ink);
+  box-shadow: 2px 2px 0 var(--pp-shadow);
+}
+
+/* Hero numbers / código de sala */
+.hero-code {
+  font-family: var(--font-display);
+  font-size: clamp(72px, 18vw, 220px);
+  line-height: 0.9;
+  color: var(--pp-paper);
+  text-shadow:
+    4px 4px 0 var(--pp-shadow),
+    8px 8px 0 var(--pp-hot);
+  letter-spacing: 0.05em;
+  display: inline-block;
+}
+
+/* Headers editoriales */
+.kicker {
+  font-family: var(--font-display);
+  font-size: 11px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--pp-electric);
+}
+.headline {
+  font-family: var(--font-sub);
+  font-size: clamp(36px, 5vw, 64px);
+  line-height: 0.95;
+  color: var(--pp-paper);
+}
+.subhead {
+  font-family: var(--font-body);
+  font-size: 22px;
+  color: var(--pp-platinum);
+  max-width: 56ch;
+}
+
+/* Accesibilidad: motion reducido */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
