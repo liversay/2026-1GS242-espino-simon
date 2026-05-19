@@ -1,0 +1,28 @@
+.muteBtn {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  z-index: 9999;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid var(--pp-ink);
+  background: var(--pp-deep);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 80ms, box-shadow 80ms;
+  padding: 0;
+}
+.muteBtn:hover {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 var(--pp-shadow);
+}
+.muteBtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: 0 0 0 var(--pp-shadow);
+}
