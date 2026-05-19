@@ -1,20 +1,22 @@
 .shell {
-  position: absolute;
+  position: fixed;
   inset: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 18px;
+  gap: clamp(10px, 2vh, 18px);
   text-align: center;
-  background: linear-gradient(180deg, rgba(14, 18, 48, 0.85), rgba(7, 9, 26, 0.92));
-  z-index: 20;
-  padding: 24px;
+  background: linear-gradient(180deg, rgba(14, 18, 48, 0.92), rgba(7, 9, 26, 0.96));
+  z-index: 200;
+  padding: clamp(16px, 4vw, 32px);
+  overflow-y: auto;
 }
 
 .title {
   font-family: var(--font-display);
-  font-size: clamp(36px, 6vw, 64px);
+  font-size: clamp(20px, 4vw, 48px);
+  line-height: 1.15;
   color: var(--pp-paper);
   text-shadow: 3px 3px 0 var(--pp-shadow), 6px 6px 0 var(--pp-hot);
   letter-spacing: 0.04em;
@@ -22,7 +24,7 @@
 
 .body {
   font-family: var(--font-body);
-  font-size: 22px;
+  font-size: clamp(16px, 2.2vw, 22px);
   color: var(--pp-platinum);
   max-width: 50ch;
 }
@@ -66,7 +68,7 @@
   color: var(--pp-paper);
 }
 
-.bigLabel { font-size: 36px; letter-spacing: 0.06em; }
+.bigLabel { font-size: clamp(20px, 4vw, 36px); letter-spacing: 0.06em; }
 .subLabel { font-size: 11px; letter-spacing: 0.2em; opacity: 0.75; }
 
 .error {
@@ -179,11 +181,12 @@
 }
 .bannerHead {
   font-family: var(--font-body);
-  font-size: 22px;
+  font-size: clamp(16px, 2.2vw, 22px);
 }
 .bannerHead strong { color: var(--pp-hot); }
 .bannerWinner {
   font-family: var(--font-display);
-  font-size: 24px;
+  font-size: clamp(14px, 2.5vw, 22px);
+  line-height: 1.2;
   letter-spacing: 0.04em;
 }

@@ -129,8 +129,8 @@ body {
 /* Hero numbers / código de sala */
 .hero-code {
   font-family: var(--font-display);
-  font-size: clamp(72px, 18vw, 220px);
-  line-height: 0.9;
+  font-size: clamp(40px, 11vw, 160px);
+  line-height: 1;
   color: var(--pp-paper);
   text-shadow:
     4px 4px 0 var(--pp-shadow),
@@ -142,20 +142,20 @@ body {
 /* Headers editoriales */
 .kicker {
   font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: 0.2em;
+  font-size: clamp(9px, 1.1vw, 11px);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--pp-electric);
 }
 .headline {
   font-family: var(--font-sub);
-  font-size: clamp(36px, 5vw, 64px);
-  line-height: 0.95;
+  font-size: clamp(24px, 4vw, 64px);
+  line-height: 1.1;
   color: var(--pp-paper);
 }
 .subhead {
   font-family: var(--font-body);
-  font-size: 22px;
+  font-size: clamp(16px, 2.2vw, 22px);
   color: var(--pp-platinum);
   max-width: 56ch;
 }

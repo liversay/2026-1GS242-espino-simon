@@ -21,14 +21,14 @@
 }
 .name {
   font-family: var(--font-sub);
-  font-size: 22px;
+  font-size: clamp(14px, 2.2vw, 22px);
   text-transform: capitalize;
   flex: 1;
   line-height: 1;
 }
 .lvl {
   font-family: var(--font-display);
-  font-size: 11px;
+  font-size: clamp(8px, 0.9vw, 11px);
   letter-spacing: 0.1em;
   color: var(--pp-steel);
 }
@@ -61,7 +61,7 @@
 }
 .hpNumbers {
   font-family: var(--font-display);
-  font-size: 14px;
+  font-size: clamp(9px, 1.2vw, 14px);
   align-self: flex-end;
   letter-spacing: 0.06em;
   color: var(--pp-ink);

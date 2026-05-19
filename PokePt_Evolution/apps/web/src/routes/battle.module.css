@@ -15,17 +15,17 @@
 }
 .vs {
   font-family: var(--font-body);
-  font-size: 20px;
+  font-size: clamp(14px, 2vw, 20px);
   color: var(--pp-platinum);
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
 }
 .vs strong {
   color: var(--pp-paper);
   font-family: var(--font-sub);
-  font-size: 24px;
-  padding: 2px 8px;
+  font-size: clamp(15px, 2.4vw, 24px);
+  padding: 2px 6px;
   border: 2px solid transparent;
   transition: border-color 200ms, color 200ms;
 }
@@ -119,10 +119,10 @@
 
 .actionBtn {
   height: 76px;
-  padding: 0 18px;
+  padding: 0 clamp(10px, 1.5vw, 18px);
   font-family: var(--font-display);
-  font-size: 18px;
-  letter-spacing: 0.1em;
+  font-size: clamp(11px, 1.5vw, 16px);
+  letter-spacing: 0.06em;
   color: var(--pp-paper);
   background: var(--pp-deep);
   border: 1px solid rgba(255, 255, 255, 0.1);
@@ -131,7 +131,7 @@
   text-align: left;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 8px;
 }
 
 .actionBtn:hover:not(:disabled) {
@@ -184,8 +184,9 @@
 }
 .turnInfo {
   font-family: var(--font-body);
-  font-size: 18px;
+  font-size: clamp(14px, 1.8vw, 18px);
   color: var(--pp-platinum);
+  line-height: 1.25;
 }
 .turnInfoMine {
   color: var(--pp-electric);
