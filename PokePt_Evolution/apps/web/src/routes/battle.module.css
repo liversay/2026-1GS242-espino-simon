@@ -211,3 +211,37 @@
   font-size: 17px;
   color: var(--pp-hot);
 }
+
+/* ── KO acknowledgment button ──────────────────────────────────────────── */
+.koAckBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--pp-hot);
+  color: var(--pp-paper);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  cursor: pointer;
+  width: 100%;
+  animation: ko-ack-pulse 0.9s ease-in-out infinite alternate;
+}
+.koAckBtn:hover { filter: brightness(1.12); }
+.koAckLabel {
+  font-family: var(--font-sub);
+  font-size: clamp(11px, 1.6vw, 15px);
+  line-height: 1.2;
+}
+.koAckCaret {
+  font-size: 20px;
+  animation: ko-ack-bounce 0.9s ease-in-out infinite alternate;
+}
+@keyframes ko-ack-pulse {
+  from { opacity: 0.82; box-shadow: var(--panel-shadow); }
+  to   { opacity: 1;    box-shadow: 5px 5px 0 var(--pp-shadow), 0 0 14px rgba(230,51,41,0.55); }
+}
+@keyframes ko-ack-bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(4px); }
+}

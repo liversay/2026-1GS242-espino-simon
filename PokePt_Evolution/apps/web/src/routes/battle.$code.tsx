@@ -55,6 +55,8 @@ function BattlePage() {
   const [surrenderConfirm, setSurrenderConfirm] = useState(false)
   /** true when the animation queue has caught up to the latest backend log. */
   const [animationDone, setAnimationDone] = useState(true)
+  /** true after a KO faint animation, waiting for player to click before opening SwitchMenu. */
+  const [pendingKoAck, setPendingKoAck] = useState(false)
 
   const { data: battle, refetch } = usePolling(
     () => api.getBattle(code),
@@ -96,11 +98,14 @@ function BattlePage() {
     })()
   }, [battle?.log.length])
 
-  // ─── Forced switch: open menu AFTER faint animation ──────────────────────
+  // ─── Forced switch: esperar click del jugador ANTES de abrir SwitchMenu ──
   const mustSwitch = !!battle && battle.mustSwitchPlayerId === playerId
   useEffect(() => {
-    if (mustSwitch && animationDone) setShowSwitchMenu(true)
+    if (mustSwitch && animationDone) setPendingKoAck(true)
   }, [mustSwitch, animationDone])
+  useEffect(() => {
+    if (!mustSwitch) setPendingKoAck(false)
+  }, [mustSwitch])
 
   // ─── Input permissions ────────────────────────────────────────────────────
   const isMyTurn = !!battle && battle.status === 'in-progress' && battle.currentTurnPlayerId === playerId
@@ -338,6 +343,16 @@ function BattlePage() {
             <p className={`${styles.turnInfo} ${isMyTurn || mustSwitch ? styles.turnInfoMine : ''}`}>
               {turnInfo}
             </p>
+          )}
+          {pendingKoAck && (
+            <button
+              className={styles.koAckBtn}
+              type="button"
+              onClick={() => { setPendingKoAck(false); setShowSwitchMenu(true) }}
+            >
+              <span className={styles.koAckLabel}>Send out next Pokémon</span>
+              <span className={styles.koAckCaret}>▼</span>
+            </button>
           )}
           {errorMsg && <p className={styles.error}>⚠ {errorMsg}</p>}
         </div>
