@@ -244,14 +244,15 @@ function BattlePage() {
           <HpBox pokemon={myActive} side="ally" />
         </div>
 
-        {coinFlipping && (
-          <CoinFlip
-            battle={battle}
-            myPlayerId={playerId}
-            onContinue={handleAcknowledgeFlip}
-          />
-        )}
       </section>
+
+      {coinFlipping && (
+        <CoinFlip
+          battle={battle}
+          myPlayerId={playerId}
+          onContinue={handleAcknowledgeFlip}
+        />
+      )}
 
       <div className={styles.separator} />
 
