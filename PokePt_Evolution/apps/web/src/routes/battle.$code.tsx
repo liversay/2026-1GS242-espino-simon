@@ -425,15 +425,21 @@ async function playEntry(
     await sleep(700)
   } else if (e.kind === 'switch') {
     const isAlly = e.playerId === myId
+    // Activar pokeball aquí mismo: el sprite nuevo ya está montado (por polling),
+    // hay que ocultarlo de inmediato antes del sleep de 350ms.
     setAnim((s) => ({
       ...s,
       allyAnim: isAlly ? null : s.allyAnim,
       foeAnim: !isAlly ? null : s.foeAnim,
       allyDmg: isAlly ? null : s.allyDmg,
       foeDmg: !isAlly ? null : s.foeDmg,
+      allyPokeball: isAlly ? true : s.allyPokeball,
+      foePokeball: !isAlly ? true : s.foePokeball,
     }))
     await sleep(350)
   } else if (e.kind === 'send_out') {
+    // Para el caso inicial (sin switch previo) activa el flag acá.
+    // Para switches, ya estaba en true desde el handler anterior (no-op si ya true).
     const isAlly = e.playerId === myId
     setAnim((s) => ({
       ...s,
