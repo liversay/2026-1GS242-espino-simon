@@ -148,7 +148,6 @@ export async function applyTurn(
   const log: LogEntry[] = []
   const actor = me(battle, playerId)
   const other = opponent(battle, playerId)
-  const wasForcedSwitch = battle.mustSwitchPlayerId === playerId
 
   await applyAction(db, battle, playerId, action, log)
 
@@ -193,18 +192,10 @@ export async function applyTurn(
     battle.currentTurnPlayerId = other.id
     log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
   } else {
-    // No hay switch forzado pendiente.
+    // No hay switch forzado pendiente — pasar al rival (switch voluntario o forzado: ambos consumen el turno).
     battle.mustSwitchPlayerId = null
-    if (wasForcedSwitch) {
-      // Recién resolví MI switch forzado: NO pierdo el turno, sigo yo. Eligir
-      // el siguiente Pokémon no consume el turno (regla del juego).
-      log.push({ kind: 'announce', text: `${actor.name} can now attack!` })
-      log.push({ kind: 'turn-start', playerId: actor.id, playerName: actor.name })
-    } else {
-      // Turno normal (move o switch voluntario): paso al rival.
-      battle.currentTurnPlayerId = other.id
-      log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
-    }
+    battle.currentTurnPlayerId = other.id
+    log.push({ kind: 'turn-start', playerId: other.id, playerName: other.name })
   }
 
   battle.log = [...battle.log, ...log]
