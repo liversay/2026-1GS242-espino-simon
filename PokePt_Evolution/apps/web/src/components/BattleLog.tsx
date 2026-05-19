@@ -16,6 +16,7 @@ function entryText(e: LogEntry): string {
     case 'status-tick':    return `${e.status} dealt ${e.amount} damage.`
     case 'status-end':     return `${e.status} wore off.`
     case 'switch':         return `Go, ${e.pokemonName}!`
+    case 'send_out':       return ''
     case 'faint':          return `${e.pokemonName} fainted!`
     case 'effectiveness':
       if (e.effectiveness === 'super') return "It's super effective!"

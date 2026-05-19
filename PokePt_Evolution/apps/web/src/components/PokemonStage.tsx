@@ -6,13 +6,15 @@ interface Props {
   side: 'ally' | 'foe'
   animation?: string  // class name de animations.css (anim-attack-ally, anim-hit-shake, etc.)
   damageNumber?: { value: number; isCrit: boolean; effectiveness: 'super' | 'normal' | 'low' | 'none' } | null
+  showPokeball?: boolean
 }
 
-export function PokemonStage({ pokemon, side, animation, damageNumber }: Props) {
+export function PokemonStage({ pokemon, side, animation, damageNumber, showPokeball }: Props) {
   const isFaint = pokemon.fainted
   const spriteClass = [
     styles.sprite,
-    !isFaint && !animation ? 'anim-idle' : '',
+    showPokeball ? styles.spriteAppear : '',
+    !isFaint && !animation && !showPokeball ? 'anim-idle' : '',
     animation ?? '',
   ].filter(Boolean).join(' ')
 
@@ -20,6 +22,13 @@ export function PokemonStage({ pokemon, side, animation, damageNumber }: Props) 
     <div className={`${styles.stage} ${styles[side]}`}>
       <div className={styles.spriteWrap}>
         <div className={`${styles.platform} ${side === 'ally' ? styles.platformAlly : styles.platformFoe}`} />
+        {showPokeball && (
+          <img
+            src="/sprites/pokeball.png"
+            alt=""
+            className={`${styles.pokeball} ${side === 'ally' ? styles.pokeballAlly : styles.pokeballFoe}`}
+          />
+        )}
         {pokemon.spriteUrl ? (
           <img
             src={pokemon.spriteUrl}

@@ -29,6 +29,8 @@ interface AnimState {
   foeDmg: { value: number; isCrit: boolean; effectiveness: Effectiveness } | null
   effectivenessFlash: 'super' | 'low' | 'none' | null
   shake: boolean
+  allyPokeball: boolean
+  foePokeball: boolean
 }
 
 const EMPTY_ANIM: AnimState = {
@@ -38,6 +40,8 @@ const EMPTY_ANIM: AnimState = {
   foeDmg: null,
   effectivenessFlash: null,
   shake: false,
+  allyPokeball: false,
+  foePokeball: false,
 }
 
 const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
@@ -233,6 +237,7 @@ function BattlePage() {
           side="foe"
           animation={anim.foeAnim ?? undefined}
           damageNumber={anim.foeDmg}
+          showPokeball={anim.foePokeball}
         />
         <div className={styles.foeBox}>
           <HpBox pokemon={foeActive} side="foe" />
@@ -244,6 +249,7 @@ function BattlePage() {
           side="ally"
           animation={anim.allyAnim ?? undefined}
           damageNumber={anim.allyDmg}
+          showPokeball={anim.allyPokeball}
         />
         <div className={styles.allyBox}>
           <HpBox pokemon={myActive} side="ally" />
@@ -427,6 +433,19 @@ async function playEntry(
       foeDmg: !isAlly ? null : s.foeDmg,
     }))
     await sleep(350)
+  } else if (e.kind === 'send_out') {
+    const isAlly = e.playerId === myId
+    setAnim((s) => ({
+      ...s,
+      allyPokeball: isAlly ? true : s.allyPokeball,
+      foePokeball: !isAlly ? true : s.foePokeball,
+    }))
+    await sleep(900)
+    setAnim((s) => ({
+      ...s,
+      allyPokeball: isAlly ? false : s.allyPokeball,
+      foePokeball: !isAlly ? false : s.foePokeball,
+    }))
   } else {
     await sleep(180)
   }

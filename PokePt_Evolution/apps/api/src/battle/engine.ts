@@ -41,6 +41,11 @@ export function applyCoinFlipChoice(battle: Battle, choice: CoinFace): Battle {
     kind: 'announce',
     text: `The coin landed on ${result === 'heads' ? 'HEADS' : 'TAILS'}. ${winnerName} attacks first!`,
   })
+  // Mostrar la pokeball de entrada para ambos Pokémon iniciales
+  for (const p of battle.players) {
+    const active = p.team[p.activeIndex]
+    if (active) battle.log.push({ kind: 'send_out', playerId: p.id, pokemonName: active.name })
+  }
   battle.log.push({ kind: 'turn-start', playerId: winnerId, playerName: winnerName })
   battle.updatedAt = new Date().toISOString()
   return battle
@@ -89,6 +94,7 @@ async function applyAction(
       toIndex: action.targetIndex,
       pokemonName: target.name,
     })
+    log.push({ kind: 'send_out', playerId, pokemonName: target.name })
     return
   }
 

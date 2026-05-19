@@ -177,6 +177,7 @@ export type LogEntry =
   | { kind: 'status-tick'; playerId: string; targetIndex: number; status: StatusKind; amount: number }
   | { kind: 'status-end'; playerId: string; targetIndex: number; status: StatusKind }
   | { kind: 'switch'; playerId: string; fromIndex: number; toIndex: number; pokemonName: string }
+  | { kind: 'send_out'; playerId: string; pokemonName: string }
   | { kind: 'faint'; playerId: string; pokemonName: string }
   | { kind: 'effectiveness'; effectiveness: LogEffectiveness }
   | { kind: 'turn-start'; playerId: string; playerName: string }

@@ -115,3 +115,71 @@
     radial-gradient(circle at 75% 60%, var(--pp-electric) 0 3px, transparent 4px),
     radial-gradient(circle at 40% 80%, var(--pp-electric) 0 3px, transparent 4px);
 }
+
+/* ── Pokeball throw animation ───────────────────────────────────────────── */
+
+.spriteHidden { opacity: 0; }
+
+.pokeball {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  width: clamp(28px, 6%, 48px);
+  height: clamp(28px, 6%, 48px);
+  transform: translateX(-50%);
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Ally: pokeball entra desde abajo-izquierda */
+.pokeballAlly {
+  animation: pokeball-throw-ally 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+/* Foe: pokeball entra desde arriba-derecha */
+.pokeballFoe {
+  animation: pokeball-throw-foe 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes pokeball-throw-ally {
+  /* Throw: entra desde la izquierda con arco ascendente */
+  0%   { transform: translate(-200%, 120%) rotate(-120deg) scale(0.6); opacity: 1; }
+  10%  { transform: translate(-120%, 20%)  rotate(-70deg)  scale(0.8); opacity: 1; }
+  /* Aterrizaje */
+  44%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Shake: 3 sacudidas */
+  52%  { transform: translate(-50%, 0%)    rotate(18deg)   scale(1);   opacity: 1; }
+  60%  { transform: translate(-50%, 0%)    rotate(-18deg)  scale(1);   opacity: 1; }
+  68%  { transform: translate(-50%, 0%)    rotate(12deg)   scale(1);   opacity: 1; }
+  78%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Open: flash y desaparece */
+  88%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1.5); opacity: 0.6; filter: brightness(3); }
+  100% { transform: translate(-50%, 0%)    rotate(0deg)    scale(2.2); opacity: 0; filter: brightness(5); }
+}
+
+@keyframes pokeball-throw-foe {
+  /* Throw: entra desde la derecha con arco descendente */
+  0%   { transform: translate(150%, -130%) rotate(130deg)  scale(0.6); opacity: 1; }
+  10%  { transform: translate(80%, -40%)   rotate(80deg)   scale(0.8); opacity: 1; }
+  /* Aterrizaje */
+  44%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Shake */
+  52%  { transform: translate(-50%, 0%)    rotate(18deg)   scale(1);   opacity: 1; }
+  60%  { transform: translate(-50%, 0%)    rotate(-18deg)  scale(1);   opacity: 1; }
+  68%  { transform: translate(-50%, 0%)    rotate(12deg)   scale(1);   opacity: 1; }
+  78%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Open: flash y desaparece */
+  88%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1.5); opacity: 0.6; filter: brightness(3); }
+  100% { transform: translate(-50%, 0%)    rotate(0deg)    scale(2.2); opacity: 0; filter: brightness(5); }
+}
+
+/* El sprite aparece con fade-in justo cuando la pokeball "se abre" (delay 78% de 900ms = ~700ms) */
+.spriteAppear {
+  animation: sprite-appear 0.25s ease-out forwards;
+  animation-delay: 700ms;
+  opacity: 0;
+}
+@keyframes sprite-appear {
+  from { opacity: 0; transform: scale(0.7); filter: brightness(4); }
+  to   { opacity: 1; transform: scale(1);   filter: none; }
+}
