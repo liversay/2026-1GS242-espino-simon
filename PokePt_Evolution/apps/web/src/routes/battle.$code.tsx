@@ -58,7 +58,7 @@ function BattlePage() {
 
   const { data: battle, refetch } = usePolling(
     () => api.getBattle(code),
-    1500,
+    400,
     [code],
   )
 

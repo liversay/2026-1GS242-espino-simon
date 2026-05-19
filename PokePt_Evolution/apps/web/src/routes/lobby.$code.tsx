@@ -27,7 +27,7 @@ function LobbyPage() {
 
   const { data: room } = usePolling(
     () => api.getRoom(code),
-    1500,
+    400,
     [code],
   )
 
