@@ -46,6 +46,8 @@
     6px 6px 0 var(--pp-hot);
 }
 .title > span { display: inline-block; }
+.titleLine { display: block; width: 100%; }
+.titleLine > span { display: inline-block; }
 .glowOverlay {
   position: absolute;
   inset: 0;
