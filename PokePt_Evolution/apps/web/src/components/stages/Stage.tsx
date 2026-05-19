@@ -1,38 +1,28 @@
-// Wrapper común para los escenarios. Cada Stage es un div absolute-positioned
-// dentro de su contenedor (relative) que llena 100% y tiene 3 capas opcionales.
+import { ALL_STAGE_IDS, type StageId } from '@pokept/shared'
+import styles from './stages.module.css'
 
-import type { StageId } from '@pokept/shared'
-import { PraderaSinnoh } from './PraderaSinnoh'
-import { MtCoronet } from './MtCoronet'
-import { LagoVeraz } from './LagoVeraz'
-import { LigaPokemon } from './LigaPokemon'
-import { BosqueEterno } from './BosqueEterno'
-import { CumbreNevada } from './CumbreNevada'
-
-interface StageProps {
-  id: StageId
-  scale?: number
-  showLabel?: boolean
+function toLabel(id: StageId): string {
+  const parts = id.split('-')
+  const last = parts[parts.length - 1]!
+  if (last === '2') parts[parts.length - 1] = '(Alt)'
+  else if (last === 'night') parts[parts.length - 1] = '(Night)'
+  return parts
+    .map((w) => (w.startsWith('(') ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(' ')
 }
 
-const LABELS: Record<StageId, string> = {
-  'pradera-sinnoh': 'Sinnoh Meadow',
-  'mt-coronet': 'Mt. Coronet Cave',
-  'lago-veraz': 'Lake Valor',
-  'liga-pokemon': 'Pokémon League Stadium',
-  'bosque-eterno': 'Eterna Forest',
-  'cumbre-nevada': 'Snowy Summit',
-}
+export const STAGE_LABELS: Record<StageId, string> = Object.fromEntries(
+  ALL_STAGE_IDS.map((id) => [id, toLabel(id)]),
+) as Record<StageId, string>
 
-export const STAGE_LABELS = LABELS
-
-export function Stage({ id }: StageProps) {
-  switch (id) {
-    case 'pradera-sinnoh': return <PraderaSinnoh />
-    case 'mt-coronet': return <MtCoronet />
-    case 'lago-veraz': return <LagoVeraz />
-    case 'liga-pokemon': return <LigaPokemon />
-    case 'bosque-eterno': return <BosqueEterno />
-    case 'cumbre-nevada': return <CumbreNevada />
-  }
+export function Stage({ id }: { id: StageId }) {
+  return (
+    <div className={styles.stage}>
+      <div
+        className={styles.scenarioBg}
+        style={{ backgroundImage: `url(/scenarios/${id}.png)` }}
+      />
+      <div className={styles.overlay} />
+    </div>
+  )
 }

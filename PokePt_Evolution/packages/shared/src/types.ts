@@ -2,20 +2,41 @@
 // Cada tipo persistido en Mongo se modela tal como aparece en el documento.
 
 export type StageId =
-  | 'pradera-sinnoh'
-  | 'mt-coronet'
-  | 'lago-veraz'
-  | 'liga-pokemon'
-  | 'bosque-eterno'
-  | 'cumbre-nevada'
+  | 'beach'
+  | 'beach-2'
+  | 'beach-night'
+  | 'cave'
+  | 'cave-2'
+  | 'cave-night'
+  | 'desert'
+  | 'desert-night'
+  | 'lake'
+  | 'lake-night'
+  | 'mountain'
+  | 'mountain-2'
+  | 'mountain-night'
+  | 'ocean'
+  | 'ocean-night'
+  | 'path'
+  | 'path-2'
+  | 'path-night'
+  | 'snow'
+  | 'snow-night'
+  | 'tall-grass'
+  | 'tall-grass-night'
+  | 'underwater'
 
 export const ALL_STAGE_IDS: StageId[] = [
-  'pradera-sinnoh',
-  'mt-coronet',
-  'lago-veraz',
-  'liga-pokemon',
-  'bosque-eterno',
-  'cumbre-nevada',
+  'beach', 'beach-2', 'beach-night',
+  'cave', 'cave-2', 'cave-night',
+  'desert', 'desert-night',
+  'lake', 'lake-night',
+  'mountain', 'mountain-2', 'mountain-night',
+  'ocean', 'ocean-night',
+  'path', 'path-2', 'path-night',
+  'snow', 'snow-night',
+  'tall-grass', 'tall-grass-night',
+  'underwater',
 ]
 
 export type PokeType =

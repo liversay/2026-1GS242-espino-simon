@@ -30,7 +30,7 @@ roomRoutes.post('/', async (c) => {
     code,
     status: 'waiting',
     hostPlayerId: playerId,
-    stageId: 'pradera-sinnoh',
+    stageId: 'beach',
     players: [{ id: playerId, name: parsed.data.playerName, ready: false, teamPokemonIds: [] }],
     createdAt: new Date().toISOString(),
   }
