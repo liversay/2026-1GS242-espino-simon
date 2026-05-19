@@ -277,7 +277,8 @@ function BattlePage() {
                 type="button"
                 onClick={() => setBattleMenuMode('fight')}
               >
-                ⚔ FIGHT
+                <span className={styles.actionLabel}>⚔ FIGHT</span>
+                <span className={styles.actionSub}>ATTACK</span>
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.actionSwitch}`}
@@ -285,21 +286,24 @@ function BattlePage() {
                 onClick={() => setShowSwitchMenu(true)}
                 disabled={noSwitchable}
               >
-                ↺ POKEMON
+                <span className={styles.actionLabel}>↺ POKEMON</span>
+                <span className={styles.actionSub}>SWITCH</span>
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.actionRun}`}
                 type="button"
                 onClick={() => setSurrenderConfirm(true)}
               >
-                🏳 RUN
+                <span className={styles.actionLabel}>✕ RUN</span>
+                <span className={styles.actionSub}>FORFEIT</span>
               </button>
               <button
                 className={`${styles.actionBtn} ${styles.actionHelp}`}
                 type="button"
                 onClick={() => setShowTypeChart(true)}
               >
-                ? HELP
+                <span className={styles.actionLabel}>? HELP</span>
+                <span className={styles.actionSub}>TYPES</span>
               </button>
             </div>
           )

@@ -110,49 +110,63 @@
 .actionMenu {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 0;
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 0 100%);
-}
-
-.actionBtn {
-  height: 76px;
-  padding: 0 clamp(10px, 1.5vw, 18px);
-  font-family: var(--font-display);
-  font-size: clamp(11px, 1.5vw, 16px);
-  letter-spacing: 0.06em;
-  color: var(--pp-paper);
-  background: var(--pp-deep);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  cursor: pointer;
-  transition: background 110ms, color 110ms;
-  text-align: left;
-  display: flex;
-  align-items: center;
   gap: 8px;
 }
+@media (max-width: 420px) { .actionMenu { grid-template-columns: 1fr; } }
 
+/* Replica el lenguaje visual de MoveButton: fondo sólido, border pixel,
+   sombra dura, hover translate + brightness, active press-down. */
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  padding: 12px 16px;
+  color: white;
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
+  cursor: pointer;
+  text-align: left;
+  transition: transform 80ms, box-shadow 80ms, filter 100ms;
+  min-height: 68px;
+}
 .actionBtn:hover:not(:disabled) {
-  background: var(--pp-steel);
-  color: var(--pp-ink);
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 var(--pp-shadow);
+  filter: brightness(1.12);
 }
-
 .actionBtn:active:not(:disabled) {
-  background: var(--pp-ink);
-  color: var(--pp-electric);
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--pp-shadow);
 }
-
 .actionBtn:disabled {
-  opacity: 0.35;
+  opacity: 0.5;
   cursor: not-allowed;
+  filter: grayscale(0.5);
 }
 
-.actionFight { border-right-color: rgba(255,255,255,0.18); }
-.actionSwitch { }
-.actionRun { color: var(--pp-hot); }
-.actionHelp { color: var(--pp-electric); }
+/* Colores de carta — sólidos, saturados, estilo GBA */
+.actionFight  { background: var(--type-fighting); }
+.actionSwitch { background: var(--type-grass); }
+.actionRun    { background: var(--type-water); }
+.actionHelp   { background: var(--type-electric); color: var(--pp-ink); text-shadow: none; }
+
+/* Label principal: igual que MoveButton .name */
+.actionLabel {
+  font-family: var(--font-sub);
+  font-size: clamp(14px, 2.2vw, 22px);
+  line-height: 1;
+}
+
+/* Subtítulo: igual que MoveButton .meta */
+.actionSub {
+  font-family: var(--font-display);
+  font-size: clamp(7px, 0.8vw, 9px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0.88;
+}
 
 /* ── Surrender confirmation ────────────────────────────────────────────── */
 .confirmBox {
