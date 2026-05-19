@@ -3,6 +3,7 @@ import { z } from 'zod'
 import { getDb } from '../db/mongo'
 import { getBattle, replaceBattle } from '../db/repo/battleRepo'
 import { applyCoinFlipChoice, applyTurn } from '../battle/engine'
+import { broadcast } from '../ws'
 import type { BattleAction } from '@pokept/shared'
 
 
@@ -42,6 +43,7 @@ battleRoutes.post('/:code/coin-flip-choice', async (c) => {
 
   applyCoinFlipChoice(battle, choice)
   await replaceBattle(db, battle)
+  broadcast(code, 'battle', battle)
   return c.json(battle)
 })
 
@@ -65,6 +67,7 @@ battleRoutes.post('/:code/coinflip-acknowledge', async (c) => {
 
   battle.coinFlip.acknowledgedAt = new Date().toISOString()
   await replaceBattle(db, battle)
+  broadcast(code, 'battle', battle)
   return c.json(battle)
 })
 
@@ -124,6 +127,7 @@ battleRoutes.post('/:code/action', async (c) => {
 
   await applyTurn(db, battle, playerId, action as BattleAction)
   await replaceBattle(db, battle)
+  broadcast(code, 'battle', battle)
   return c.json(battle)
 })
 
@@ -151,5 +155,6 @@ battleRoutes.post('/:code/forfeit', async (c) => {
   battle.log.push({ kind: 'victory', winnerId: winner.id, winnerName: winner.name })
 
   await replaceBattle(db, battle)
+  broadcast(code, 'battle', battle)
   return c.json(battle)
 })

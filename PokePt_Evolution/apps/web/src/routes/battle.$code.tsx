@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import type { Battle, BattleAction, LogEntry } from '@pokept/shared'
 import { api, ApiError } from '../lib/api'
 import { getPlayer } from '../lib/storage'
-import { usePolling } from '../hooks/usePolling'
+import { useWS } from '../hooks/useWS'
 import { Stage } from '../components/stages/Stage'
 import { PokemonStage } from '../components/PokemonStage'
 import { HpBox } from '../components/HpBox'
@@ -56,11 +56,7 @@ function BattlePage() {
   /** true when the animation queue has caught up to the latest backend log. */
   const [animationDone, setAnimationDone] = useState(true)
 
-  const { data: battle, refetch } = usePolling(
-    () => api.getBattle(code),
-    1500,
-    [code],
-  )
+  const { data: battle, refetch } = useWS(code, 'battle', () => api.getBattle(code))
 
   const me = useMemo(() => battle?.players.find((p) => p.id === playerId), [battle, playerId])
   const foe = useMemo(() => battle?.players.find((p) => p.id !== playerId), [battle, playerId])

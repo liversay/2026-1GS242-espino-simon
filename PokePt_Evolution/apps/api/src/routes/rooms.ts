@@ -7,6 +7,7 @@ import { getPokemonByDexIds } from '../db/repo/pokemonRepo'
 import { insertBattle } from '../db/repo/battleRepo'
 import { buildInitialBattle } from '../battle/init'
 import { ALL_STAGE_IDS, LEGENDARY_IDS, type Room, type RoomPlayer, type StageId } from '@pokept/shared'
+import { broadcast } from '../ws'
 
 const codeNano = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6)
 const playerNano = customAlphabet('abcdefghijklmnopqrstuvwxyz0123456789', 16)
@@ -63,6 +64,7 @@ roomRoutes.post('/:code/join', async (c) => {
   const playerId = playerNano()
   const newPlayer: RoomPlayer = { id: playerId, name: parsed.data.playerName, ready: false, teamPokemonIds: [] }
   const updated = await updateRoom(db, code, { players: [...room.players, newPlayer] })
+  broadcast(code, 'room', updated)
   return c.json({ playerId, room: updated })
 })
 
@@ -103,6 +105,7 @@ roomRoutes.post('/:code/team', async (c) => {
       : p,
   )
   const updated = await updateRoom(db, code, { players: newPlayers })
+  broadcast(code, 'room', updated)
   return c.json({ room: updated })
 })
 
@@ -124,6 +127,7 @@ roomRoutes.post('/:code/stage', async (c) => {
     return c.json({ error: 'only_host_can_pick_stage' }, 403)
   }
   const updated = await updateRoom(db, code, { stageId: parsed.data.stageId })
+  broadcast(code, 'room', updated)
   return c.json({ room: updated })
 })
 
@@ -148,6 +152,8 @@ roomRoutes.post('/:code/start', async (c) => {
 
   const battle = await buildInitialBattle(db, room)
   await insertBattle(db, battle)
-  await updateRoom(db, code, { status: 'playing' })
+  const updatedRoom = await updateRoom(db, code, { status: 'playing' })
+  broadcast(code, 'room', updatedRoom)
+  broadcast(code, 'battle', battle)
   return c.json({ battle })
 })
