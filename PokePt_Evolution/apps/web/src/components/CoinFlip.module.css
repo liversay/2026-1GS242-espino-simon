@@ -96,7 +96,8 @@
   animation-duration: 2.4s;
   animation-timing-function: cubic-bezier(.2, .6, .3, 1);
   animation-fill-mode: forwards;
-  filter: drop-shadow(0 12px 16px rgba(0, 0, 0, 0.45));
+  /* filter: drop-shadow aquí aplana preserve-3d y rompe backface-visibility.
+     La sombra va en .face como box-shadow. */
 }
 .coin[data-result="heads"] { animation-name: coin-spin-heads; }
 .coin[data-result="tails"] { animation-name: coin-spin-tails; }
@@ -124,9 +125,11 @@
   font-family: var(--font-display);
   color: var(--pp-ink);
   backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
   box-shadow:
     inset 0 6px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.2);
+    inset 0 -6px 0 rgba(0, 0, 0, 0.2),
+    0 12px 16px rgba(0, 0, 0, 0.45);
 }
 .faceHeads {
   background: radial-gradient(circle at 35% 30%, #fff09a 0%, #f8e16c 40%, #d8a838 80%);

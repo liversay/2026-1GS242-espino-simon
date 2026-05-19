@@ -88,7 +88,7 @@ export function CoinFlip({ battle, myPlayerId, onContinue }: Props) {
           : `Challenger chose ${choiceLabel}`}
       </span>
       <h2 className={styles.title}>Flipping the coin</h2>
-      <CoinSpin result={result!} />
+      <CoinSpin key={result} result={result!} />
       <ResultBanner
         result={result!}
         winnerName={winnerName ?? '???'}
