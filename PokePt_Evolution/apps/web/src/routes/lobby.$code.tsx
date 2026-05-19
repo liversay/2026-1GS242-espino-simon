@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { StageId } from '@pokept/shared'
 import { api, ApiError } from '../lib/api'
 import { getPlayer } from '../lib/storage'
-import { useWS } from '../hooks/useWS'
+import { usePolling } from '../hooks/usePolling'
 import { TeamPicker } from '../components/TeamPicker'
 import { StagePicker } from '../components/StagePicker'
 import styles from './lobby.module.css'
@@ -25,7 +25,11 @@ function LobbyPage() {
   const [draftTeam, setDraftTeam] = useState<number[]>([])
   const [confirming, setConfirming] = useState(false)
 
-  const { data: room } = useWS(code, 'room', () => api.getRoom(code))
+  const { data: room } = usePolling(
+    () => api.getRoom(code),
+    1500,
+    [code],
+  )
 
   useEffect(() => {
     if (room?.status === 'playing') {
