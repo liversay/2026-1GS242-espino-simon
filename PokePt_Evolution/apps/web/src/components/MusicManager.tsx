@@ -9,7 +9,7 @@ const audioEl: Partial<Record<Track, HTMLAudioElement>> = {}
 
 function getAudio(track: Track): HTMLAudioElement {
   if (!audioEl[track]) {
-    const src = track === 'battle' ? '/audio/pokemon-battle.mp3' : '/audio/alder-encounter.mp3'
+    const src = track === 'battle' ? '/sounds/pokemon-battle.mp3' : '/sounds/alder-encounter.mp3'
     const a = new Audio(src)
     a.loop = true
     a.volume = 0.45
