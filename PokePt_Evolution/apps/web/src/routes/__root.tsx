@@ -3,9 +3,11 @@ import { MusicManager } from '../components/MusicManager'
 
 export const Route = createRootRoute({
   component: () => (
-    <div className="app-shell">
-      <Outlet />
+    <>
+      <div className="app-shell">
+        <Outlet />
+      </div>
       <MusicManager />
-    </div>
+    </>
   ),
 })
