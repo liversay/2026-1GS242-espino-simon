@@ -115,4 +115,7 @@ export const api = {
   },
 
   getMe: () => req<{ clerkUserId: string; email: string; subscriptionStatus: 'free' | 'premium' }>('/me'),
+
+  createCheckout: () => req<{ url: string }>('/billing/checkout', { method: 'POST', body: '{}' }),
+  getBillingPortal: () => req<{ url: string }>('/billing/portal'),
 }

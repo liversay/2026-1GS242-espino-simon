@@ -1,5 +1,8 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { useAuth } from '@clerk/clerk-react'
+import { useEffect, useState } from 'react'
+import { api } from '../lib/api'
+import { PremiumModal } from '../components/PremiumModal'
 import styles from './index.module.css'
 
 export const Route = createFileRoute('/')({
@@ -11,6 +14,14 @@ const LINE2 = 'EVOLUTION'
 
 function SplashPage() {
   const { isSignedIn, isLoaded } = useAuth()
+  const [isPremium, setIsPremium] = useState(false)
+  const [showPremiumModal, setShowPremiumModal] = useState(false)
+
+  useEffect(() => {
+    if (isSignedIn) {
+      api.getMe().then((u) => setIsPremium(u.subscriptionStatus === 'premium')).catch(() => {})
+    }
+  }, [isSignedIn])
 
   return (
     <main className={styles.splash}>
@@ -63,6 +74,24 @@ function SplashPage() {
               <Link to="/join" className="btn">
                 Join with code
               </Link>
+              {isPremium ? (
+                <button
+                  type="button"
+                  className="btn"
+                  onClick={async () => {
+                    try {
+                      const { url } = await api.getBillingPortal()
+                      window.location.href = url
+                    } catch {}
+                  }}
+                >
+                  ✨ Manage subscription
+                </button>
+              ) : (
+                <button type="button" className="btn" onClick={() => setShowPremiumModal(true)}>
+                  ✨ Go Premium
+                </button>
+              )}
             </>
           ) : (
             <>
@@ -76,6 +105,7 @@ function SplashPage() {
           )}
         </nav>
       )}
+      {showPremiumModal && <PremiumModal onClose={() => setShowPremiumModal(false)} />}
 
       <footer className={styles.footer}>
         <div className={styles.indexNum}>

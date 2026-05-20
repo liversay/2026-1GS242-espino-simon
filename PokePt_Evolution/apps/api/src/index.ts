@@ -6,6 +6,7 @@ import { catalogRoutes } from './routes/catalog'
 import { roomRoutes } from './routes/rooms'
 import { battleRoutes } from './routes/battles'
 import { userRoutes } from './routes/users'
+import { billingRoutes } from './routes/billing'
 
 const PORT = Number(process.env.PORT ?? 3001)
 
@@ -20,6 +21,7 @@ app.route('/pokemon', catalogRoutes)
 app.route('/rooms', roomRoutes)
 app.route('/battles', battleRoutes)
 app.route('/me', userRoutes)
+app.route('/billing', billingRoutes)
 
 app.onError((err, c) => {
   console.error('[api] error:', err)

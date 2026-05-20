@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import type { BaseStats, Pokemon } from '@pokept/shared'
 import { LEGENDARY_IDS } from '@pokept/shared'
-import { api } from '../lib/api'
+import { api, ApiError } from '../lib/api'
 import { TypeChip } from './TypeChip'
 import styles from './TeamPicker.module.css'
 
@@ -108,15 +108,34 @@ function ShinyModal({ pokemon, onPick, onClose }: ShinyModalProps) {
 }
 
 function UpsellModal({ onClose }: { onClose: () => void }) {
+  const [loading, setLoading] = useState(false)
+  const [err, setErr] = useState<string | null>(null)
+
+  async function handleUpgrade() {
+    setLoading(true)
+    setErr(null)
+    try {
+      const { url } = await api.createCheckout()
+      if (url) window.location.href = url
+    } catch (e) {
+      setErr(e instanceof ApiError ? e.message : 'Could not start checkout.')
+      setLoading(false)
+    }
+  }
+
   return createPortal(
     <div className={styles.shinyOverlay} onClick={onClose}>
       <div className={styles.shinyModal} onClick={(e) => e.stopPropagation()}>
         <p className={styles.shinyModalTitle}>✨ Premium Feature</p>
         <p className={styles.shinyModalSub}>
-          Upgrade to Premium to choose shiny variants for your Pokémon.
+          Upgrade to Premium to choose shiny variants for your Pokémon team.
         </p>
-        <button type="button" className="btn btn--hot" style={{ marginTop: 12 }} onClick={onClose}>
-          Got it
+        {err && <p style={{ color: 'var(--pp-hot)', fontFamily: 'var(--font-body)', marginBottom: 8 }}>{err}</p>}
+        <button type="button" className="btn btn--hot" style={{ width: '100%', marginBottom: 8 }} onClick={handleUpgrade} disabled={loading}>
+          {loading ? 'Redirecting…' : '→ Upgrade for $10/mo'}
+        </button>
+        <button type="button" className={styles.shinyClose} onClick={onClose}>
+          Maybe later
         </button>
       </div>
     </div>,
