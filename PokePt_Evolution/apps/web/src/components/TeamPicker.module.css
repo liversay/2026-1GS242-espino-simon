@@ -126,3 +126,84 @@
   font-family: var(--font-body);
   color: var(--pp-platinum);
 }
+
+/* Info button — visible on touch, hidden on hover-capable devices */
+.infoBtn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  background: var(--pp-steel);
+  color: var(--pp-paper);
+  border: 2px solid var(--pp-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .infoBtn { display: none; }
+}
+
+/* Stats tooltip (rendered via portal into document.body) */
+.statTooltip {
+  position: fixed;
+  z-index: 9999;
+  background: var(--pp-deep);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 10px 12px;
+  pointer-events: none;
+}
+
+.statTooltipName {
+  font-family: var(--font-sub);
+  font-size: 18px;
+  color: var(--pp-paper);
+  text-transform: capitalize;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid var(--pp-steel);
+}
+
+.statTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.statLabel {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--pp-platinum);
+  width: 34px;
+  padding: 3px 4px 3px 0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.statVal {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--pp-paper);
+  width: 30px;
+  text-align: right;
+  padding-right: 7px;
+  vertical-align: middle;
+}
+
+.statBarCell {
+  vertical-align: middle;
+  width: 100%;
+}
+
+.statBar {
+  height: 7px;
+  border: 1px solid var(--pp-ink);
+  min-width: 3px;
+}
