@@ -8,6 +8,7 @@ import { insertBattle } from '../db/repo/battleRepo'
 import { buildInitialBattle } from '../battle/init'
 import { ALL_STAGE_IDS, LEGENDARY_IDS, type Room, type RoomPlayer, type StageId } from '@pokept/shared'
 import { requireAuth, getUserId } from '../middleware/auth'
+import { findUser } from '../db/repo/userRepo'
 
 const codeNano = customAlphabet('ABCDEFGHJKLMNPQRSTUVWXYZ23456789', 6)
 
@@ -68,17 +69,32 @@ roomRoutes.post('/:code/join', requireAuth, async (c) => {
   return c.json({ room: updated })
 })
 
-// ─── POST /rooms/:code/team { pokedexIds } ───────────────────────────────
+// ─── POST /rooms/:code/team { pokedexIds, shinyIds? } ────────────────────
 roomRoutes.post('/:code/team', requireAuth, async (c) => {
   const code = c.req.param('code').toUpperCase()
   const body = await c.req.json().catch(() => ({}))
   const parsed = z.object({
     pokedexIds: z.array(z.number().int().positive()).length(TEAM_SIZE),
+    shinyIds: z.array(z.number().int().positive()).optional().default([]),
   }).safeParse(body)
   if (!parsed.success) return c.json({ error: 'team_must_be_6' }, 400)
 
   const playerId = getUserId(c)
   const db = await getDb()
+  const { pokedexIds, shinyIds } = parsed.data
+
+  // Validar que shiny solo esté disponible para usuarios premium
+  if (shinyIds.length > 0) {
+    const user = await findUser(db, playerId)
+    if (!user || user.subscriptionStatus !== 'premium') {
+      return c.json({ error: 'shiny_requires_premium' }, 403)
+    }
+    // shinyIds debe ser subconjunto de pokedexIds
+    if (!shinyIds.every((id) => pokedexIds.includes(id))) {
+      return c.json({ error: 'shiny_id_not_in_team' }, 400)
+    }
+  }
+
   const room = await getRoom(db, code)
   if (!room) return c.json({ error: 'not_found' }, 404)
   if (room.status !== 'waiting') return c.json({ error: 'room_already_started' }, 409)
@@ -86,10 +102,8 @@ roomRoutes.post('/:code/team', requireAuth, async (c) => {
   const player = room.players.find((p) => p.id === playerId)
   if (!player) return c.json({ error: 'player_not_in_room' }, 403)
 
-  const unique = [...new Set(parsed.data.pokedexIds)]
-  if (unique.length !== parsed.data.pokedexIds.length) {
-    return c.json({ error: 'duplicate_pokemon' }, 400)
-  }
+  const unique = [...new Set(pokedexIds)]
+  if (unique.length !== pokedexIds.length) return c.json({ error: 'duplicate_pokemon' }, 400)
   const legendaryCount = unique.filter((id) => LEGENDARY_IDS.includes(id)).length
   if (legendaryCount > 1) return c.json({ error: 'too_many_legendaries' }, 400)
 
@@ -97,7 +111,7 @@ roomRoutes.post('/:code/team', requireAuth, async (c) => {
   if (found.length !== unique.length) return c.json({ error: 'unknown_pokemon' }, 400)
 
   const newPlayers = room.players.map((p) =>
-    p.id === playerId ? { ...p, teamPokemonIds: unique, ready: true } : p,
+    p.id === playerId ? { ...p, teamPokemonIds: unique, teamShinyIds: shinyIds, ready: true } : p,
   )
   const updated = await updateRoom(db, code, { players: newPlayers })
   return c.json({ room: updated })

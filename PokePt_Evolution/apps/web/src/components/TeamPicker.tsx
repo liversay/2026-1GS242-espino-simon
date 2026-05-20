@@ -6,13 +6,18 @@ import { api } from '../lib/api'
 import { TypeChip } from './TypeChip'
 import styles from './TeamPicker.module.css'
 
+export interface TeamSlot { id: number; isShiny: boolean }
+
 interface Props {
-  selected: number[]
+  selected: TeamSlot[]
   disabled?: boolean
-  onChange: (selected: number[]) => void
+  onChange: (selected: TeamSlot[]) => void
+  isPremium?: boolean
 }
 
 const MAX_TEAM = 6
+
+// ─── Stat tooltip ─────────────────────────────────────────────────────────
 
 const STAT_DEFS: { key: keyof BaseStats; label: string }[] = [
   { key: 'hp',  label: 'HP'  },
@@ -71,13 +76,65 @@ function StatTooltip({ target }: { target: TooltipTarget }) {
   )
 }
 
-export function TeamPicker({ selected, disabled, onChange }: Props) {
+// ─── Shiny modal ──────────────────────────────────────────────────────────
+
+interface ShinyModalProps {
+  pokemon: Pokemon
+  onPick: (isShiny: boolean) => void
+  onClose: () => void
+}
+
+function ShinyModal({ pokemon, onPick, onClose }: ShinyModalProps) {
+  return createPortal(
+    <div className={styles.shinyOverlay} onClick={onClose}>
+      <div className={styles.shinyModal} onClick={(e) => e.stopPropagation()}>
+        <p className={styles.shinyModalTitle}>{pokemon.name}</p>
+        <p className={styles.shinyModalSub}>Choose your variant</p>
+        <div className={styles.shinyChoices}>
+          <button type="button" className={styles.shinyChoice} onClick={() => onPick(false)}>
+            <img src={pokemon.spriteUrl} alt={`${pokemon.name} normal`} className={styles.shinySprite} />
+            <span className={styles.shinyChoiceLabel}>Normal</span>
+          </button>
+          <button type="button" className={`${styles.shinyChoice} ${styles.shinyChoiceShiny}`} onClick={() => onPick(true)}>
+            <img src={pokemon.shinySpriteUrl || pokemon.spriteUrl} alt={`${pokemon.name} shiny`} className={styles.shinySprite} />
+            <span className={styles.shinyChoiceLabel}>✨ Shiny</span>
+          </button>
+        </div>
+        <button type="button" className={styles.shinyClose} onClick={onClose}>× Cancel</button>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+function UpsellModal({ onClose }: { onClose: () => void }) {
+  return createPortal(
+    <div className={styles.shinyOverlay} onClick={onClose}>
+      <div className={styles.shinyModal} onClick={(e) => e.stopPropagation()}>
+        <p className={styles.shinyModalTitle}>✨ Premium Feature</p>
+        <p className={styles.shinyModalSub}>
+          Upgrade to Premium to choose shiny variants for your Pokémon.
+        </p>
+        <button type="button" className="btn btn--hot" style={{ marginTop: 12 }} onClick={onClose}>
+          Got it
+        </button>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+// ─── Main component ───────────────────────────────────────────────────────
+
+export function TeamPicker({ selected, disabled, onChange, isPremium }: Props) {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
   const [data, setData] = useState<{ items: Pokemon[]; totalPages: number; total: number } | null>(null)
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [statsTarget, setStatsTarget] = useState<TooltipTarget | null>(null)
+  const [shinyModalPokemon, setShinyModalPokemon] = useState<Pokemon | null>(null)
+  const [showUpsell, setShowUpsell] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -89,16 +146,47 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
     return () => { cancelled = true }
   }, [page, search])
 
-  const selectedSet = new Set(selected)
-  const selectedLegendaryCount = selected.filter((id) => LEGENDARY_IDS.includes(id)).length
+  const selectedSet = new Set(selected.map((s) => s.id))
+  const selectedLegendaryCount = selected.filter((s) => LEGENDARY_IDS.includes(s.id)).length
 
-  const toggle = (id: number) => {
+  const toggle = (p: Pokemon, isShiny: boolean) => {
     if (disabled) return
+    const id = p.pokedexId
     if (selectedSet.has(id)) {
-      onChange(selected.filter((x) => x !== id))
+      onChange(selected.filter((s) => s.id !== id))
     } else if (selected.length < MAX_TEAM) {
       if (LEGENDARY_IDS.includes(id) && selectedLegendaryCount >= 1) return
-      onChange([...selected, id])
+      onChange([...selected, { id, isShiny }])
+    }
+  }
+
+  const handleCardClick = (p: Pokemon) => {
+    if (disabled) return
+    const id = p.pokedexId
+    if (selectedSet.has(id)) {
+      // Deselect — no shiny modal needed
+      onChange(selected.filter((s) => s.id !== id))
+      return
+    }
+    if (selected.length >= MAX_TEAM) return
+    if (LEGENDARY_IDS.includes(id) && selectedLegendaryCount >= 1) return
+
+    if (isPremium) {
+      setShinyModalPokemon(p)
+    } else {
+      toggle(p, false)
+    }
+  }
+
+  const handleShinyBtn = (e: React.MouseEvent, p: Pokemon) => {
+    e.stopPropagation()
+    if (disabled) return
+    if (!selectedSet.has(p.pokedexId)) {
+      if (isPremium) {
+        setShinyModalPokemon(p)
+      } else {
+        setShowUpsell(true)
+      }
     }
   }
 
@@ -140,14 +228,15 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
           <div className={styles.grid}>
             {data.items.map((p) => {
               const picked = selectedSet.has(p.pokedexId)
+              const pickedSlot = selected.find((s) => s.id === p.pokedexId)
               const isLegendary = LEGENDARY_IDS.includes(p.pokedexId)
               const legendaryBlocked = isLegendary && !picked && selectedLegendaryCount >= 1
               return (
                 <button
                   key={p.pokedexId}
                   type="button"
-                  className={`${styles.card} ${picked ? styles.cardPicked : ''} ${isLegendary ? styles.cardLegendary : ''}`}
-                  onClick={() => toggle(p.pokedexId)}
+                  className={`${styles.card} ${picked ? styles.cardPicked : ''} ${isLegendary ? styles.cardLegendary : ''} ${pickedSlot?.isShiny ? styles.cardShiny : ''}`}
+                  onClick={() => handleCardClick(p)}
                   onMouseEnter={(e) => handleMouseEnter(e, p)}
                   onMouseLeave={handleMouseLeave}
                   disabled={disabled || (!picked && selected.length >= MAX_TEAM) || legendaryBlocked}
@@ -156,18 +245,37 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
                 >
                   {isLegendary && <span className={styles.legendaryBadge}>★</span>}
                   <span className={styles.dexId}>Nº{String(p.pokedexId).padStart(3, '0')}</span>
-                  <img src={p.spriteUrl} alt={p.name} loading="lazy" />
+                  <img
+                    src={pickedSlot?.isShiny ? (p.shinySpriteUrl || p.spriteUrl) : p.spriteUrl}
+                    alt={p.name}
+                    loading="lazy"
+                  />
                   <span className={styles.name}>{p.name}</span>
                   <span className={styles.types}>
                     {p.types.map((t) => <TypeChip key={t} type={t} />)}
                   </span>
-                  {picked && <span className={styles.checkmark}>✓</span>}
+                  {picked && (
+                    <span className={styles.checkmark}>
+                      {pickedSlot?.isShiny ? '✨' : '✓'}
+                    </span>
+                  )}
+                  {/* Info button (touch) */}
                   <button
                     type="button"
                     className={styles.infoBtn}
                     onClick={(e) => handleInfoClick(e, p)}
                     aria-label={`Ver stats de ${p.name}`}
                   >i</button>
+                  {/* Shiny button */}
+                  {!picked && !disabled && (
+                    <button
+                      type="button"
+                      className={`${styles.shinyBtn} ${isPremium ? styles.shinyBtnPremium : ''}`}
+                      onClick={(e) => handleShinyBtn(e, p)}
+                      aria-label={`Versión shiny de ${p.name}`}
+                      title={isPremium ? 'Elegir variante shiny' : '✨ Premium feature'}
+                    >✨</button>
+                  )}
                 </button>
               )
             })}
@@ -194,6 +302,19 @@ export function TeamPicker({ selected, disabled, onChange }: Props) {
       )}
 
       {statsTarget && <StatTooltip target={statsTarget} />}
+
+      {shinyModalPokemon && (
+        <ShinyModal
+          pokemon={shinyModalPokemon}
+          onPick={(isShiny) => {
+            toggle(shinyModalPokemon, isShiny)
+            setShinyModalPokemon(null)
+          }}
+          onClose={() => setShinyModalPokemon(null)}
+        />
+      )}
+
+      {showUpsell && <UpsellModal onClose={() => setShowUpsell(false)} />}
     </div>
   )
 }

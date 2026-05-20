@@ -4,7 +4,7 @@ import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import type { StageId } from '@pokept/shared'
 import { api, ApiError } from '../lib/api'
 import { usePolling } from '../hooks/usePolling'
-import { TeamPicker } from '../components/TeamPicker'
+import { TeamPicker, type TeamSlot } from '../components/TeamPicker'
 import { StagePicker } from '../components/StagePicker'
 import styles from './lobby.module.css'
 
@@ -23,8 +23,9 @@ function LobbyPage() {
   const [copyMsg, setCopyMsg] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
-  const [draftTeam, setDraftTeam] = useState<number[]>([])
+  const [draftTeam, setDraftTeam] = useState<TeamSlot[]>([])
   const [confirming, setConfirming] = useState(false)
+  const [isPremium, setIsPremium] = useState(false)
 
   const { data: room } = usePolling(
     () => api.getRoom(code),
@@ -43,11 +44,18 @@ function LobbyPage() {
     [room, playerId],
   )
   const myServerTeam = myPlayer?.teamPokemonIds ?? []
+  const myServerShinyIds = myPlayer?.teamShinyIds ?? []
   const myReady = !!myPlayer?.ready
+
+  // Fetch subscription status once
+  useEffect(() => {
+    api.getMe().then((u) => setIsPremium(u.subscriptionStatus === 'premium')).catch(() => {})
+  }, [])
 
   useEffect(() => {
     if (myReady && myServerTeam.length === TEAM_SIZE) {
-      setDraftTeam(myServerTeam)
+      const shinySet = new Set(myServerShinyIds)
+      setDraftTeam(myServerTeam.map((id) => ({ id, isShiny: shinySet.has(id) })))
     }
   }, [myReady, myServerTeam.join(',')])
 
@@ -55,8 +63,8 @@ function LobbyPage() {
   const bothPresent = (room?.players.length ?? 0) === 2
   const bothReady = !!room && room.players.length === 2 && room.players.every((p) => p.ready && p.teamPokemonIds.length === TEAM_SIZE)
 
-  const onTeamChange = useCallback((ids: number[]) => {
-    setDraftTeam(ids)
+  const onTeamChange = useCallback((slots: TeamSlot[]) => {
+    setDraftTeam(slots)
   }, [])
 
   const onConfirmTeam = useCallback(async () => {
@@ -70,7 +78,7 @@ function LobbyPage() {
     } finally {
       setConfirming(false)
     }
-  }, [code, playerId, draftTeam])
+  }, [code, playerId, JSON.stringify(draftTeam)])
 
   const onStageChange = useCallback(async (id: StageId) => {
     if (!playerId || !isHost) return
@@ -163,6 +171,7 @@ function LobbyPage() {
               selected={draftTeam}
               disabled={myReady}
               onChange={onTeamChange}
+              isPremium={isPremium}
             />
             {!myReady && (
               <div className={styles.teamActions}>

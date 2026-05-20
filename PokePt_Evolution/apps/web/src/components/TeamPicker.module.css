@@ -207,3 +207,118 @@
   border: 1px solid var(--pp-ink);
   min-width: 3px;
 }
+
+/* Shiny variant styles */
+.cardShiny {
+  outline: 3px solid #f8d030;
+  outline-offset: -3px;
+  box-shadow: 0 0 16px rgba(248, 208, 48, 0.55), var(--panel-shadow);
+}
+
+/* Shiny button — siempre visible (icono pequeño) */
+.shinyBtn {
+  position: absolute;
+  bottom: 24px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.45;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 100ms;
+}
+.shinyBtn:hover { opacity: 1; }
+.shinyBtnPremium { opacity: 0.8; }
+.shinyBtnPremium:hover { opacity: 1; }
+
+/* Shiny selection modal (portal) */
+.shinyOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 18, 48, 0.75);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shinyModal {
+  background: var(--pp-deep);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 20px 24px;
+  text-align: center;
+  min-width: 280px;
+  max-width: 360px;
+}
+
+.shinyModalTitle {
+  font-family: var(--font-sub);
+  font-size: 26px;
+  color: var(--pp-paper);
+  text-transform: capitalize;
+  margin-bottom: 4px;
+}
+
+.shinyModalSub {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  margin-bottom: 16px;
+}
+
+.shinyChoices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.shinyChoice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  cursor: pointer;
+  transition: transform 100ms;
+}
+.shinyChoice:hover { transform: translateY(-3px); }
+
+.shinyChoiceShiny {
+  background: #1a1040;
+  color: var(--pp-paper);
+  box-shadow: 0 0 14px rgba(248, 208, 48, 0.4);
+  border-color: #f8d030;
+}
+
+.shinySprite {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+}
+
+.shinyChoiceLabel {
+  font-family: var(--font-sub);
+  font-size: 18px;
+}
+
+.shinyClose {
+  font-family: var(--font-display);
+  font-size: 9px;
+  color: var(--pp-platinum);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+.shinyClose:hover { color: var(--pp-hot); }

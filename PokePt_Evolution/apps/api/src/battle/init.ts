@@ -26,11 +26,13 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
   const moveById = new Map(moves.map((m) => [m.moveId, m]))
 
   const players: BattlePlayer[] = room.players.map((rp) => {
+    const shinySet = new Set(rp.teamShinyIds ?? [])
     const team: BattlePokemon[] = rp.teamPokemonIds.map((dexId) => {
       const species = pokemonByDex.get(dexId)
       if (!species) throw new Error(`pokemon ${dexId} no en DB`)
       const ivs = randomIvs()
       const stats = buildBattleStats(species.baseStats, ivs)
+      const isShiny = shinySet.has(dexId)
       const battleMoves: BattleMove[] = species.moveIds
         .map((mid) => moveById.get(mid))
         .filter((m): m is NonNullable<typeof m> => m !== undefined)
@@ -54,7 +56,8 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
         stats,
         moves: battleMoves,
         statStages: emptyStages(),
-        spriteUrl: species.spriteUrl,
+        spriteUrl: isShiny ? (species.shinySpriteUrl || species.spriteUrl) : species.spriteUrl,
+        isShiny,
         fainted: false,
       }
     })

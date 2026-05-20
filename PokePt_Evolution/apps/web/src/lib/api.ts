@@ -57,10 +57,13 @@ export const api = {
       body: JSON.stringify({ playerName }),
     }),
 
-  setTeam: (code: string, pokedexIds: number[]) =>
+  setTeam: (code: string, slots: { id: number; isShiny: boolean }[]) =>
     req<{ room: Room }>(`/rooms/${code}/team`, {
       method: 'POST',
-      body: JSON.stringify({ pokedexIds }),
+      body: JSON.stringify({
+        pokedexIds: slots.map((s) => s.id),
+        shinyIds: slots.filter((s) => s.isShiny).map((s) => s.id),
+      }),
     }),
 
   setStage: (code: string, stageId: StageId) =>

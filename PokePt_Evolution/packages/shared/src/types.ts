@@ -81,6 +81,7 @@ export interface Pokemon {
   types: PokeType[]
   baseStats: BaseStats
   spriteUrl: string
+  shinySpriteUrl: string
   moveIds: number[]  // 4 movs referenciando Move.moveId
 }
 
@@ -96,6 +97,7 @@ export interface RoomPlayer {
   name: string
   ready: boolean
   teamPokemonIds: number[]
+  teamShinyIds: number[]
 }
 
 export type RoomStatus = 'waiting' | 'playing' | 'finished'
@@ -150,6 +152,7 @@ export interface BattlePokemon {
   statStages: StatStages
   status?: PokemonStatus
   spriteUrl: string
+  isShiny: boolean
   fainted: boolean
 }
 

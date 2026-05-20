@@ -39,11 +39,12 @@ interface ApiPokemon {
   name: string
   sprites: {
     front_default: string | null
+    front_shiny: string | null
     versions?: {
       'generation-iv'?: {
-        platinum?: { front_default: string | null }
-        'heartgold-soulsilver'?: { front_default: string | null }
-        'diamond-pearl'?: { front_default: string | null }
+        platinum?: { front_default: string | null; front_shiny: string | null }
+        'heartgold-soulsilver'?: { front_default: string | null; front_shiny: string | null }
+        'diamond-pearl'?: { front_default: string | null; front_shiny: string | null }
       }
     }
   }
@@ -75,6 +76,17 @@ function pickSprite(p: ApiPokemon): string {
     gen4?.['diamond-pearl']?.front_default ??
     p.sprites.front_default ??
     ''
+  )
+}
+
+function pickShinySprite(p: ApiPokemon): string {
+  const gen4 = p.sprites.versions?.['generation-iv']
+  return (
+    gen4?.platinum?.front_shiny ??
+    gen4?.['heartgold-soulsilver']?.front_shiny ??
+    gen4?.['diamond-pearl']?.front_shiny ??
+    p.sprites.front_shiny ??
+    pickSprite(p)  // fallback al sprite normal si no hay shiny
   )
 }
 
@@ -218,6 +230,7 @@ async function importPokemonAndMoves(candidates: PokemonCandidate[]): Promise<{ 
       types,
       baseStats: parseBaseStats(c.api.stats),
       spriteUrl: pickSprite(c.api),
+      shinySpriteUrl: pickShinySprite(c.api),
       moveIds: chosen,
     }
     await upsertPokemon(db, doc)
