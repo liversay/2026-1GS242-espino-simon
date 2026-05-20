@@ -47,10 +47,10 @@ function LobbyPage() {
   const myServerShinyIds = myPlayer?.teamShinyIds ?? []
   const myReady = !!myPlayer?.ready
 
-  // Fetch subscription status once
   useEffect(() => {
+    if (!isSignedIn) return
     api.getMe().then((u) => setIsPremium(u.subscriptionStatus === 'premium')).catch(() => {})
-  }, [])
+  }, [isSignedIn])
 
   useEffect(() => {
     if (myReady && myServerTeam.length === TEAM_SIZE) {

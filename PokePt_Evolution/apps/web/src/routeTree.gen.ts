@@ -9,14 +9,21 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SsoCallbackRouteImport } from './routes/sso-callback'
 import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as SignInRouteImport } from './routes/sign-in'
 import { Route as JoinRouteImport } from './routes/join'
 import { Route as CreateRouteImport } from './routes/create'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as LobbyCodeRouteImport } from './routes/lobby.$code'
+import { Route as BillingSuccessRouteImport } from './routes/billing.success'
 import { Route as BattleCodeRouteImport } from './routes/battle.$code'
 
+const SsoCallbackRoute = SsoCallbackRouteImport.update({
+  id: '/sso-callback',
+  path: '/sso-callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignUpRoute = SignUpRouteImport.update({
   id: '/sign-up',
   path: '/sign-up',
@@ -47,6 +54,11 @@ const LobbyCodeRoute = LobbyCodeRouteImport.update({
   path: '/lobby/$code',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BillingSuccessRoute = BillingSuccessRouteImport.update({
+  id: '/billing/success',
+  path: '/billing/success',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BattleCodeRoute = BattleCodeRouteImport.update({
   id: '/battle/$code',
   path: '/battle/$code',
@@ -59,7 +71,9 @@ export interface FileRoutesByFullPath {
   '/join': typeof JoinRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/battle/$code': typeof BattleCodeRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/lobby/$code': typeof LobbyCodeRoute
 }
 export interface FileRoutesByTo {
@@ -68,7 +82,9 @@ export interface FileRoutesByTo {
   '/join': typeof JoinRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/battle/$code': typeof BattleCodeRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/lobby/$code': typeof LobbyCodeRoute
 }
 export interface FileRoutesById {
@@ -78,7 +94,9 @@ export interface FileRoutesById {
   '/join': typeof JoinRoute
   '/sign-in': typeof SignInRoute
   '/sign-up': typeof SignUpRoute
+  '/sso-callback': typeof SsoCallbackRoute
   '/battle/$code': typeof BattleCodeRoute
+  '/billing/success': typeof BillingSuccessRoute
   '/lobby/$code': typeof LobbyCodeRoute
 }
 export interface FileRouteTypes {
@@ -89,7 +107,9 @@ export interface FileRouteTypes {
     | '/join'
     | '/sign-in'
     | '/sign-up'
+    | '/sso-callback'
     | '/battle/$code'
+    | '/billing/success'
     | '/lobby/$code'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -98,7 +118,9 @@ export interface FileRouteTypes {
     | '/join'
     | '/sign-in'
     | '/sign-up'
+    | '/sso-callback'
     | '/battle/$code'
+    | '/billing/success'
     | '/lobby/$code'
   id:
     | '__root__'
@@ -107,7 +129,9 @@ export interface FileRouteTypes {
     | '/join'
     | '/sign-in'
     | '/sign-up'
+    | '/sso-callback'
     | '/battle/$code'
+    | '/billing/success'
     | '/lobby/$code'
   fileRoutesById: FileRoutesById
 }
@@ -117,12 +141,21 @@ export interface RootRouteChildren {
   JoinRoute: typeof JoinRoute
   SignInRoute: typeof SignInRoute
   SignUpRoute: typeof SignUpRoute
+  SsoCallbackRoute: typeof SsoCallbackRoute
   BattleCodeRoute: typeof BattleCodeRoute
+  BillingSuccessRoute: typeof BillingSuccessRoute
   LobbyCodeRoute: typeof LobbyCodeRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/sso-callback': {
+      id: '/sso-callback'
+      path: '/sso-callback'
+      fullPath: '/sso-callback'
+      preLoaderRoute: typeof SsoCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sign-up': {
       id: '/sign-up'
       path: '/sign-up'
@@ -165,6 +198,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LobbyCodeRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/billing/success': {
+      id: '/billing/success'
+      path: '/billing/success'
+      fullPath: '/billing/success'
+      preLoaderRoute: typeof BillingSuccessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/battle/$code': {
       id: '/battle/$code'
       path: '/battle/$code'
@@ -181,7 +221,9 @@ const rootRouteChildren: RootRouteChildren = {
   JoinRoute: JoinRoute,
   SignInRoute: SignInRoute,
   SignUpRoute: SignUpRoute,
+  SsoCallbackRoute: SsoCallbackRoute,
   BattleCodeRoute: BattleCodeRoute,
+  BillingSuccessRoute: BillingSuccessRoute,
   LobbyCodeRoute: LobbyCodeRoute,
 }
 export const routeTree = rootRouteImport

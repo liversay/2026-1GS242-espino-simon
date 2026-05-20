@@ -1,0 +1,281 @@
+/* Auth screens — sign-in, sign-up, sso-callback */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+.back {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  font-family: var(--font-sub);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  padding: 6px 10px;
+  border: 2px solid transparent;
+  transition: border-color 120ms, color 120ms;
+  z-index: 10;
+}
+.back:hover {
+  border-color: var(--pp-electric);
+  color: var(--pp-electric);
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+
+.card {
+  background: var(--pp-deep);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+  position: relative;
+}
+
+.chip {
+  position: absolute;
+  top: -3px;
+  right: 22px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  background: var(--pp-ink);
+  color: var(--pp-paper);
+  padding: 3px 6px;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pp-electric);
+}
+
+.title {
+  font-family: var(--font-sub);
+  font-size: 40px;
+  color: var(--pp-paper);
+  text-shadow: 3px 3px 0 var(--pp-shadow);
+  line-height: 1;
+  margin: 0;
+}
+
+/* ── Field ────────────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pp-electric);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  border: var(--panel-border);
+  overflow: hidden;
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+}
+
+.tab {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 8px;
+  background: var(--pp-night);
+  color: var(--pp-platinum);
+  border: none;
+  border-right: 2px solid var(--pp-ink);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.tab:last-child { border-right: none; }
+.tab:hover:not(.tabActive) {
+  background: var(--pp-steel);
+  color: var(--pp-paper);
+}
+.tabActive {
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────── */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--pp-steel);
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: var(--pp-steel);
+}
+.dividerText {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--pp-steel);
+}
+
+/* ── Google button ────────────────────────────────────────────────────── */
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-sub);
+  font-size: 20px;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+  padding: 10px 22px;
+  width: 100%;
+  cursor: pointer;
+  transition: transform 80ms, box-shadow 80ms, background 160ms;
+}
+.googleBtn:hover:not(:disabled) { background: var(--pp-electric); }
+.googleBtn:active:not(:disabled) {
+  transform: translate(3px, 3px);
+  box-shadow: 0 0 0 var(--pp-shadow);
+}
+.googleBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+/* ── OTP grid ─────────────────────────────────────────────────────────── */
+
+.otpRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.otpSep {
+  width: 10px;
+  height: 3px;
+  background: var(--pp-steel);
+  flex-shrink: 0;
+}
+
+.otpBox {
+  width: 48px;
+  height: 56px;
+  font-family: var(--font-sub);
+  font-size: 28px;
+  text-align: center;
+  background: var(--pp-paper);
+  color: var(--pp-ink);
+  border: var(--panel-border);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18);
+  caret-color: var(--pp-hot);
+  transition: border-color 100ms, box-shadow 100ms;
+}
+.otpBox:focus {
+  outline: none;
+  border-color: var(--pp-electric);
+  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18), 0 0 0 2px var(--pp-electric);
+}
+
+/* ── Error / success ──────────────────────────────────────────────────── */
+
+.errorBox {
+  background: rgba(255, 91, 62, 0.12);
+  border: 2px solid var(--pp-hot);
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-hot);
+  line-height: 1.3;
+}
+
+/* ── Bottom switch link ───────────────────────────────────────────────── */
+
+.authSwitch {
+  text-align: center;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  margin: 0;
+}
+.authSwitch a {
+  color: var(--pp-electric);
+  text-decoration: underline;
+}
+
+/* ── OTP hint ─────────────────────────────────────────────────────────── */
+
+.otpHint {
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+.otpHint strong { color: var(--pp-paper); }
+
+/* ── Back link inside card ────────────────────────────────────────────── */
+
+.cardBack {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  cursor: pointer;
+  text-align: center;
+  padding: 0;
+  transition: color 100ms;
+}
+.cardBack:hover { color: var(--pp-electric); }
+
+/* ── Loading blink ────────────────────────────────────────────────────── */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+.blink { animation: blink 0.85s ease-in-out infinite; }

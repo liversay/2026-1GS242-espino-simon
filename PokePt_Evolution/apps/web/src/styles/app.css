@@ -112,6 +112,10 @@ body {
   caret-color: var(--pp-hot);
 }
 .input::placeholder { color: rgba(20, 23, 46, 0.4); }
+.input:focus {
+  outline: none;
+  border-color: var(--pp-electric);
+}
 
 /* Chips de tipo */
 .type-chip {

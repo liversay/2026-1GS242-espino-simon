@@ -221,6 +221,12 @@
 }
 .anim-shake { animation: screen-shake 250ms ease-in-out; }
 
+/* ---------- Auth blink ---------- */
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+
 /* ---------- Utilities ---------- */
 .spin-slow { animation: spin-slow 60s linear infinite; }
 @keyframes spin-slow { from { transform: rotate(0); } to { transform: rotate(360deg); } }

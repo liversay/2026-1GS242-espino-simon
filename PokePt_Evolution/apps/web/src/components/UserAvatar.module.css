@@ -1,0 +1,109 @@
+.wrap {
+  position: relative;
+}
+
+.avatarBtn {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--pp-ink);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+  background: var(--pp-steel);
+  overflow: hidden;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: border-color 100ms, box-shadow 100ms;
+  flex-shrink: 0;
+}
+.avatarBtn:hover {
+  border-color: var(--pp-electric);
+  box-shadow: 3px 3px 0 var(--pp-shadow), 0 0 0 2px var(--pp-electric);
+}
+
+.avatarImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  image-rendering: pixelated;
+}
+
+.avatarInitials {
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: var(--pp-paper);
+  user-select: none;
+}
+
+/* ── Dropdown menu ────────────────────────────────────────────────────── */
+
+.menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 224px;
+  background: var(--pp-deep);
+  border: var(--panel-border);
+  box-shadow: var(--panel-shadow);
+  padding: 12px 14px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+  z-index: 100;
+}
+
+.menuChip {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.05em;
+  color: var(--pp-electric);
+  margin-bottom: 6px;
+  display: block;
+}
+
+.menuName {
+  font-family: var(--font-sub);
+  font-size: 18px;
+  color: var(--pp-paper);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.menuEmail {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--pp-platinum);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin: 0;
+}
+
+.menuDivider {
+  border: none;
+  border-top: 2px solid var(--pp-steel);
+  margin: 8px 0 4px;
+}
+
+.signOutBtn {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: transparent;
+  color: var(--pp-hot);
+  border: 2px solid var(--pp-hot);
+  padding: 8px 10px;
+  cursor: pointer;
+  transition: background 100ms, color 100ms;
+  text-align: left;
+  width: 100%;
+}
+.signOutBtn:hover {
+  background: var(--pp-hot);
+  color: var(--pp-paper);
+}
