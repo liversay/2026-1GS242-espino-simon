@@ -8,6 +8,7 @@
     "import": "bun run src/importer/importAll.ts"
   },
   "dependencies": {
+    "@clerk/backend": "^3.4.11",
     "@pokept/shared": "workspace:*",
     "hono": "^4.6.16",
     "mongodb": "^6.12.0",

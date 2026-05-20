@@ -3,7 +3,7 @@ import styles from './MoveButton.module.css'
 
 interface Props {
   move: BattleMove
-  onUse: () => void
+  onUse?: () => void
   disabled?: boolean
 }
 

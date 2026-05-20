@@ -12,10 +12,20 @@ import type {
 
 const BASE = import.meta.env.VITE_API_BASE ?? '/api'
 
+type TokenProvider = () => Promise<string | null>
+let tokenProvider: TokenProvider | null = null
+
+export function setTokenProvider(fn: TokenProvider): void {
+  tokenProvider = fn
+}
+
 async function req<T>(path: string, init?: RequestInit): Promise<T> {
+  const token = await tokenProvider?.()
+  const headers: Record<string, string> = { 'content-type': 'application/json' }
+  if (token) headers['authorization'] = `Bearer ${token}`
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'content-type': 'application/json' },
     ...init,
+    headers: { ...headers, ...(init?.headers as Record<string, string> | undefined) },
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({ error: res.statusText }))
@@ -34,7 +44,7 @@ export class ApiError extends Error {
 
 export const api = {
   createRoom: (playerName: string) =>
-    req<{ code: string; playerId: string; room: Room }>('/rooms', {
+    req<{ code: string; room: Room }>('/rooms', {
       method: 'POST',
       body: JSON.stringify({ playerName }),
     }),
@@ -42,53 +52,53 @@ export const api = {
   getRoom: (code: string) => req<Room>(`/rooms/${code}`),
 
   joinRoom: (code: string, playerName: string) =>
-    req<{ playerId: string; room: Room }>(`/rooms/${code}/join`, {
+    req<{ room: Room }>(`/rooms/${code}/join`, {
       method: 'POST',
       body: JSON.stringify({ playerName }),
     }),
 
-  setTeam: (code: string, playerId: string, pokedexIds: number[]) =>
+  setTeam: (code: string, pokedexIds: number[]) =>
     req<{ room: Room }>(`/rooms/${code}/team`, {
       method: 'POST',
-      body: JSON.stringify({ playerId, pokedexIds }),
+      body: JSON.stringify({ pokedexIds }),
     }),
 
-  setStage: (code: string, playerId: string, stageId: StageId) =>
+  setStage: (code: string, stageId: StageId) =>
     req<{ room: Room }>(`/rooms/${code}/stage`, {
       method: 'POST',
-      body: JSON.stringify({ playerId, stageId }),
+      body: JSON.stringify({ stageId }),
     }),
 
-  startBattle: (code: string, playerId: string) =>
+  startBattle: (code: string) =>
     req<{ battle: Battle }>(`/rooms/${code}/start`, {
       method: 'POST',
-      body: JSON.stringify({ playerId }),
+      body: JSON.stringify({}),
     }),
 
   getBattle: (code: string) => req<Battle>(`/battles/${code}`),
 
-  coinFlipChoice: (code: string, playerId: string, choice: CoinFace) =>
+  coinFlipChoice: (code: string, choice: CoinFace) =>
     req<Battle>(`/battles/${code}/coin-flip-choice`, {
       method: 'POST',
-      body: JSON.stringify({ playerId, choice }),
+      body: JSON.stringify({ choice }),
     }),
 
-  sendAction: (code: string, playerId: string, action: BattleAction) =>
+  sendAction: (code: string, action: BattleAction) =>
     req<Battle>(`/battles/${code}/action`, {
       method: 'POST',
-      body: JSON.stringify({ playerId, action }),
+      body: JSON.stringify({ action }),
     }),
 
-  forfeit: (code: string, playerId: string) =>
+  forfeit: (code: string) =>
     req<Battle>(`/battles/${code}/forfeit`, {
       method: 'POST',
-      body: JSON.stringify({ playerId }),
+      body: JSON.stringify({}),
     }),
 
-  acknowledgeFlip: (code: string, playerId: string) =>
+  acknowledgeFlip: (code: string) =>
     req<Battle>(`/battles/${code}/coinflip-acknowledge`, {
       method: 'POST',
-      body: JSON.stringify({ playerId }),
+      body: JSON.stringify({}),
     }),
 
   listPokemon: (params: { page?: number; pageSize?: number; search?: string } = {}) => {
@@ -100,4 +110,6 @@ export const api = {
       `/pokemon?${q.toString()}`,
     )
   },
+
+  getMe: () => req<{ clerkUserId: string; email: string; subscriptionStatus: 'free' | 'premium' }>('/me'),
 }

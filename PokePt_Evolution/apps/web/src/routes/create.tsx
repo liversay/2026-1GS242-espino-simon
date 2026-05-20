@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import { api, ApiError } from '../lib/api'
-import { savePlayer, getLastName } from '../lib/storage'
+import { saveName, getLastName } from '../lib/storage'
 import styles from './form.module.css'
 
 export const Route = createFileRoute('/create')({
@@ -9,10 +10,14 @@ export const Route = createFileRoute('/create')({
 })
 
 function CreateRoomPage() {
+  const { isLoaded, isSignedIn } = useUser()
   const navigate = useNavigate()
   const [name, setName] = useState(getLastName())
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  if (!isLoaded) return null
+  if (!isSignedIn) return <RedirectToSignIn />
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -22,7 +27,7 @@ function CreateRoomPage() {
     setError(null)
     try {
       const r = await api.createRoom(clean)
-      savePlayer(r.code, r.playerId, clean)
+      saveName(clean)
       navigate({ to: '/lobby/$code', params: { code: r.code } })
     } catch (err) {
       setError(err instanceof ApiError ? err.message : 'Could not create room.')

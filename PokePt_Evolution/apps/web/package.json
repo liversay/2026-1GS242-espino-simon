@@ -9,6 +9,7 @@
     "start": "vite preview --port 3000 --host"
   },
   "dependencies": {
+    "@clerk/clerk-react": "^5.61.3",
     "@pokept/shared": "workspace:*",
     "@tanstack/react-router": "^1.95.0",
     "@tanstack/router-devtools": "^1.95.0",

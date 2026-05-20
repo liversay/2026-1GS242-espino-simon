@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from '@tanstack/react-router'
+import { useAuth } from '@clerk/clerk-react'
 import styles from './index.module.css'
 
 export const Route = createFileRoute('/')({
@@ -9,6 +10,8 @@ const LINE1 = 'POKEPT'
 const LINE2 = 'EVOLUTION'
 
 function SplashPage() {
+  const { isSignedIn, isLoaded } = useAuth()
+
   return (
     <main className={styles.splash}>
       <div className={styles.pokeball} aria-hidden />
@@ -50,14 +53,29 @@ function SplashPage() {
         </p>
       </header>
 
-      <nav className={styles.ctas}>
-        <Link to="/create" className="btn btn--hot">
-          → Create room
-        </Link>
-        <Link to="/join" className="btn">
-          Join with code
-        </Link>
-      </nav>
+      {isLoaded && (
+        <nav className={styles.ctas}>
+          {isSignedIn ? (
+            <>
+              <Link to="/create" className="btn btn--hot">
+                → Create room
+              </Link>
+              <Link to="/join" className="btn">
+                Join with code
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link to="/sign-in" className="btn btn--hot">
+                → Sign in to play
+              </Link>
+              <Link to="/sign-up" className="btn">
+                Create account
+              </Link>
+            </>
+          )}
+        </nav>
+      )}
 
       <footer className={styles.footer}>
         <div className={styles.indexNum}>

@@ -31,7 +31,7 @@ export function CoinFlip({ battle, myPlayerId, onContinue }: Props) {
     setSending(true)
     setError(null)
     try {
-      await api.coinFlipChoice(battle.roomCode, myPlayerId, face)
+      await api.coinFlipChoice(battle.roomCode, face)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Error choosing.')
       setSending(false)

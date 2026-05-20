@@ -1,8 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import type { StageId } from '@pokept/shared'
 import { api, ApiError } from '../lib/api'
-import { getPlayer } from '../lib/storage'
 import { usePolling } from '../hooks/usePolling'
 import { TeamPicker } from '../components/TeamPicker'
 import { StagePicker } from '../components/StagePicker'
@@ -17,8 +17,9 @@ export const Route = createFileRoute('/lobby/$code')({
 function LobbyPage() {
   const { code } = Route.useParams()
   const navigate = useNavigate()
-  const stored = getPlayer(code)
-  const playerId = stored?.playerId
+  const { isLoaded, isSignedIn, user } = useUser()
+  const playerId = user?.id ?? null
+
   const [copyMsg, setCopyMsg] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [starting, setStarting] = useState(false)
@@ -44,7 +45,6 @@ function LobbyPage() {
   const myServerTeam = myPlayer?.teamPokemonIds ?? []
   const myReady = !!myPlayer?.ready
 
-  // Sincronizar draft con servidor cuando llega/cambia
   useEffect(() => {
     if (myReady && myServerTeam.length === TEAM_SIZE) {
       setDraftTeam(myServerTeam)
@@ -64,7 +64,7 @@ function LobbyPage() {
     setConfirming(true)
     setError(null)
     try {
-      await api.setTeam(code, playerId, draftTeam)
+      await api.setTeam(code, draftTeam)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not save team.')
     } finally {
@@ -75,7 +75,7 @@ function LobbyPage() {
   const onStageChange = useCallback(async (id: StageId) => {
     if (!playerId || !isHost) return
     try {
-      await api.setStage(code, playerId, id)
+      await api.setStage(code, id)
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not change stage.')
     }
@@ -92,7 +92,7 @@ function LobbyPage() {
     setStarting(true)
     setError(null)
     try {
-      await api.startBattle(code, playerId)
+      await api.startBattle(code)
       navigate({ to: '/battle/$code', params: { code } })
     } catch (e) {
       setError(e instanceof ApiError ? e.message : 'Could not start battle.')
@@ -100,14 +100,9 @@ function LobbyPage() {
     }
   }
 
-  if (!playerId) {
-    return (
-      <main className={styles.shell}>
-        <p className={styles.muted}>No session found for this room. Go back to home.</p>
-        <a href="/" className="btn">← Home</a>
-      </main>
-    )
-  }
+  if (!isLoaded) return null
+  if (!isSignedIn) return <RedirectToSignIn />
+
   if (!room) {
     return <main className={styles.shell}><p className={styles.muted}>Loading lobby…</p></main>
   }

@@ -1,8 +1,8 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import type { Battle, BattleAction, LogEntry } from '@pokept/shared'
 import { api, ApiError } from '../lib/api'
-import { getPlayer } from '../lib/storage'
 import { usePolling } from '../hooks/usePolling'
 import { Stage } from '../components/stages/Stage'
 import { PokemonStage } from '../components/PokemonStage'
@@ -48,8 +48,10 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 
 function BattlePage() {
   const { code } = Route.useParams()
-  const stored = getPlayer(code)
-  const playerId = stored?.playerId
+  const { isLoaded, isSignedIn, user } = useUser()
+  // After isSignedIn check below, user is guaranteed non-null
+  const playerId = user?.id as string | undefined
+
   const [actionPending, setActionPending] = useState(false)
   const [errorMsg, setErrorMsg] = useState<string | null>(null)
   const [anim, setAnim] = useState<AnimState>(EMPTY_ANIM)
@@ -57,9 +59,7 @@ function BattlePage() {
   const [battleMenuMode, setBattleMenuMode] = useState<BattleMenuMode>('main')
   const [showTypeChart, setShowTypeChart] = useState(false)
   const [surrenderConfirm, setSurrenderConfirm] = useState(false)
-  /** true when the animation queue has caught up to the latest backend log. */
   const [animationDone, setAnimationDone] = useState(true)
-  /** true after a KO faint animation, waiting for player to click before opening SwitchMenu. */
   const [pendingKoAck, setPendingKoAck] = useState(false)
 
   const { data: battle, refetch } = usePolling(
@@ -118,7 +118,6 @@ function BattlePage() {
   const canAttack = !!battle && battle.status === 'in-progress' && isMyTurn && !mustSwitch && !coinFlipping && !actionPending
   const canSwitch = canAttack || mustSwitch
 
-  // Reset action menu when turn ends
   useEffect(() => {
     if (!isMyTurn) {
       setBattleMenuMode('main')
@@ -127,19 +126,18 @@ function BattlePage() {
   }, [isMyTurn])
 
   async function sendMove(moveId: number) {
-    if (!playerId || !canAttack) return
+    if (!canAttack) return
     await send({ type: 'move', moveId })
   }
   async function sendSwitch(targetIndex: number) {
-    if (!playerId || !canSwitch) return
+    if (!canSwitch) return
     await send({ type: 'switch', targetIndex })
   }
   async function send(action: BattleAction) {
-    if (!playerId) return
     setActionPending(true)
     setErrorMsg(null)
     try {
-      await api.sendAction(code, playerId, action)
+      await api.sendAction(code, action)
       setShowSwitchMenu(false)
       setBattleMenuMode('main')
       refetch()
@@ -151,9 +149,8 @@ function BattlePage() {
     }
   }
   async function handleAcknowledgeFlip() {
-    if (!playerId) return
     try {
-      await api.acknowledgeFlip(code, playerId)
+      await api.acknowledgeFlip(code)
       refetch()
     } catch (err) {
       if (err instanceof ApiError) setErrorMsg(err.message)
@@ -161,11 +158,10 @@ function BattlePage() {
     }
   }
   async function handleForfeit() {
-    if (!playerId) return
     setActionPending(true)
     setErrorMsg(null)
     try {
-      await api.forfeit(code, playerId)
+      await api.forfeit(code)
       setSurrenderConfirm(false)
       refetch()
     } catch (err) {
@@ -176,9 +172,8 @@ function BattlePage() {
     }
   }
 
-  if (!playerId) {
-    return <main className={styles.shell}><p>No session. <a href="/">Go home</a></p></main>
-  }
+  if (!isLoaded) return null
+  if (!isSignedIn || !playerId) return <RedirectToSignIn />
   if (!battle) {
     return <main className={styles.shell}><p>Loading battle…</p></main>
   }
@@ -268,7 +263,6 @@ function BattlePage() {
       <div className={styles.separator} />
 
       <section className={styles.controls}>
-        {/* Left panel: action menu or moves */}
         {isMyTurn && !mustSwitch && !coinFlipping && !finished ? (
           battleMenuMode === 'fight' ? (
             <div className={styles.moves}>
@@ -326,7 +320,6 @@ function BattlePage() {
           </div>
         )}
 
-        {/* Right panel: info + back/confirm */}
         <div className={styles.side}>
           {battleMenuMode === 'fight' && isMyTurn && !mustSwitch && (
             <button className="btn" type="button" onClick={() => setBattleMenuMode('main')}>
@@ -425,8 +418,6 @@ async function playEntry(
     await sleep(700)
   } else if (e.kind === 'switch') {
     const isAlly = e.playerId === myId
-    // Activar pokeball aquí mismo: el sprite nuevo ya está montado (por polling),
-    // hay que ocultarlo de inmediato antes del sleep de 350ms.
     setAnim((s) => ({
       ...s,
       allyAnim: isAlly ? null : s.allyAnim,
@@ -438,8 +429,6 @@ async function playEntry(
     }))
     await sleep(350)
   } else if (e.kind === 'send_out') {
-    // Para el caso inicial (sin switch previo) activa el flag acá.
-    // Para switches, ya estaba en true desde el handler anterior (no-op si ya true).
     const isAlly = e.playerId === myId
     setAnim((s) => ({
       ...s,

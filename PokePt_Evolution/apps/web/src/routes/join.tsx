@@ -1,7 +1,8 @@
 import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useState } from 'react'
+import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import { api, ApiError } from '../lib/api'
-import { savePlayer, getLastName } from '../lib/storage'
+import { saveName, getLastName } from '../lib/storage'
 import styles from './form.module.css'
 
 export const Route = createFileRoute('/join')({
@@ -9,11 +10,15 @@ export const Route = createFileRoute('/join')({
 })
 
 function JoinRoomPage() {
+  const { isLoaded, isSignedIn } = useUser()
   const navigate = useNavigate()
   const [name, setName] = useState(getLastName())
   const [code, setCode] = useState('')
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+
+  if (!isLoaded) return null
+  if (!isSignedIn) return <RedirectToSignIn />
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -25,7 +30,7 @@ function JoinRoomPage() {
     setError(null)
     try {
       const r = await api.joinRoom(cleanCode, cleanName)
-      savePlayer(cleanCode, r.playerId, cleanName)
+      saveName(cleanName)
       navigate({ to: '/lobby/$code', params: { code: cleanCode } })
     } catch (err) {
       if (err instanceof ApiError) {

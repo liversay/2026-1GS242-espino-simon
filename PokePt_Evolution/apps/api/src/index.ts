@@ -5,6 +5,7 @@ import { getDb } from './db/mongo'
 import { catalogRoutes } from './routes/catalog'
 import { roomRoutes } from './routes/rooms'
 import { battleRoutes } from './routes/battles'
+import { userRoutes } from './routes/users'
 
 const PORT = Number(process.env.PORT ?? 3001)
 
@@ -18,6 +19,7 @@ app.get('/health', (c) => c.json({ ok: true, service: 'pokept-api' }))
 app.route('/pokemon', catalogRoutes)
 app.route('/rooms', roomRoutes)
 app.route('/battles', battleRoutes)
+app.route('/me', userRoutes)
 
 app.onError((err, c) => {
   console.error('[api] error:', err)
@@ -25,7 +27,6 @@ app.onError((err, c) => {
   return c.json({ error: err.message || 'internal_error' }, (status as 400 | 401 | 403 | 404 | 409 | 500) ?? 500)
 })
 
-// Conectar a Mongo al arrancar
 await getDb()
 console.log(`[api] mongo connected; listening on :${PORT}`)
 
