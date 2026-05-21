@@ -11,6 +11,9 @@ interface Props {
 
 export function PokemonStage({ pokemon, side, animation, damageNumber, showPokeball }: Props) {
   const isFaint = pokemon.fainted
+  const spriteUrl = side === 'ally'
+    ? (pokemon.backSpriteUrl || pokemon.spriteUrl)
+    : pokemon.spriteUrl
   const spriteClass = [
     styles.sprite,
     showPokeball ? styles.spriteAppear : '',
@@ -29,9 +32,9 @@ export function PokemonStage({ pokemon, side, animation, damageNumber, showPokeb
             className={`${styles.pokeball} ${side === 'ally' ? styles.pokeballAlly : styles.pokeballFoe}`}
           />
         )}
-        {pokemon.spriteUrl ? (
+        {spriteUrl ? (
           <img
-            src={pokemon.spriteUrl}
+            src={spriteUrl}
             alt={pokemon.name}
             className={spriteClass}
             style={isFaint ? { filter: 'grayscale(1) brightness(0.5)', opacity: 0.35 } : undefined}

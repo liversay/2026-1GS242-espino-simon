@@ -46,6 +46,12 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
           damageClass: m.damageClass,
           effect: m.effect,
         }))
+      const frontSprite = isShiny
+        ? (species.shinySpriteUrl || species.spriteUrl)
+        : species.spriteUrl
+      const backSprite = isShiny
+        ? (species.backShinySpriteUrl || species.backSpriteUrl || frontSprite)
+        : (species.backSpriteUrl || frontSprite)
       return {
         speciesId: species.pokedexId,
         name: species.name,
@@ -56,7 +62,8 @@ export async function buildInitialBattle(db: Db, room: Room): Promise<Battle> {
         stats,
         moves: battleMoves,
         statStages: emptyStages(),
-        spriteUrl: isShiny ? (species.shinySpriteUrl || species.spriteUrl) : species.spriteUrl,
+        spriteUrl: frontSprite,
+        backSpriteUrl: backSprite,
         isShiny,
         fainted: false,
       }

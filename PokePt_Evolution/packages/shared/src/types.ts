@@ -82,6 +82,8 @@ export interface Pokemon {
   baseStats: BaseStats
   spriteUrl: string
   shinySpriteUrl: string
+  backSpriteUrl: string
+  backShinySpriteUrl: string
   moveIds: number[]  // 4 movs referenciando Move.moveId
 }
 
@@ -152,6 +154,8 @@ export interface BattlePokemon {
   statStages: StatStages
   status?: PokemonStatus
   spriteUrl: string
+  /** Sprite trasero (vista de espalda). Opcional para batallas antiguas. */
+  backSpriteUrl?: string
   isShiny: boolean
   fainted: boolean
 }

@@ -40,11 +40,22 @@ interface ApiPokemon {
   sprites: {
     front_default: string | null
     front_shiny: string | null
+    back_default: string | null
+    back_shiny: string | null
     versions?: {
       'generation-iv'?: {
-        platinum?: { front_default: string | null; front_shiny: string | null }
-        'heartgold-soulsilver'?: { front_default: string | null; front_shiny: string | null }
-        'diamond-pearl'?: { front_default: string | null; front_shiny: string | null }
+        platinum?: {
+          front_default: string | null; front_shiny: string | null
+          back_default: string | null; back_shiny: string | null
+        }
+        'heartgold-soulsilver'?: {
+          front_default: string | null; front_shiny: string | null
+          back_default: string | null; back_shiny: string | null
+        }
+        'diamond-pearl'?: {
+          front_default: string | null; front_shiny: string | null
+          back_default: string | null; back_shiny: string | null
+        }
       }
     }
   }
@@ -87,6 +98,28 @@ function pickShinySprite(p: ApiPokemon): string {
     gen4?.['diamond-pearl']?.front_shiny ??
     p.sprites.front_shiny ??
     pickSprite(p)  // fallback al sprite normal si no hay shiny
+  )
+}
+
+function pickBackSprite(p: ApiPokemon): string {
+  const gen4 = p.sprites.versions?.['generation-iv']
+  return (
+    gen4?.platinum?.back_default ??
+    gen4?.['heartgold-soulsilver']?.back_default ??
+    gen4?.['diamond-pearl']?.back_default ??
+    p.sprites.back_default ??
+    pickSprite(p)  // fallback al front si no hay back
+  )
+}
+
+function pickBackShinySprite(p: ApiPokemon): string {
+  const gen4 = p.sprites.versions?.['generation-iv']
+  return (
+    gen4?.platinum?.back_shiny ??
+    gen4?.['heartgold-soulsilver']?.back_shiny ??
+    gen4?.['diamond-pearl']?.back_shiny ??
+    p.sprites.back_shiny ??
+    pickBackSprite(p)  // fallback al back normal
   )
 }
 
@@ -231,6 +264,8 @@ async function importPokemonAndMoves(candidates: PokemonCandidate[]): Promise<{ 
       baseStats: parseBaseStats(c.api.stats),
       spriteUrl: pickSprite(c.api),
       shinySpriteUrl: pickShinySprite(c.api),
+      backSpriteUrl: pickBackSprite(c.api),
+      backShinySpriteUrl: pickBackShinySprite(c.api),
       moveIds: chosen,
     }
     await upsertPokemon(db, doc)
