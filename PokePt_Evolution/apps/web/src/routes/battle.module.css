@@ -12,10 +12,11 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
+  padding-right: var(--avatar-safe-area);
 }
 .vs {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 2vw, 20px);
+  font-family: var(--font-game);
+  font-size: clamp(16px, 2.4vw, 24px);
   color: var(--pp-platinum);
   display: flex;
   align-items: baseline;
@@ -23,16 +24,16 @@
 }
 .vs strong {
   color: var(--pp-paper);
-  font-family: var(--font-sub);
-  font-size: clamp(15px, 2.4vw, 24px);
-  padding: 2px 6px;
+  font-family: var(--font-game);
+  font-size: clamp(18px, 2.6vw, 26px);
+  padding: 2px 8px;
   border: 2px solid transparent;
   transition: border-color 200ms, color 200ms;
 }
 .vsLabel { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em; color: var(--pp-steel); }
 .activePlayer {
   color: var(--pp-electric);
-  border-color: var(--pp-hot);
+  border-color: var(--ds-menu-red);
   box-shadow: 3px 3px 0 var(--pp-shadow);
 }
 
@@ -41,15 +42,14 @@
   width: 100%;
   aspect-ratio: 16 / 8;
   min-height: 370px;
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
   overflow: hidden;
-  clip-path: polygon(0 0, calc(100% - 22px) 0, 100% 22px, 100% 100%, 22px 100%, 0 calc(100% - 22px));
 }
 
-/* Classic Pokémon layout: each HpBox is on the OPPOSITE side from its sprite.
-   - foe sprite: top-right → HpBox at top-LEFT
-   - ally sprite: bottom-left → HpBox at bottom-RIGHT */
 .foeBox {
   position: absolute;
   top: 14px;
@@ -76,11 +76,12 @@
 
 .separator {
   height: 5px;
-  background: var(--pp-ink);
-  border-top: 3px solid var(--pp-hot);
+  background: var(--ds-dialog-outer);
+  border-top: 3px solid var(--ds-menu-red);
   border-bottom: 1px solid rgba(255,255,255,0.12);
   margin: -4px 0 0;
   position: relative;
+  border-radius: 2px;
 }
 .separator::after {
   content: '';
@@ -93,92 +94,89 @@
   );
 }
 
+/* ── 3-zone battle controls: dialog | menu ───────────────────────────── */
 .controls {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 14px;
-}
-@media (max-width: 760px) { .controls { grid-template-columns: 1fr; } }
-
-.moves {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: stretch;
 }
 
-/* ── Action menu (main battle options) ─────────────────────────────────── */
-.actionMenu {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
+@media (max-width: 880px) {
+  .controls { grid-template-columns: 1fr; }
 }
-@media (max-width: 420px) { .actionMenu { grid-template-columns: 1fr; } }
 
-/* Replica el lenguaje visual de MoveButton: fondo sólido, border pixel,
-   sombra dura, hover translate + brightness, active press-down. */
-.actionBtn {
+.dialogZone {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 5px;
-  padding: 12px 16px;
-  color: white;
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.4);
-  cursor: pointer;
-  text-align: left;
-  transition: transform 80ms, box-shadow 80ms, filter 100ms;
-  min-height: 68px;
-}
-.actionBtn:hover:not(:disabled) {
-  transform: translate(-1px, -1px);
-  box-shadow: 5px 5px 0 var(--pp-shadow);
-  filter: brightness(1.12);
-}
-.actionBtn:active:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--pp-shadow);
-}
-.actionBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-  filter: grayscale(0.5);
+  gap: 12px;
+  min-width: 0;
 }
 
-/* Colores de carta — sólidos, saturados, estilo GBA */
-.actionFight  { background: var(--type-fighting); }
-.actionSwitch { background: var(--type-grass); }
-.actionRun    { background: var(--type-water); }
-.actionHelp   { background: var(--type-electric); color: var(--pp-ink); text-shadow: none; }
-
-/* Label principal: igual que MoveButton .name */
-.actionLabel {
-  font-family: var(--font-sub);
-  font-size: clamp(14px, 2.2vw, 22px);
-  line-height: 1;
+.menuZone {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  color: var(--pp-paper);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
+  min-width: 0;
 }
 
-/* Subtítulo: igual que MoveButton .meta */
-.actionSub {
-  font-family: var(--font-display);
-  font-size: clamp(7px, 0.8vw, 9px);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  opacity: 0.88;
+.turnInfo {
+  font-family: var(--font-game);
+  font-size: clamp(16px, 1.9vw, 20px);
+  color: var(--pp-platinum);
+  line-height: 1.25;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed rgba(185, 196, 216, 0.22);
+}
+.turnInfoMine {
+  color: var(--pp-electric);
+}
+
+.waiting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-game);
+  font-size: 20px;
+  color: var(--pp-platinum);
+  padding: 18px 4px;
+}
+
+.waitingDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pp-electric);
+  box-shadow: 0 0 12px var(--pp-electric);
+  animation: waiting-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes waiting-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1.1); }
 }
 
 /* ── Surrender confirmation ────────────────────────────────────────────── */
 .confirmBox {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
+  padding: 10px 0;
 }
 .confirmMsg {
-  font-family: var(--font-body);
-  font-size: 17px;
-  color: var(--pp-hot);
-  font-weight: bold;
+  font-family: var(--font-game);
+  font-size: 20px;
+  color: var(--ds-menu-red);
+  margin: 0;
 }
 .confirmBtns {
   display: flex;
@@ -186,51 +184,41 @@
   flex-wrap: wrap;
 }
 
-.side {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  padding: 12px;
-  background: var(--pp-deep);
-  color: var(--pp-paper);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-}
-.turnInfo {
-  font-family: var(--font-body);
-  font-size: clamp(14px, 1.8vw, 18px);
-  color: var(--pp-platinum);
-  line-height: 1.25;
-}
-.turnInfoMine {
-  color: var(--pp-electric);
-  font-weight: bold;
-}
 .error {
-  font-family: var(--font-body);
-  font-size: 17px;
-  color: var(--pp-hot);
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--ds-menu-red);
+  margin: 0;
 }
 
-/* ── KO acknowledgment button ──────────────────────────────────────────── */
+/* ── KO acknowledgment button (inline al lado del log) ──────────────── */
 .koAckBtn {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 8px;
-  padding: 10px 14px;
-  background: var(--pp-hot);
+  padding: 12px 16px;
+  background: linear-gradient(180deg, var(--ds-menu-red) 0%, var(--ds-menu-red-d) 100%);
   color: var(--pp-paper);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
   cursor: pointer;
   width: 100%;
+  text-align: left;
+  box-shadow:
+    inset 0 -4px 0 rgba(0,0,0,0.3),
+    inset 0 4px 0 rgba(255,255,255,0.18),
+    3px 3px 0 var(--pp-shadow);
   animation: ko-ack-pulse 0.9s ease-in-out infinite alternate;
 }
 .koAckBtn:hover { filter: brightness(1.12); }
+.koAckBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 3px;
+}
 .koAckLabel {
-  font-family: var(--font-sub);
-  font-size: clamp(11px, 1.6vw, 15px);
+  font-family: var(--font-game);
+  font-size: clamp(16px, 1.8vw, 20px);
   line-height: 1.2;
 }
 .koAckCaret {
@@ -238,10 +226,14 @@
   animation: ko-ack-bounce 0.9s ease-in-out infinite alternate;
 }
 @keyframes ko-ack-pulse {
-  from { opacity: 0.82; box-shadow: var(--panel-shadow); }
-  to   { opacity: 1;    box-shadow: 5px 5px 0 var(--pp-shadow), 0 0 14px rgba(230,51,41,0.55); }
+  from { opacity: 0.82; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.18), 3px 3px 0 var(--pp-shadow); }
+  to   { opacity: 1;    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.18), 5px 5px 0 var(--pp-shadow), 0 0 14px rgba(208,72,72,0.55); }
 }
 @keyframes ko-ack-bounce {
   from { transform: translateY(0); }
   to   { transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waitingDot, .koAckBtn, .koAckCaret { animation: none !important; }
 }

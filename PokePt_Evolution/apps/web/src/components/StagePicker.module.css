@@ -5,9 +5,10 @@
 }
 .header { display: flex; flex-direction: column; gap: 4px; }
 .h3 {
-  font-family: var(--font-sub);
+  font-family: var(--font-game);
   font-size: 26px;
   color: var(--pp-paper);
+  letter-spacing: 0.02em;
 }
 
 .carousel {
@@ -18,56 +19,73 @@
   padding: 6px 4px 14px;
 }
 .carousel::-webkit-scrollbar { height: 8px; }
-.carousel::-webkit-scrollbar-thumb { background: var(--pp-steel); }
+.carousel::-webkit-scrollbar-thumb {
+  background: var(--ds-dialog-inner);
+  border-radius: 4px;
+}
 
 .card {
   flex: 0 0 240px;
   display: flex;
   flex-direction: column;
   gap: 0;
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
   background: var(--pp-deep);
   scroll-snap-align: start;
   transition: transform 120ms, box-shadow 120ms, outline 120ms;
   padding: 0;
+  cursor: pointer;
+  overflow: hidden;
 }
 .card:not(:disabled):hover {
   transform: translateY(-3px);
-  box-shadow: 4px 7px 0 var(--pp-shadow);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 6px 0 var(--pp-shadow);
 }
 .cardActive {
-  outline: 4px solid var(--pp-hot);
-  outline-offset: -4px;
+  outline: 3px solid var(--ds-menu-red);
+  outline-offset: -3px;
   transform: scale(1.04);
 }
 .card:disabled { cursor: not-allowed; }
+.card:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
 
 .previewWrap {
   position: relative;
   width: 100%;
   height: 130px;
   overflow: hidden;
-  border-bottom: 3px solid var(--pp-ink);
+  border-bottom: 3px solid var(--ds-dialog-outer);
 }
 
 .cardFoot {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 10px;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
+  padding: 10px 12px;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
 }
 .cardName {
-  font-family: var(--font-sub);
-  font-size: 18px;
+  font-family: var(--font-game);
+  font-size: 20px;
+  letter-spacing: 0.01em;
 }
 .badge {
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.1em;
-  background: var(--pp-hot);
-  color: var(--pp-paper);
-  padding: 3px 6px;
+  background: var(--ds-menu-red);
+  color: #ffffff;
+  padding: 4px 7px 3px;
+  border-radius: 3px;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.3);
 }

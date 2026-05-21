@@ -47,6 +47,7 @@
   --font-display: 'Press Start 2P', 'Silkscreen', monospace;
   --font-sub:     'Jersey 15', 'Silkscreen', sans-serif;
   --font-body:    'VT323', 'Courier New', monospace;
+  --font-game:    'Pokemon DPPt', 'VT323', 'Courier New', monospace;
 
   /* Borders / sombras de paneles */
   --panel-border: 3px solid var(--pp-ink);
@@ -61,6 +62,51 @@
     rgba(0,0,0,0.08) 2px,
     rgba(0,0,0,0.08) 3px
   );
+
+  /* ---------- DS chrome (Platinum-fiel) ---------- */
+  /* Diálogos / paneles claros */
+  --ds-dialog-bg:    #f8f8f8;
+  --ds-dialog-bg-2:  #e6ecf8;     /* gradiente inferior estilo Platinum */
+  --ds-dialog-outer: #2c3e74;     /* borde exterior azul oscuro */
+  --ds-dialog-inner: #5878c8;     /* borde interior azul medio */
+  --ds-dialog-ink:   #18203c;     /* tinta texto in-game */
+
+  /* Botones de menú principal (FIGHT / BAG / POKéMON / RUN) */
+  --ds-menu-red:    #d04848;
+  --ds-menu-red-d:  #802020;
+  --ds-menu-blue:   #4068a8;
+  --ds-menu-blue-d: #20407c;
+  --ds-menu-green:  #58b048;
+  --ds-menu-green-d:#286818;
+  --ds-menu-yellow: #f8b830;
+  --ds-menu-yellow-d:#a86810;
+
+  /* Cursor selección */
+  --ds-cursor-red:  #d83838;
+  --ds-cursor-shadow:#8a0000;
+
+  /* HP / Lv (cuadro de status del Pokémon) */
+  --ds-hp-bg:       #283050;
+  --ds-hp-frame:    #1a1f3a;
+  --ds-hp-highlight:#7088c8;
+
+  /* Trainer card */
+  --ds-trainer-bg:    #4878d8;
+  --ds-trainer-bg-2:  #2050a8;
+  --ds-trainer-gold:  #f8d030;
+  --ds-trainer-text:  #ffffff;
+
+  /* Radios redondeados DS (vs el clip-path angular existente) */
+  --ds-radius-sm: 6px;
+  --ds-radius-md: 10px;
+  --ds-radius-lg: 14px;
+
+  /* Borde doble DS aplicable a cualquier caja */
+  --ds-double-border: 3px solid var(--ds-dialog-outer);
+
+  /* Espacio reservado en la esquina sup-derecha para el UserAvatar fijo
+     (44×44 + 12px de inset = 56px; 64 da margen). */
+  --avatar-safe-area: 64px;
 }
 
 @property --hp-pct {

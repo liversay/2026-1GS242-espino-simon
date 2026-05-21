@@ -7,12 +7,13 @@ import { usePolling } from '../hooks/usePolling'
 import { Stage } from '../components/stages/Stage'
 import { PokemonStage } from '../components/PokemonStage'
 import { HpBox } from '../components/HpBox'
-import { MoveButton } from '../components/MoveButton'
 import { SwitchMenu } from '../components/SwitchMenu'
 import { BattleLog } from '../components/BattleLog'
 import { VictoryBanner } from '../components/VictoryBanner'
 import { CoinFlip, isCoinFlipPhase } from '../components/CoinFlip'
 import { TypeChart } from '../components/TypeChart'
+import { ActionMenu, type ActionItem } from '../components/ActionMenu'
+import { MoveGrid } from '../components/MoveGrid'
 import styles from './battle.module.css'
 
 export const Route = createFileRoute('/battle/$code')({
@@ -263,69 +264,25 @@ function BattlePage() {
       <div className={styles.separator} />
 
       <section className={styles.controls}>
-        {isMyTurn && !mustSwitch && !coinFlipping && !finished ? (
-          battleMenuMode === 'fight' ? (
-            <div className={styles.moves}>
-              {myActive.moves.map((m) => (
-                <MoveButton
-                  key={m.moveId}
-                  move={m}
-                  disabled={actionPending || myActive.fainted}
-                  onUse={() => sendMove(m.moveId)}
-                />
-              ))}
-            </div>
-          ) : (
-            <div className={styles.actionMenu}>
-              <button
-                className={`${styles.actionBtn} ${styles.actionFight}`}
-                type="button"
-                onClick={() => setBattleMenuMode('fight')}
-              >
-                <span className={styles.actionLabel}>⚔ FIGHT</span>
-                <span className={styles.actionSub}>ATTACK</span>
-              </button>
-              <button
-                className={`${styles.actionBtn} ${styles.actionSwitch}`}
-                type="button"
-                onClick={() => setShowSwitchMenu(true)}
-                disabled={noSwitchable}
-              >
-                <span className={styles.actionLabel}>↺ POKEMON</span>
-                <span className={styles.actionSub}>SWITCH</span>
-              </button>
-              <button
-                className={`${styles.actionBtn} ${styles.actionRun}`}
-                type="button"
-                onClick={() => setSurrenderConfirm(true)}
-              >
-                <span className={styles.actionLabel}>✕ RUN</span>
-                <span className={styles.actionSub}>FORFEIT</span>
-              </button>
-              <button
-                className={`${styles.actionBtn} ${styles.actionHelp}`}
-                type="button"
-                onClick={() => setShowTypeChart(true)}
-              >
-                <span className={styles.actionLabel}>? HELP</span>
-                <span className={styles.actionSub}>TYPES</span>
-              </button>
-            </div>
-          )
-        ) : (
-          <div className={styles.moves}>
-            {myActive.moves.map((m) => (
-              <MoveButton key={m.moveId} move={m} disabled={true} />
-            ))}
-          </div>
-        )}
-
-        <div className={styles.side}>
-          {battleMenuMode === 'fight' && isMyTurn && !mustSwitch && (
-            <button className="btn" type="button" onClick={() => setBattleMenuMode('main')}>
-              ← Back
+        <div className={styles.dialogZone}>
+          <BattleLog entries={battle.log} />
+          {pendingKoAck && (
+            <button
+              className={styles.koAckBtn}
+              type="button"
+              onClick={() => { setPendingKoAck(false); setShowSwitchMenu(true) }}
+            >
+              <span className={styles.koAckLabel}>Send out next Pokémon</span>
+              <span className={styles.koAckCaret} aria-hidden="true">▼</span>
             </button>
           )}
+        </div>
+
+        <div className={styles.menuZone}>
+          <p className={`${styles.turnInfo} ${isMyTurn || mustSwitch ? styles.turnInfoMine : ''}`}>
+            {turnInfo}
+          </p>
+
           {surrenderConfirm ? (
             <div className={styles.confirmBox}>
               <p className={styles.confirmMsg}>Forfeit the battle?</p>
@@ -338,26 +295,34 @@ function BattlePage() {
                 </button>
               </div>
             </div>
+          ) : isMyTurn && !mustSwitch && !coinFlipping && !finished ? (
+            battleMenuMode === 'fight' ? (
+              <MoveGrid
+                moves={myActive.moves}
+                disabled={actionPending || myActive.fainted}
+                onSelect={(m) => sendMove(m.moveId)}
+                onBack={() => setBattleMenuMode('main')}
+              />
+            ) : (
+              <ActionMenu
+                items={[
+                  { key: 'fight', label: 'FIGHT', onClick: () => setBattleMenuMode('fight') } as ActionItem,
+                  { key: 'bag',   label: '? HELP', onClick: () => setShowTypeChart(true) } as ActionItem,
+                  { key: 'pokemon', label: 'POKéMON', onClick: () => setShowSwitchMenu(true), disabled: noSwitchable } as ActionItem,
+                  { key: 'run',   label: 'RUN', onClick: () => setSurrenderConfirm(true) } as ActionItem,
+                ]}
+              />
+            )
           ) : (
-            <p className={`${styles.turnInfo} ${isMyTurn || mustSwitch ? styles.turnInfoMine : ''}`}>
-              {turnInfo}
-            </p>
+            <div className={styles.waiting}>
+              <span className={styles.waitingDot} aria-hidden="true" />
+              <span>{turnPlayerName ?? foe.name} is thinking…</span>
+            </div>
           )}
-          {pendingKoAck && (
-            <button
-              className={styles.koAckBtn}
-              type="button"
-              onClick={() => { setPendingKoAck(false); setShowSwitchMenu(true) }}
-            >
-              <span className={styles.koAckLabel}>Send out next Pokémon</span>
-              <span className={styles.koAckCaret}>▼</span>
-            </button>
-          )}
+
           {errorMsg && <p className={styles.error}>⚠ {errorMsg}</p>}
         </div>
       </section>
-
-      <BattleLog entries={battle.log} />
 
       {showSwitchMenu && (
         <SwitchMenu

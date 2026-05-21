@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import { api, ApiError } from '../lib/api'
 import { saveName, getLastName } from '../lib/storage'
+import { DialogBox } from '../components/DialogBox'
 import styles from './form.module.css'
 
 export const Route = createFileRoute('/create')({
@@ -38,15 +39,17 @@ function CreateRoomPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Back</a>
+      <a href="/" className="topbar-back">Back</a>
       <div className={styles.layout}>
         <aside className={styles.aside}>
           <span className="kicker">Profile · Trainer</span>
           <h1 className={styles.title}>Create Room</h1>
-          <p className={styles.body}>
-            You will be <strong>the host</strong>. You get to choose the
-            battle stage. The room code will be generated on confirm.
-          </p>
+          <DialogBox
+            speaker="Prof. Rowan"
+            text="As the host, you'll choose the battle stage. Tell me your trainer name and I'll hand you a room code."
+            typewriter={false}
+            arrow={false}
+          />
         </aside>
         <form className={styles.formPanel + ' panel'} onSubmit={onSubmit}>
           <span className="panel__chip">PP-EVO / CREATE</span>

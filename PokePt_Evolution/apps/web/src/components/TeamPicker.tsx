@@ -130,9 +130,9 @@ function UpsellModal({ onClose }: { onClose: () => void }) {
         <p className={styles.shinyModalSub}>
           Upgrade to Premium to choose shiny variants for your Pokémon team.
         </p>
-        {err && <p style={{ color: 'var(--pp-hot)', fontFamily: 'var(--font-body)', marginBottom: 8 }}>{err}</p>}
+        {err && <p style={{ color: 'var(--ds-menu-red)', fontFamily: 'var(--font-game)', marginBottom: 8 }}>{err}</p>}
         <button type="button" className="btn btn--hot" style={{ width: '100%', marginBottom: 8 }} onClick={handleUpgrade} disabled={loading}>
-          {loading ? 'Redirecting…' : '→ Upgrade for $10/mo'}
+          {loading ? 'Redirecting…' : 'Upgrade for $10/mo'}
         </button>
         <button type="button" className={styles.shinyClose} onClick={onClose}>
           Maybe later

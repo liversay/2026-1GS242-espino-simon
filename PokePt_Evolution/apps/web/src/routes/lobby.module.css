@@ -11,13 +11,9 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  padding-right: var(--avatar-safe-area);
 }
-.back {
-  font-family: var(--font-sub);
-  font-size: 18px;
-  color: var(--pp-platinum);
-}
-.back:hover { color: var(--pp-electric); }
+/* .back replaced by global .topbar-back utility in app.css */
 
 .codeBlock {
   display: flex;
@@ -43,51 +39,45 @@
 .players {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 18px;
+  gap: 24px;
+  justify-items: center;
+  align-items: center;
 }
-@media (max-width: 720px) { .players { grid-template-columns: 1fr; } }
+@media (max-width: 720px) { .players { grid-template-columns: 1fr; gap: 16px; } }
 
-.player {
+.empty {
+  width: 100%;
+  max-width: 360px;
+  min-height: 130px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  padding: 18px 22px;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  position: relative;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-}
-.playerEmpty {
-  background: var(--pp-deep);
-  color: var(--pp-platinum);
-  border-style: dashed;
-  border-color: var(--pp-steel);
-  box-shadow: none;
-  display: flex;
   align-items: center;
   justify-content: center;
-}
-.playerReady {
-  background: var(--pp-electric);
-}
-.pName {
-  font-family: var(--font-sub);
-  font-size: clamp(20px, 3.5vw, 36px);
-  line-height: 1;
-}
-.status {
-  font-family: var(--font-display);
-  font-size: 11px;
-  letter-spacing: 0.16em;
-  color: var(--pp-hot);
-}
-.statusReady { color: #2a8030; }
-.waiting {
-  font-family: var(--font-body);
-  font-size: 22px;
+  gap: 10px;
+  padding: 18px 22px;
+  background: rgba(40, 48, 80, 0.55);
   color: var(--pp-platinum);
+  border: 3px dashed var(--pp-steel);
+  border-radius: var(--ds-radius-lg);
+  font-family: var(--font-game);
+  font-size: 20px;
+}
+
+.emptyIcon {
+  width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  background: rgba(28, 36, 70, 0.7);
+  border: 3px solid var(--pp-steel);
+  border-radius: 50%;
+  color: var(--pp-electric);
+  font-family: var(--font-display);
+  font-size: 18px;
+}
+
+.emptyText {
+  letter-spacing: 0.02em;
 }
 
 .hint {
@@ -97,7 +87,7 @@
   text-align: center;
 }
 .muted { color: var(--pp-platinum); font-family: var(--font-body); }
-.error { color: var(--pp-hot); font-family: var(--font-body); font-size: 20px; }
+.error { color: var(--ds-menu-red); font-family: var(--font-game); font-size: 20px; }
 
 .startBtn {
   align-self: center;

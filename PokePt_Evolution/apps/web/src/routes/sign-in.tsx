@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSignIn } from '@clerk/clerk-react'
 import { useRef, useState } from 'react'
+import { DialogBox } from '../components/DialogBox'
 import styles from './auth.module.css'
 
 export const Route = createFileRoute('/sign-in')({
@@ -132,7 +133,15 @@ function SignInPage() {
   if (screen === 'otp') {
     return (
       <main className={styles.shell}>
-        <a href="/" className={styles.back}>← Exit</a>
+        <a href="/" className="topbar-back">Exit</a>
+        <div className={styles.dialogIntro}>
+          <DialogBox
+            speaker="Prof. Rowan"
+            text={`A six-digit code is on its way to ${email}. Type it in to continue.`}
+            typewriter={false}
+            arrow={false}
+          />
+        </div>
         <div className={styles.card}>
           <span className={styles.chip}>PP-EVO / AUTH</span>
           <div className={styles.header}>
@@ -205,7 +214,15 @@ function SignInPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Exit</a>
+      <a href="/" className="topbar-back">Exit</a>
+      <div className={styles.dialogIntro}>
+        <DialogBox
+          speaker="Prof. Rowan"
+          text="Welcome back, trainer! Sign in to start a battle."
+          typewriter={false}
+          arrow={false}
+        />
+      </div>
       <div className={styles.card}>
         <span className={styles.chip}>PP-EVO / AUTH</span>
 

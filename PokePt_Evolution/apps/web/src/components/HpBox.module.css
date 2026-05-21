@@ -1,68 +1,121 @@
 .box {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 8px 12px;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  min-width: 220px;
-  max-width: 260px;
-  clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 12px 100%, 0 calc(100% - 12px));
+  gap: 5px;
+  padding: 10px 16px 12px;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
+  min-width: 240px;
+  max-width: 300px;
+  font-family: var(--font-game);
+  position: relative;
 }
-.ally  { min-width: 240px; }
-.foe   { min-width: 220px; }
+
+.ally  { min-width: 260px; }
+.foe   { min-width: 240px; }
 
 .row {
   display: flex;
   align-items: baseline;
   gap: 8px;
 }
+
 .name {
-  font-family: var(--font-sub);
-  font-size: clamp(14px, 2.2vw, 22px);
+  font-family: var(--font-game);
+  font-size: 22px;
+  letter-spacing: 0.02em;
   text-transform: capitalize;
   flex: 1;
   line-height: 1;
+  color: var(--ds-dialog-ink);
 }
+
 .lvl {
-  font-family: var(--font-display);
-  font-size: clamp(8px, 0.9vw, 11px);
-  letter-spacing: 0.1em;
-  color: var(--pp-steel);
+  font-family: var(--font-game);
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+  color: var(--ds-dialog-outer);
 }
 
 .bar {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto 1fr;
   align-items: center;
   gap: 8px;
 }
+
 .hpLabel {
   font-family: var(--font-display);
-  font-size: 9px;
-  color: var(--pp-hot);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--ds-menu-yellow-d);
+  background: var(--ds-dialog-outer);
+  color: var(--ds-menu-yellow);
+  padding: 2px 5px 1px;
+  border-radius: 3px;
 }
+
 .track {
-  flex: 1;
-  height: 18px;
-  background: var(--pp-ink);
+  height: 12px;
+  background: var(--ds-hp-bg);
   position: relative;
-  border: 3px solid var(--pp-ink);
-  border-radius: 0;
-  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.08);
+  border: 2px solid var(--ds-hp-frame);
+  border-radius: 8px;
+  box-shadow:
+    inset 0 2px 0 rgba(0,0,0,0.4),
+    inset 0 -1px 0 rgba(255,255,255,0.08);
+  overflow: hidden;
 }
+
 .fill {
   height: 100%;
   transition: width 600ms ease-out;
   background: var(--pp-hp-green);
-  border-radius: 0;
-  box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.4);
+  border-radius: 6px;
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.35),
+    inset 0 2px 0 rgba(255,255,255,0.5);
+  position: relative;
 }
+
+.fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0) 50%);
+  border-radius: 6px;
+  pointer-events: none;
+}
+
 .hpNumbers {
-  font-family: var(--font-display);
-  font-size: clamp(9px, 1.2vw, 14px);
+  font-family: var(--font-game);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
   align-self: flex-end;
-  letter-spacing: 0.06em;
-  color: var(--pp-ink);
+  letter-spacing: 0.05em;
+  color: var(--ds-dialog-ink);
+  line-height: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.hpNumbers .slash {
+  color: var(--ds-dialog-outer);
+}
+
+@media (max-width: 720px) {
+  .box { min-width: 200px; max-width: 240px; padding: 8px 12px 10px; }
+  .ally { min-width: 220px; }
+  .foe  { min-width: 200px; }
+  .name { font-size: 18px; }
+  .lvl  { font-size: 16px; }
+  .hpNumbers { font-size: 18px; }
+  .track { height: 10px; }
 }

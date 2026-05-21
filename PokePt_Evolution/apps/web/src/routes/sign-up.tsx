@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
 import { useSignUp } from '@clerk/clerk-react'
 import { useRef, useState } from 'react'
+import { DialogBox } from '../components/DialogBox'
 import styles from './auth.module.css'
 
 export const Route = createFileRoute('/sign-up')({
@@ -113,7 +114,15 @@ function SignUpPage() {
   if (screen === 'verify') {
     return (
       <main className={styles.shell}>
-        <a href="/" className={styles.back}>← Exit</a>
+        <a href="/" className="topbar-back">Exit</a>
+        <div className={styles.dialogIntro}>
+          <DialogBox
+            speaker="Prof. Rowan"
+            text={`Almost there! Type the six-digit code we sent to ${email}.`}
+            typewriter={false}
+            arrow={false}
+          />
+        </div>
         <div className={styles.card}>
           <span className={styles.chip}>PP-EVO / AUTH</span>
           <div className={styles.header}>
@@ -186,7 +195,15 @@ function SignUpPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Exit</a>
+      <a href="/" className="topbar-back">Exit</a>
+      <div className={styles.dialogIntro}>
+        <DialogBox
+          speaker="Prof. Rowan"
+          text="Hello! So you want to become a trainer? Fill in your details and we'll get you started."
+          typewriter={false}
+          arrow={false}
+        />
+      </div>
       <div className={styles.card}>
         <span className={styles.chip}>PP-EVO / AUTH</span>
 

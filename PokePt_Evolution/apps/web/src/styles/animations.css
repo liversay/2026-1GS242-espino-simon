@@ -182,9 +182,9 @@
   background: linear-gradient(
     90deg,
     var(--pp-electric) 0%,
-    var(--pp-hot) 25%,
-    var(--pp-paper) 50%,
-    var(--pp-hot) 75%,
+    var(--ds-menu-red) 25%,
+    var(--ds-dialog-bg) 50%,
+    var(--ds-menu-red) 75%,
     var(--pp-electric) 100%
   );
   background-size: 200% 100%;
@@ -206,8 +206,8 @@
 }
 
 @keyframes title-glow {
-  0%, 100% { filter: drop-shadow(0 0 4px var(--pp-hot)) drop-shadow(0 0 12px rgba(248,225,108,0.5)); }
-  50%      { filter: drop-shadow(0 0 12px var(--pp-electric)) drop-shadow(0 0 24px rgba(255,91,62,0.7)); }
+  0%, 100% { filter: drop-shadow(0 0 4px var(--ds-menu-red)) drop-shadow(0 0 12px rgba(248,225,108,0.5)); }
+  50%      { filter: drop-shadow(0 0 12px var(--pp-electric)) drop-shadow(0 0 24px rgba(208,72,72,0.7)); }
 }
 .anim-title-glow { animation: title-glow 2s ease-in-out infinite alternate; }
 

@@ -1,4 +1,5 @@
 import { Link } from '@tanstack/react-router'
+import { DialogBox } from './DialogBox'
 import styles from './VictoryBanner.module.css'
 
 interface Props {
@@ -11,7 +12,7 @@ const CONFETTI = Array.from({ length: 28 }, (_, i) => ({
   left: (i * 19) % 100,
   delay: (i * 0.13) % 4,
   sway: -40 + ((i * 17) % 80),
-  color: ['var(--pp-hot)', 'var(--pp-electric)', 'var(--pp-platinum)', 'var(--pp-paper)'][i % 4],
+  color: ['var(--ds-menu-red)', 'var(--pp-electric)', 'var(--ds-menu-blue)', 'var(--ds-dialog-bg)'][i % 4],
 }))
 
 // Banner inline que se monta sobre el campo de batalla SIN ocultarlo:
@@ -46,6 +47,17 @@ export function VictoryBanner({ winnerName, loserName, isMe }: Props) {
         <div className={styles.right}>
           <Link to="/" className="btn btn--hot">→ Back to home</Link>
         </div>
+      </div>
+      <div className={styles.dialogWrap}>
+        <DialogBox
+          speaker={isMe ? 'Prof. Rowan' : 'Prof. Rowan'}
+          text={isMe
+            ? `Magnificent battle! ${winnerName}, the win is yours.`
+            : `${winnerName} took the day. Train hard and challenge them again, ${loserName}.`}
+          typewriter
+          arrow={false}
+          speed={32}
+        />
       </div>
     </>
   )

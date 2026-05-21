@@ -10,49 +10,44 @@
   gap: 16px;
 }
 
-.back {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  font-family: var(--font-sub);
-  font-size: 18px;
-  color: var(--pp-platinum);
-  padding: 6px 10px;
-  border: 2px solid transparent;
-  transition: border-color 120ms, color 120ms;
-  z-index: 10;
-}
-.back:hover {
-  border-color: var(--pp-electric);
-  color: var(--pp-electric);
+.dialogIntro {
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 18px;
 }
 
 /* ── Card ─────────────────────────────────────────────────────────────── */
 
 .card {
-  background: var(--pp-deep);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
+  position: relative;
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  color: var(--pp-paper);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    6px 6px 0 var(--pp-shadow);
   padding: 32px 28px 28px;
   width: 100%;
   max-width: 440px;
   display: flex;
   flex-direction: column;
   gap: 20px;
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
-  position: relative;
 }
 
 .chip {
   position: absolute;
-  top: -3px;
+  top: -14px;
   right: 22px;
   font-family: var(--font-display);
-  font-size: 8px;
-  letter-spacing: 0.05em;
-  background: var(--pp-ink);
-  color: var(--pp-paper);
-  padding: 3px 6px;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--ds-dialog-outer);
+  color: var(--ds-dialog-bg);
+  padding: 5px 10px 4px;
+  border-radius: var(--ds-radius-sm);
+  box-shadow: 2px 2px 0 var(--pp-shadow);
 }
 
 /* ── Header ───────────────────────────────────────────────────────────── */
@@ -67,19 +62,22 @@
 
 .logo {
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--pp-electric);
 }
 
 .title {
-  font-family: var(--font-sub);
-  font-size: 40px;
+  font-family: var(--font-display);
+  font-size: 32px;
   color: var(--pp-paper);
-  text-shadow: 3px 3px 0 var(--pp-shadow);
-  line-height: 1;
+  text-shadow:
+    3px 3px 0 var(--ds-dialog-outer),
+    5px 5px 0 var(--ds-menu-red-d);
+  line-height: 1.05;
   margin: 0;
+  letter-spacing: 0.03em;
 }
 
 /* ── Field ────────────────────────────────────────────────────────────── */
@@ -108,22 +106,25 @@
 
 .tabs {
   display: flex;
-  border: var(--panel-border);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
   overflow: hidden;
-  box-shadow: 3px 3px 0 var(--pp-shadow);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
 }
 
 .tab {
   flex: 1;
   font-family: var(--font-display);
-  font-size: 9px;
+  font-size: 10px;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  padding: 10px 8px;
+  padding: 12px 8px;
   background: var(--pp-night);
   color: var(--pp-platinum);
   border: none;
-  border-right: 2px solid var(--pp-ink);
+  border-right: 2px solid var(--ds-dialog-outer);
   cursor: pointer;
   transition: background 120ms, color 120ms;
 }
@@ -133,8 +134,8 @@
   color: var(--pp-paper);
 }
 .tabActive {
-  background: var(--pp-paper);
-  color: var(--pp-ink);
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
 }
 
 /* ── Divider ──────────────────────────────────────────────────────────── */
@@ -143,20 +144,20 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  color: var(--pp-steel);
+  color: var(--pp-platinum);
 }
 .divider::before,
 .divider::after {
   content: '';
   flex: 1;
   height: 2px;
-  background: var(--pp-steel);
+  background: rgba(185, 196, 216, 0.3);
 }
 .dividerText {
   font-family: var(--font-display);
   font-size: 9px;
   letter-spacing: 0.15em;
-  color: var(--pp-steel);
+  color: var(--pp-platinum);
 }
 
 /* ── Google button ────────────────────────────────────────────────────── */
@@ -166,23 +167,36 @@
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-family: var(--font-sub);
-  font-size: 20px;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
-  border: var(--panel-border);
-  box-shadow: 3px 3px 0 var(--pp-shadow);
-  padding: 10px 22px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.12),
+    inset 0 3px 0 rgba(255,255,255,0.5),
+    3px 3px 0 var(--pp-shadow);
+  padding: 12px 22px 11px;
   width: 100%;
   cursor: pointer;
-  transition: transform 80ms, box-shadow 80ms, background 160ms;
+  transition: filter 160ms, transform 80ms, box-shadow 80ms;
 }
-.googleBtn:hover:not(:disabled) { background: var(--pp-electric); }
+.googleBtn:hover:not(:disabled) { filter: brightness(1.05); }
 .googleBtn:active:not(:disabled) {
-  transform: translate(3px, 3px);
-  box-shadow: 0 0 0 var(--pp-shadow);
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset 0 -2px 0 rgba(0,0,0,0.12),
+    inset 0 2px 0 rgba(255,255,255,0.4),
+    1px 1px 0 var(--pp-shadow);
 }
 .googleBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.googleBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
 
 /* ── OTP grid ─────────────────────────────────────────────────────────── */
 
@@ -196,38 +210,45 @@
 .otpSep {
   width: 10px;
   height: 3px;
-  background: var(--pp-steel);
+  background: var(--pp-platinum);
   flex-shrink: 0;
+  border-radius: 2px;
 }
 
 .otpBox {
   width: 48px;
   height: 56px;
-  font-family: var(--font-sub);
-  font-size: 28px;
+  font-family: var(--font-display);
+  font-size: 24px;
   text-align: center;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
-  border: var(--panel-border);
-  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18);
-  caret-color: var(--pp-hot);
+  background: var(--ds-dialog-bg);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    inset 2px 2px 0 rgba(28, 36, 70, 0.1);
+  caret-color: var(--ds-menu-red);
   transition: border-color 100ms, box-shadow 100ms;
 }
 .otpBox:focus {
   outline: none;
   border-color: var(--pp-electric);
-  box-shadow: inset 2px 2px 0 rgba(0,0,0,0.18), 0 0 0 2px var(--pp-electric);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    0 0 0 2px var(--pp-electric);
 }
 
 /* ── Error / success ──────────────────────────────────────────────────── */
 
 .errorBox {
-  background: rgba(255, 91, 62, 0.12);
-  border: 2px solid var(--pp-hot);
+  background: rgba(208, 72, 72, 0.12);
+  border: 2px solid var(--ds-menu-red);
+  border-radius: var(--ds-radius-sm);
   padding: 10px 14px;
-  font-family: var(--font-body);
+  font-family: var(--font-game);
   font-size: 18px;
-  color: var(--pp-hot);
+  color: var(--ds-menu-red);
   line-height: 1.3;
 }
 
@@ -235,7 +256,7 @@
 
 .authSwitch {
   text-align: center;
-  font-family: var(--font-body);
+  font-family: var(--font-game);
   font-size: 18px;
   color: var(--pp-platinum);
   margin: 0;
@@ -248,7 +269,7 @@
 /* ── OTP hint ─────────────────────────────────────────────────────────── */
 
 .otpHint {
-  font-family: var(--font-body);
+  font-family: var(--font-game);
   font-size: 18px;
   color: var(--pp-platinum);
   text-align: center;
@@ -262,15 +283,22 @@
 .cardBack {
   background: transparent;
   border: none;
-  font-family: var(--font-body);
-  font-size: 18px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
   color: var(--pp-platinum);
   cursor: pointer;
   text-align: center;
-  padding: 0;
+  padding: 4px 8px;
   transition: color 100ms;
 }
 .cardBack:hover { color: var(--pp-electric); }
+.cardBack:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}
 
 /* ── Loading blink ────────────────────────────────────────────────────── */
 

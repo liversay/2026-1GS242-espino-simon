@@ -3,26 +3,54 @@
   bottom: 18px;
   right: 18px;
   z-index: 9999;
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
-  border: 2px solid var(--pp-ink);
-  background: var(--pp-deep);
-  box-shadow: 3px 3px 0 var(--pp-shadow);
-  font-size: 20px;
-  line-height: 1;
+  border: 3px solid var(--ds-dialog-outer);
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-outer);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: transform 80ms, box-shadow 80ms;
+  transition: transform 80ms, box-shadow 80ms, filter 120ms;
   padding: 0;
 }
+
 .muteBtn:hover {
+  filter: brightness(1.08);
   transform: translate(-1px, -1px);
-  box-shadow: 4px 4px 0 var(--pp-shadow);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
 }
 .muteBtn:active {
   transform: translate(2px, 2px);
-  box-shadow: 0 0 0 var(--pp-shadow);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    1px 1px 0 var(--pp-shadow);
+}
+.muteBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
+
+.muteBtn.muted {
+  background: linear-gradient(180deg, #d8d8d8 0%, #a8a8a8 100%);
+}
+
+.icon {
+  width: 22px;
+  height: 22px;
+  background: url('/ui/music-on.svg') no-repeat center;
+  background-size: contain;
+  image-rendering: pixelated;
+  color: var(--ds-dialog-outer);
+}
+
+.muted .icon {
+  background-image: url('/ui/music-off.svg');
 }

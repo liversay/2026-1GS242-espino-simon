@@ -6,6 +6,9 @@ import { api, ApiError } from '../lib/api'
 import { usePolling } from '../hooks/usePolling'
 import { TeamPicker, type TeamSlot } from '../components/TeamPicker'
 import { StagePicker } from '../components/StagePicker'
+import { TrainerCard } from '../components/TrainerCard'
+import { MenuFrame } from '../components/MenuFrame'
+import { DialogBox } from '../components/DialogBox'
 import styles from './lobby.module.css'
 
 const TEAM_SIZE = 6
@@ -118,7 +121,7 @@ function LobbyPage() {
   return (
     <main className={styles.shell}>
       <header className={styles.topbar}>
-        <a href="/" className={styles.back}>← Exit</a>
+        <a href="/" className="topbar-back">Exit</a>
         <span className="kicker">Lobby · {isHost ? 'Host' : 'Challenger'}</span>
       </header>
 
@@ -136,37 +139,47 @@ function LobbyPage() {
         {[0, 1].map((slot) => {
           const p = room.players[slot]
           const isMe = !!p && p.id === playerId
+          const side: 'left' | 'right' = slot === 0 ? 'left' : 'right'
+          if (!p) {
+            return (
+              <div key={slot} className={styles.empty}>
+                <span className={styles.emptyIcon} aria-hidden="true">?</span>
+                <span className={styles.emptyText}>Waiting for trainer…</span>
+              </div>
+            )
+          }
+          const picked = p.teamPokemonIds?.length ?? 0
+          const status = p.ready
+            ? 'Ready! (6/6)'
+            : picked > 0
+            ? `Picking team… (${picked}/6)`
+            : 'Picking team…'
           return (
-            <div
+            <TrainerCard
               key={slot}
-              className={`${styles.player} ${p?.ready ? styles.playerReady : ''} ${!p ? styles.playerEmpty : ''}`}
-            >
-              {p ? (
-                <>
-                  <span className="kicker">{room.hostPlayerId === p.id ? 'Host' : 'Challenger'}{isMe && ' · you'}</span>
-                  <span className={styles.pName}>{p.name}</span>
-                  <span className={`${styles.status} ${p.ready ? styles.statusReady : ''}`}>
-                    {p.ready ? `● READY (6/6)` : '○ Picking team…'}
-                  </span>
-                </>
-              ) : (
-                <span className={styles.waiting}>Waiting for trainer…</span>
-              )}
-            </div>
+              name={`${p.name}${isMe ? ' (you)' : ''}`}
+              trainerId={p.id}
+              isReady={p.ready}
+              isPremium={isMe && isPremium}
+              status={status}
+              side={side}
+            />
           )
         })}
       </section>
 
       {!bothPresent && (
-        <p className={styles.hint}>
-          Share the code with your rival. This screen updates automatically when they connect.
-        </p>
+        <DialogBox
+          speaker="Prof. Rowan"
+          text="Share the code with your rival. This screen updates the moment they walk in."
+          typewriter={false}
+          arrow={false}
+        />
       )}
 
       {bothPresent && (
         <>
-          <section className="panel panel--dark">
-            <span className="panel__chip">PP-EVO / TEAM · {draftTeam.length}/6</span>
+          <MenuFrame tone="dark" chip={`TEAM · ${draftTeam.length}/6`}>
             <TeamPicker
               selected={draftTeam}
               disabled={myReady}
@@ -192,16 +205,15 @@ function LobbyPage() {
             {myReady && (
               <p className={styles.hint}>✓ Team confirmed. Waiting for your rival.</p>
             )}
-          </section>
+          </MenuFrame>
 
-          <section className="panel panel--dark">
-            <span className="panel__chip">PP-EVO / STAGE</span>
+          <MenuFrame tone="dark" chip="STAGE">
             <StagePicker
               selected={room.stageId}
               isHost={isHost}
               onChange={onStageChange}
             />
-          </section>
+          </MenuFrame>
         </>
       )}
 

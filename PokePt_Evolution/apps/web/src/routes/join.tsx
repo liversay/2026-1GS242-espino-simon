@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { useUser, RedirectToSignIn } from '@clerk/clerk-react'
 import { api, ApiError } from '../lib/api'
 import { saveName, getLastName } from '../lib/storage'
+import { DialogBox } from '../components/DialogBox'
 import styles from './form.module.css'
 
 export const Route = createFileRoute('/join')({
@@ -45,15 +46,17 @@ function JoinRoomPage() {
 
   return (
     <main className={styles.shell}>
-      <a href="/" className={styles.back}>← Back</a>
+      <a href="/" className="topbar-back">Back</a>
       <div className={styles.layout}>
         <aside className={styles.aside}>
           <span className="kicker">Profile · Challenger</span>
           <h1 className={styles.title}>Join Room</h1>
-          <p className={styles.body}>
-            Paste the <strong>room code</strong> your rival shared with you.
-            If the room exists and has a slot, you go straight to the lobby.
-          </p>
+          <DialogBox
+            speaker="Prof. Rowan"
+            text="Paste the room code your rival sent you. If the room is open, I'll send you straight to the lobby."
+            typewriter={false}
+            arrow={false}
+          />
         </aside>
         <form className={styles.formPanel + ' panel'} onSubmit={onSubmit}>
           <span className="panel__chip">PP-EVO / JOIN</span>

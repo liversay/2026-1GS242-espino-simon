@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" shape-rendering="crispEdges">
+  <title>Music on (pixel note)</title>
+  <g fill="currentColor">
+    <rect x="7" y="2" width="6" height="1"/>
+    <rect x="7" y="3" width="1" height="7"/>
+    <rect x="8" y="3" width="5" height="1"/>
+    <rect x="12" y="3" width="1" height="3"/>
+    <rect x="11" y="6" width="2" height="1"/>
+    <rect x="11" y="7" width="1" height="3"/>
+    <rect x="4" y="9" width="3" height="1"/>
+    <rect x="3" y="10" width="5" height="3"/>
+    <rect x="4" y="13" width="3" height="1"/>
+    <rect x="8" y="10" width="3" height="3"/>
+    <rect x="9" y="13" width="3" height="1"/>
+  </g>
+</svg>

@@ -3,7 +3,7 @@ import type { LogEntry } from '@pokept/shared'
 import styles from './BattleLog.module.css'
 
 interface Props {
-  entries: LogEntry[]
+  entries?: LogEntry[]
 }
 
 function entryText(e: LogEntry): string {
@@ -23,54 +23,84 @@ function entryText(e: LogEntry): string {
       if (e.effectiveness === 'low')   return "It's not very effective…"
       if (e.effectiveness === 'none')  return "It had no effect…"
       return ''
+    case 'turn-start':     return ''
     case 'victory':        return `${e.winnerName} is the champion!`
   }
+  return ''
 }
 
 export function BattleLog({ entries }: Props) {
+  const safeEntries: LogEntry[] = entries ?? []
   const ref = useRef<HTMLDivElement | null>(null)
-  const [visibleCount, setVisibleCount] = useState(entries.length)
+  const [visibleCount, setVisibleCount] = useState(safeEntries.length)
+  const [expanded, setExpanded] = useState(false)
 
-  // Cuando entran logs nuevos, los revelamos secuencialmente con typewriter
   useEffect(() => {
-    if (visibleCount >= entries.length) return
+    if (visibleCount >= safeEntries.length) return
     const t = setTimeout(() => setVisibleCount((v) => v + 1), 350)
     return () => clearTimeout(t)
-  }, [visibleCount, entries.length])
+  }, [visibleCount, safeEntries.length])
 
   useEffect(() => {
-    if (entries.length < visibleCount) setVisibleCount(entries.length)
-  }, [entries.length, visibleCount])
+    if (safeEntries.length < visibleCount) setVisibleCount(safeEntries.length)
+  }, [safeEntries.length, visibleCount])
 
   useEffect(() => {
     if (ref.current) ref.current.scrollTop = ref.current.scrollHeight
   }, [visibleCount])
 
-  const shown = entries.slice(Math.max(0, visibleCount - 6), visibleCount)
+  const visibleEntries = safeEntries.slice(0, visibleCount).filter((e) => entryText(e).length > 0)
+  const latest = visibleEntries[visibleEntries.length - 1]
+  const prev   = visibleEntries[visibleEntries.length - 2]
+  const isLatestComplete = visibleCount === safeEntries.length
+
   return (
-    <div className={`${styles.log} panel`} ref={ref}>
-      <span className="panel__chip">PP-EVO / LOG</span>
-      {shown.map((e, i) => {
-        const text = entryText(e)
-        if (!text) return null
-        const isLatest = i === shown.length - 1 && visibleCount === entries.length
-        return (
-          <p
-            key={Math.max(0, visibleCount - 6) + i}
-            className={`${styles.line} ${isLatest ? styles.latest : ''}`}
-            style={{
-              animationDuration: `${Math.max(150, text.length * 28)}ms`,
-            }}
-          >
-            <span className="anim-typewriter" style={{ animationDuration: `${Math.max(150, text.length * 28)}ms`, display: 'inline-block' }}>
-              {text}
-            </span>
-            {isLatest && <span className={`${styles.arrow} anim-dialog-arrow`}>▼</span>}
-          </p>
-        )
-      })}
-      {visibleCount < entries.length && (
-        <p className={styles.muted}>…</p>
+    <div className={styles.dialog}>
+      <span className={styles.chip}>BATTLE</span>
+      {!expanded && (
+        <div className={styles.stream} ref={ref}>
+          {prev && (
+            <p className={`${styles.line} ${styles.fade}`} key={`prev-${visibleCount - 2}`}>
+              {entryText(prev)}
+            </p>
+          )}
+          {latest && (
+            <p className={`${styles.line} ${styles.active}`} key={`active-${visibleCount - 1}`}>
+              <span
+                className="anim-typewriter"
+                style={{
+                  animationDuration: `${Math.max(150, entryText(latest).length * 28)}ms`,
+                  display: 'inline-block',
+                }}
+              >
+                {entryText(latest)}
+              </span>
+            </p>
+          )}
+          {!latest && (
+            <p className={`${styles.line} ${styles.fade}`}>…</p>
+          )}
+        </div>
+      )}
+      {expanded && (
+        <div className={styles.history} ref={ref}>
+          {visibleEntries.slice(-12).map((e, i) => (
+            <p key={`hist-${i}`} className={styles.histLine}>
+              {entryText(e)}
+            </p>
+          ))}
+        </div>
+      )}
+      <button
+        type="button"
+        className={styles.toggle}
+        onClick={() => setExpanded((v) => !v)}
+        aria-label={expanded ? 'Cerrar historial' : 'Ver historial'}
+      >
+        {expanded ? '×' : '▤'}
+      </button>
+      {!expanded && isLatestComplete && latest && (
+        <span className={`${styles.arrow} anim-dialog-arrow`} aria-hidden="true" />
       )}
     </div>
   )

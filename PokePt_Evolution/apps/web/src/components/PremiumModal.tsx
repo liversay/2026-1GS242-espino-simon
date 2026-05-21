@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { createPortal } from 'react-dom'
 import { api, ApiError } from '../lib/api'
+import styles from './PremiumModal.module.css'
 
 interface Props {
   onClose: () => void
@@ -24,46 +25,25 @@ export function PremiumModal({ onClose }: Props) {
   }
 
   return createPortal(
-    <div
-      style={{
-        position: 'fixed', inset: 0, background: 'rgba(14,18,48,0.8)',
-        zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center',
-      }}
-      onClick={onClose}
-    >
-      <div
-        className="panel"
-        style={{ maxWidth: 400, textAlign: 'center', padding: '28px 32px' }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        <span className="panel__chip">PP-EVO / PREMIUM</span>
-        <p style={{ fontSize: 40, marginBottom: 8 }}>✨</p>
-        <h2 style={{ fontFamily: 'var(--font-sub)', fontSize: 28, marginBottom: 12 }}>
-          Go Premium
-        </h2>
-        <ul style={{
-          fontFamily: 'var(--font-body)', fontSize: 18,
-          color: 'var(--pp-steel)', textAlign: 'left',
-          marginBottom: 20, paddingLeft: 20, lineHeight: 1.8,
-        }}>
-          <li>✨ Choose shiny variants for every Pokémon</li>
+    <div className={styles.backdrop} onClick={onClose}>
+      <div className={styles.modal} onClick={(e) => e.stopPropagation()} role="dialog" aria-labelledby="premium-title">
+        <span className={styles.chip}>PP-EVO / PREMIUM</span>
+        <p className={styles.star} aria-hidden="true">★</p>
+        <h2 id="premium-title" className={styles.title}>Go Premium</h2>
+        <ul className={styles.perks}>
+          <li>Choose shiny variants for every Pokémon</li>
           <li>More perks coming soon</li>
         </ul>
-        <p style={{ fontFamily: 'var(--font-display)', fontSize: 10, marginBottom: 18, color: 'var(--pp-hot)' }}>
-          $10 / month · cancel anytime
-        </p>
-        {error && <p style={{ color: 'var(--pp-hot)', fontFamily: 'var(--font-body)', marginBottom: 10 }}>{error}</p>}
-        <button className="btn btn--hot" onClick={handleUpgrade} disabled={loading} style={{ width: '100%' }}>
-          {loading ? 'Redirecting…' : '→ Subscribe for $10/mo'}
-        </button>
+        <p className={styles.priceTag}>$10 / month · cancel anytime</p>
+        {error && <p className={styles.error}>{error}</p>}
         <button
-          style={{
-            marginTop: 10, fontFamily: 'var(--font-display)', fontSize: 9,
-            color: 'var(--pp-platinum)', background: 'transparent', border: 'none',
-            cursor: 'pointer', width: '100%',
-          }}
-          onClick={onClose}
+          className={`btn btn--hot ${styles.subscribeBtn}`}
+          onClick={handleUpgrade}
+          disabled={loading}
         >
+          {loading ? 'Redirecting…' : 'Subscribe for $10/mo'}
+        </button>
+        <button type="button" className={styles.laterBtn} onClick={onClose}>
           Maybe later
         </button>
       </div>

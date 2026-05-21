@@ -1,8 +1,9 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from '@tanstack/react-router'
 import { useAuth } from '@clerk/clerk-react'
 import { useEffect, useState } from 'react'
 import { api } from '../lib/api'
 import { PremiumModal } from '../components/PremiumModal'
+import { PixelCursor } from '../components/PixelCursor'
 import styles from './index.module.css'
 
 export const Route = createFileRoute('/')({
@@ -12,10 +13,18 @@ export const Route = createFileRoute('/')({
 const LINE1 = 'POKEPT'
 const LINE2 = 'EVOLUTION'
 
+interface MenuItem {
+  label: string
+  onSelect: () => void
+  primary?: boolean
+}
+
 function SplashPage() {
   const { isSignedIn, isLoaded } = useAuth()
+  const navigate = useNavigate()
   const [isPremium, setIsPremium] = useState(false)
   const [showPremiumModal, setShowPremiumModal] = useState(false)
+  const [hover, setHover] = useState<number | null>(0)
 
   useEffect(() => {
     if (isSignedIn) {
@@ -23,13 +32,39 @@ function SplashPage() {
     }
   }, [isSignedIn])
 
+  const items: MenuItem[] = isSignedIn
+    ? [
+        { label: 'NEW BATTLE', onSelect: () => navigate({ to: '/create' }), primary: true },
+        { label: 'JOIN WITH CODE', onSelect: () => navigate({ to: '/join' }) },
+        isPremium
+          ? {
+              label: 'MANAGE SUBSCRIPTION',
+              onSelect: async () => {
+                try {
+                  const { url } = await api.getBillingPortal()
+                  window.location.href = url
+                } catch {}
+              },
+            }
+          : { label: 'GO PREMIUM', onSelect: () => setShowPremiumModal(true) },
+      ]
+    : [
+        { label: 'SIGN IN TO PLAY', onSelect: () => navigate({ to: '/sign-in' }), primary: true },
+        { label: 'CREATE ACCOUNT', onSelect: () => navigate({ to: '/sign-up' }) },
+      ]
+
   return (
     <main className={styles.splash}>
       <div className={styles.pokeball} aria-hidden />
       <header className={styles.headerBlock}>
-        <span className="kicker anim-title-drop" style={{ animationDelay: '50ms' }}>
-          Pokémon Battle Rooms
-        </span>
+        <div className={styles.titleRow}>
+          <span className="kicker anim-title-drop" style={{ animationDelay: '50ms' }}>
+            Pokémon Battle Rooms
+          </span>
+          <span className={`${styles.versionChip} anim-title-drop`} style={{ animationDelay: '80ms' }}>
+            v1.0 · DS Edition
+          </span>
+        </div>
         <h1 className={styles.title}>
           <span className={styles.titleLine}>
             {LINE1.split('').map((c, i) => (
@@ -65,55 +100,38 @@ function SplashPage() {
       </header>
 
       {isLoaded && (
-        <nav className={styles.ctas}>
-          {isSignedIn ? (
-            <>
-              <Link to="/create" className="btn btn--hot">
-                → Create room
-              </Link>
-              <Link to="/join" className="btn">
-                Join with code
-              </Link>
-              {isPremium ? (
+        <nav className={styles.menu} aria-label="Main menu">
+          <div className={styles.pressStart}>▶ PRESS START</div>
+          <ul className={styles.menuList}>
+            {items.map((it, idx) => (
+              <li key={idx}>
                 <button
                   type="button"
-                  className="btn"
-                  onClick={async () => {
-                    try {
-                      const { url } = await api.getBillingPortal()
-                      window.location.href = url
-                    } catch {}
-                  }}
+                  className={`${styles.menuItem} ${it.primary ? styles.primary : ''}`}
+                  onClick={it.onSelect}
+                  onMouseEnter={() => setHover(idx)}
+                  onFocus={() => setHover(idx)}
                 >
-                  ✨ Manage subscription
+                  <PixelCursor visible={hover === idx} className={styles.cursor} />
+                  <span>{it.label}</span>
                 </button>
-              ) : (
-                <button type="button" className="btn" onClick={() => setShowPremiumModal(true)}>
-                  ✨ Go Premium
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <Link to="/sign-in" className="btn btn--hot">
-                → Sign in to play
-              </Link>
-              <Link to="/sign-up" className="btn">
-                Create account
-              </Link>
-            </>
+              </li>
+            ))}
+          </ul>
+          {!isSignedIn && (
+            <div className={styles.subhint}>
+              You need an account to host or join a battle.
+            </div>
           )}
         </nav>
       )}
       {showPremiumModal && <PremiumModal onClose={() => setShowPremiumModal(false)} />}
 
       <footer className={styles.footer}>
-        <div className={styles.indexNum}>
-          <span className="kicker">Nº</span>
-          <span>0231 / PP-EVO</span>
-        </div>
-        <p>Pokémon Battle Rooms</p>
+        <span className={styles.indexChip}>Nº 0231 · PP-EVO</span>
+        <p className={styles.footerNote}>Pokémon Battle Rooms · DS Edition</p>
       </footer>
     </main>
   )
 }
+

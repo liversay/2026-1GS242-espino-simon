@@ -21,7 +21,7 @@ export function HpBox({ pokemon, side }: Props) {
       <div className={styles.row}>
         <span className={styles.name}>{pokemon.name}</span>
         {pokemon.status && <StatusBadge status={pokemon.status.kind} />}
-        <span className={styles.lvl}>Lv {pokemon.level}</span>
+        <span className={styles.lvl}>Lv.{pokemon.level}</span>
       </div>
       <div className={styles.bar}>
         <span className={styles.hpLabel}>HP</span>
@@ -34,7 +34,9 @@ export function HpBox({ pokemon, side }: Props) {
       </div>
       {side === 'ally' && (
         <div className={styles.hpNumbers}>
-          {displayedHp} / {max}
+          <span>{displayedHp}</span>
+          <span className={styles.slash}>/</span>
+          <span>{max}</span>
         </div>
       )}
     </div>

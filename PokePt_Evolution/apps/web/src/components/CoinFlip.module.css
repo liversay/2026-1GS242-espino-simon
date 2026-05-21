@@ -7,7 +7,7 @@
   justify-content: center;
   gap: clamp(10px, 2vh, 18px);
   text-align: center;
-  background: linear-gradient(180deg, rgba(14, 18, 48, 0.92), rgba(7, 9, 26, 0.96));
+  background: linear-gradient(180deg, rgba(14, 18, 48, 0.94), rgba(7, 9, 26, 0.96));
   z-index: 200;
   padding: clamp(16px, 4vw, 32px);
   overflow-y: auto;
@@ -18,15 +18,22 @@
   font-size: clamp(20px, 4vw, 48px);
   line-height: 1.15;
   color: var(--pp-paper);
-  text-shadow: 3px 3px 0 var(--pp-shadow), 6px 6px 0 var(--pp-hot);
+  text-shadow:
+    3px 3px 0 var(--ds-dialog-outer),
+    6px 6px 0 var(--ds-menu-red-d);
   letter-spacing: 0.04em;
 }
 
 .body {
-  font-family: var(--font-body);
-  font-size: clamp(16px, 2.2vw, 22px);
-  color: var(--pp-platinum);
+  font-family: var(--font-game);
+  font-size: clamp(18px, 2.4vw, 26px);
+  color: var(--ds-dialog-bg);
   max-width: 50ch;
+  letter-spacing: 0.01em;
+  padding: 14px 22px;
+  background: linear-gradient(180deg, rgba(28, 36, 70, 0.7) 0%, rgba(14, 18, 48, 0.65) 100%);
+  border-left: 4px solid var(--pp-electric);
+  border-radius: 0 var(--ds-radius-sm) var(--ds-radius-sm) 0;
 }
 
 .choices {
@@ -41,39 +48,54 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 6px;
-  padding: 24px 36px;
-  border: 4px solid var(--pp-ink);
-  box-shadow: 6px 6px 0 var(--pp-shadow);
+  gap: 8px;
+  padding: 26px 38px;
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
   font-family: var(--font-display);
-  color: var(--pp-ink);
+  color: #ffffff;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.4);
   transition: transform 100ms, box-shadow 100ms, filter 120ms;
   cursor: pointer;
+  box-shadow:
+    inset 0 -5px 0 rgba(0,0,0,0.28),
+    inset 0 5px 0 rgba(255,255,255,0.22),
+    5px 5px 0 var(--pp-shadow);
 }
 .choiceBtn:hover:not(:disabled) {
   transform: translate(-2px, -2px);
-  box-shadow: 8px 8px 0 var(--pp-shadow);
-  filter: brightness(1.05);
+  box-shadow:
+    inset 0 -5px 0 rgba(0,0,0,0.28),
+    inset 0 5px 0 rgba(255,255,255,0.22),
+    7px 7px 0 var(--pp-shadow);
+  filter: brightness(1.1);
 }
 .choiceBtn:active:not(:disabled) {
-  transform: translate(4px, 4px);
-  box-shadow: 2px 2px 0 var(--pp-shadow);
+  transform: translate(3px, 3px);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.28),
+    inset 0 3px 0 rgba(255,255,255,0.18),
+    2px 2px 0 var(--pp-shadow);
+}
+.choiceBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 4px;
 }
 .choiceBtn:disabled { opacity: 0.4; cursor: not-allowed; }
+
 .heads {
-  background: linear-gradient(135deg, #f8e16c 0%, #d8a838 100%);
+  background: linear-gradient(180deg, var(--ds-menu-blue) 0%, var(--ds-menu-blue-d) 100%);
 }
 .tails {
-  background: linear-gradient(135deg, #ff5b3e 0%, #c43726 100%);
-  color: var(--pp-paper);
+  background: linear-gradient(180deg, var(--ds-menu-red) 0%, var(--ds-menu-red-d) 100%);
 }
 
 .bigLabel { font-size: clamp(20px, 4vw, 36px); letter-spacing: 0.06em; }
-.subLabel { font-size: 11px; letter-spacing: 0.2em; opacity: 0.75; }
+.subLabel { font-size: 11px; letter-spacing: 0.2em; opacity: 0.85; }
 
 .error {
-  color: var(--pp-hot);
-  font-family: var(--font-body);
+  color: var(--ds-menu-red);
+  font-family: var(--font-game);
   font-size: 20px;
 }
 
@@ -96,8 +118,6 @@
   animation-duration: 2.4s;
   animation-timing-function: cubic-bezier(.2, .6, .3, 1);
   animation-fill-mode: forwards;
-  /* filter: drop-shadow aquí aplana preserve-3d y rompe backface-visibility.
-     La sombra va en .face como box-shadow. */
 }
 .coin[data-result="heads"] { animation-name: coin-spin-heads; }
 .coin[data-result="tails"] { animation-name: coin-spin-tails; }
@@ -117,27 +137,27 @@
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  border: 6px solid var(--pp-ink);
+  border: 6px solid var(--ds-dialog-outer);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-family: var(--font-display);
-  color: var(--pp-ink);
+  color: #ffffff;
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
+  text-shadow: 2px 2px 0 rgba(0,0,0,0.45);
   box-shadow:
-    inset 0 6px 0 rgba(255, 255, 255, 0.4),
-    inset 0 -6px 0 rgba(0, 0, 0, 0.2),
+    inset 0 6px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -6px 0 rgba(0, 0, 0, 0.25),
     0 12px 16px rgba(0, 0, 0, 0.45);
 }
 .faceHeads {
-  background: radial-gradient(circle at 35% 30%, #fff09a 0%, #f8e16c 40%, #d8a838 80%);
+  background: radial-gradient(circle at 35% 30%, #88a8e8 0%, var(--ds-menu-blue) 40%, var(--ds-menu-blue-d) 80%);
 }
 .faceTails {
   transform: rotateX(180deg);
-  background: radial-gradient(circle at 35% 30%, #ff8a72 0%, #ff5b3e 40%, #c43726 80%);
-  color: var(--pp-paper);
+  background: radial-gradient(circle at 35% 30%, #f08080 0%, var(--ds-menu-red) 40%, var(--ds-menu-red-d) 80%);
 }
 .faceLabel { font-size: 64px; line-height: 1; }
 .faceSmall { font-size: 10px; letter-spacing: 0.2em; margin-top: 8px; }
@@ -165,28 +185,31 @@
 
 .waitMsg {
   margin-top: 10px;
-  font-family: var(--font-body);
-  font-size: 16px;
-  color: var(--pp-steel);
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--pp-platinum);
   text-align: center;
 }
 
 .banner {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  padding: 14px 24px;
-  background: var(--pp-paper);
-  color: var(--pp-ink);
-  border: 4px solid var(--pp-ink);
-  box-shadow: 6px 6px 0 var(--pp-shadow);
-  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+  gap: 6px;
+  padding: 18px 28px;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    6px 6px 0 var(--pp-shadow);
 }
 .bannerHead {
-  font-family: var(--font-body);
-  font-size: clamp(16px, 2.2vw, 22px);
+  font-family: var(--font-game);
+  font-size: clamp(18px, 2.4vw, 24px);
+  color: var(--ds-dialog-ink);
 }
-.bannerHead strong { color: var(--pp-hot); }
+.bannerHead strong { color: var(--ds-menu-red); letter-spacing: 0.02em; }
 .bannerWinner {
   font-family: var(--font-display);
   font-size: clamp(14px, 2.5vw, 22px);

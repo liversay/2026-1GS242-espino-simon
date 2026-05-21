@@ -129,13 +129,14 @@ export function MusicManager() {
 
   return (
     <button
-      className={styles.muteBtn}
+      className={`${styles.muteBtn} ${muted ? styles.muted : ''}`}
       type="button"
       onClick={toggleMute}
       aria-label={muted ? 'Unmute music' : 'Mute music'}
+      aria-pressed={muted}
       title={muted ? 'Unmute music' : 'Mute music'}
     >
-      {muted ? '🔇' : '🔊'}
+      <span className={styles.icon} aria-hidden="true" />
     </button>
   )
 }

@@ -6,12 +6,12 @@ export const Route = createRootRoute({
   component: () => (
     <>
       <div className="app-shell">
+        <div style={{ position: 'absolute', top: 12, right: 12, zIndex: 1000 }}>
+          <UserAvatar />
+        </div>
         <Outlet />
       </div>
       <MusicManager />
-      <div style={{ position: 'fixed', top: 12, right: 12, zIndex: 1000 }}>
-        <UserAvatar />
-      </div>
     </>
   ),
 })

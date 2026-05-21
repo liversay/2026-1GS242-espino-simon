@@ -16,12 +16,12 @@ export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Prop
 
   return (
     <div className={styles.backdrop} onClick={handleBackdrop}>
-      <div className={`${styles.panel} panel`} onClick={stopProp}>
-        <span className="panel__chip">PP-EVO / {forced ? 'FORCED SWITCH' : 'SWITCH'}</span>
+      <div className={styles.panel} onClick={stopProp}>
+        <span className={styles.chip}>{forced ? 'FORCED SWITCH' : 'SWITCH'}</span>
         <header className={styles.head}>
           <h3>{forced ? 'Your Pokémon fainted!' : 'Switch Pokémon'}</h3>
           {!forced && (
-            <button className="btn" onClick={onClose} type="button">✕</button>
+            <button className={styles.closeBtn} onClick={onClose} type="button" aria-label="Close">✕</button>
           )}
         </header>
         {forced && (
@@ -34,6 +34,8 @@ export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Prop
             const isActive = idx === player.activeIndex
             const isFainted = pkmn.fainted
             const can = !isActive && !isFainted && !disabled
+            const hpPct = Math.max(0, Math.min(100, (pkmn.currentHp / pkmn.stats.maxHp) * 100))
+            const hpColor = hpPct > 50 ? 'var(--pp-hp-green)' : hpPct > 20 ? 'var(--pp-hp-yellow)' : 'var(--pp-hp-red)'
             return (
               <li key={idx}>
                 <button
@@ -43,12 +45,22 @@ export function SwitchMenu({ player, onSwitch, onClose, disabled, forced }: Prop
                   disabled={!can}
                   style={{ animationDelay: `${idx * 50}ms` }}
                 >
+                  <span className={styles.ball} aria-hidden="true" data-state={isFainted ? 'fainted' : isActive ? 'active' : 'ok'} />
                   <img src={pkmn.spriteUrl} alt={pkmn.name} className={styles.sprite} />
                   <span className={styles.info}>
-                    <span className={styles.name}>{pkmn.name}</span>
-                    <span className={styles.hp}>HP {pkmn.currentHp}/{pkmn.stats.maxHp}</span>
+                    <span className={styles.nameRow}>
+                      <span className={styles.name}>{pkmn.name}</span>
+                      <span className={styles.lvl}>Lv.{pkmn.level}</span>
+                    </span>
+                    <span className={styles.hpRow}>
+                      <span className={styles.hpLabel}>HP</span>
+                      <span className={styles.hpTrack}>
+                        <span className={styles.hpFill} style={{ width: `${hpPct}%`, background: hpColor }} />
+                      </span>
+                      <span className={styles.hpNum}>{pkmn.currentHp}/{pkmn.stats.maxHp}</span>
+                    </span>
                     {isActive && <span className={styles.tag}>ACTIVE</span>}
-                    {isFainted && <span className={styles.tag}>FAINTED</span>}
+                    {isFainted && <span className={`${styles.tag} ${styles.tagFainted}`}>FAINTED</span>}
                   </span>
                 </button>
               </li>

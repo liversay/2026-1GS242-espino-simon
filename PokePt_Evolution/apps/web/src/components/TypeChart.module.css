@@ -10,10 +10,12 @@
 }
 
 .modal {
-  background: var(--pp-deep);
-  border: var(--panel-border);
-  box-shadow: var(--panel-shadow);
-  clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 18px 100%, 0 calc(100% - 18px));
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    6px 6px 0 var(--pp-shadow);
   display: flex;
   flex-direction: column;
   max-width: min(96vw, 860px);
@@ -38,15 +40,15 @@
 
 .title {
   font-family: var(--font-display);
-  font-size: 22px;
+  font-size: 16px;
   color: var(--pp-paper);
   letter-spacing: 0.1em;
 }
 
 .sub {
-  font-family: var(--font-body);
-  font-size: 13px;
-  color: var(--pp-steel);
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--pp-platinum);
 }
 
 .tableWrap {

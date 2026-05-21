@@ -18,16 +18,16 @@ function BillingSuccessPage() {
   return (
     <main className={styles.shell}>
       <div className={styles.layout} style={{ justifyContent: 'center' }}>
-        <div className="panel" style={{ textAlign: 'center', maxWidth: 480 }}>
+        <div className="panel" style={{ textAlign: 'center', maxWidth: 480, paddingTop: 36 }}>
           <span className="panel__chip">PP-EVO / PREMIUM</span>
-          <p style={{ fontSize: 48, marginBottom: 8 }}>✨</p>
-          <h1 style={{ fontFamily: 'var(--font-sub)', fontSize: 32, marginBottom: 12 }}>
+          <p style={{ fontSize: 42, marginBottom: 8, color: 'var(--pp-electric)', filter: 'drop-shadow(0 0 12px var(--pp-electric))' }} aria-hidden="true">★</p>
+          <h1 style={{ fontFamily: 'var(--font-display)', fontSize: 22, marginBottom: 14, color: 'var(--ds-dialog-outer)', letterSpacing: '0.04em', textTransform: 'uppercase' }}>
             Welcome to Premium!
           </h1>
-          <p style={{ fontFamily: 'var(--font-body)', color: 'var(--pp-steel)', marginBottom: 20 }}>
+          <p style={{ fontFamily: 'var(--font-game)', fontSize: 20, color: 'var(--ds-dialog-ink)', marginBottom: 20, lineHeight: 1.35 }}>
             You can now choose shiny variants for your Pokémon team.
           </p>
-          <Link to="/" className="btn btn--hot">→ Start playing</Link>
+          <Link to="/" className="btn btn--hot" style={{ display: 'inline-block' }}>Start playing</Link>
         </div>
       </div>
     </main>

@@ -1,0 +1,35 @@
+.cursor {
+  display: inline-block;
+  flex-shrink: 0;
+  background: url('/ui/cursor-arrow.svg') no-repeat center;
+  background-size: contain;
+  image-rendering: pixelated;
+  animation: cursor-idle 0.5s ease-in-out infinite alternate;
+  filter: drop-shadow(1px 1px 0 rgba(0,0,0,0.35));
+}
+
+.right {
+  /* default — apunta a la derecha */
+}
+
+.down {
+  transform: rotate(90deg);
+}
+
+@keyframes cursor-idle {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(2px); }
+}
+
+.down.cursor {
+  animation: cursor-idle-down 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes cursor-idle-down {
+  0%   { transform: rotate(90deg) translateX(0); }
+  100% { transform: rotate(90deg) translateX(2px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cursor { animation: none !important; }
+}
