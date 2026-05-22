@@ -4,9 +4,7 @@ import { getDb } from '../db/mongo'
 import { findUser, upsertUser } from '../db/repo/userRepo'
 import { requireAuth, getUserId } from '../middleware/auth'
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
-  apiVersion: '2025-04-30.basil',
-})
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
 
 const PRICE_ID = process.env.STRIPE_PRICE_ID!
 const WEBHOOK_SECRET = process.env.STRIPE_WEBHOOK_SECRET!

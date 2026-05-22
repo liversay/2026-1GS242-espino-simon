@@ -35,9 +35,9 @@ curl -sS http://localhost:3001/health
 
 There is **no test suite** and no lint script. End-to-end verification is manual via `curl` and two browser sessions (see README §Demo).
 
-### Docker / Colima
+### Docker
 
-Docker is run via **Colima** on macOS (no Docker Desktop). If `docker version` fails to connect, run `colima start`.
+Docker Desktop runs the daemon (the user installed Docker Desktop; previously was Colima — if you ever see `docker version` fail, start Docker Desktop from Applications).
 
 ```bash
 docker compose up -d --build               # build + start mongo + api + web
@@ -46,6 +46,10 @@ docker compose exec mongo mongosh pokept   # interactive db shell
 docker compose exec -T mongo mongosh pokept --quiet --eval "db.rooms.deleteMany({}); db.battles.deleteMany({})"
 docker compose down                        # mongo-data volume survives
 ```
+
+`docker-compose.yml` defines three services: `mongo` (image `mongo:7`, port 27017, volume `mongo-data`), `api` (Bun + Hono on 3001), `web` (Vite production build + `vite preview` on 3000). Inter-container DNS uses service names (`mongo`, `api`).
+
+**Compose env gap**: the compose file does NOT pass Clerk/Stripe keys to the API container, nor `VITE_CLERK_PUBLISHABLE_KEY` to the web build. Before running a containerized demo, the compose needs `env_file: .env` on the `api` service and a build arg on `web`. Ask the user before touching the compose — they may want to handle keys differently.
 
 Pokémon data persists in the `mongo-data` volume; rooms and battles are ephemeral and safe to truncate between sessions.
 
@@ -158,7 +162,8 @@ The two-flag state machine that gates `POST /battles/:code/action`:
 4. Paralysis is **visual-only**: it shows a status badge for 3 turns but does NOT reduce speed and does NOT add miss chance.
 5. Burn/Poison tick `floor(maxHp * 0.05)` at end of turn and decrement a 3-turn counter. Switching out a Pokémon **clears** its status and stat stages (`status.clearOnSwitch`).
 6. Type relations come from PokéAPI's per-type `damage_relations` (not hardcoded). Two defender types stack multiplicatively (so x2·x2=x4, x0 short-circuits to 0).
-7. Normal sprites use fallback cascade: `versions['generation-iv'].platinum.front_default` → `heartgold-soulsilver` → `diamond-pearl` → `front_default`.
+7. Normal sprites use fallback cascade: `versions['generation-iv'].platinum.front_default` → `heartgold-soulsilver` → `diamond-pearl` → `front_default`. Lo mismo aplica para `back_default` (importer extrae los 4 sprites).
+8. **Back sprite del ally**: `BattlePokemon.backSpriteUrl` se rellena en `battle/init.ts` con cascada (back shiny → back normal → front fallback). `PokemonStage.tsx` usa `backSpriteUrl` cuando `side === 'ally'` y el front cuando `side === 'foe'`. Para batallas viejas sin el campo, cae al front (graceful).
 
 ### Frontend animation queue (`apps/web/src/routes/battle.$code.tsx`)
 
@@ -170,6 +175,8 @@ The two-flag state machine that gates `POST /battles/:code/action`:
 When you add a new `LogEntry` kind, you must handle it in **both**:
 - `engine.ts` (push it in the right order with respect to `damage` → `effectiveness` → `faint`)
 - `playEntry` in `battle.$code.tsx` (timing) and `BattleLog.tsx` (`entryText`, for the typewriter)
+
+**Bug histórico**: `BattleLog.entryText` no manejaba `turn-start` y devolvía `undefined`, lo que reventaba `.length` en el filter del componente refactorizado. Ahora hay un `return ''` defensivo al final del switch. Si agregás un kind nuevo, también asegurate que `entryText` retorna algo (aunque sea `''`) en TODOS los casos.
 
 ### Pokeball animation
 
@@ -183,23 +190,52 @@ When you add a new `LogEntry` kind, you must handle it in **both**:
 
 ## Design system (`apps/web/src/styles/`)
 
-All design tokens are in `tokens.css`. Key variables:
-- Backgrounds: `--pp-night`, `--pp-deep`, `--pp-steel`
-- Foreground: `--pp-paper`, `--pp-ink`, `--pp-platinum`
-- Accents: `--pp-hot` (red/CTA), `--pp-electric` (yellow/focus)
-- Typography: `--font-display` (Press Start 2P), `--font-sub` (Jersey 15), `--font-body` (VT323)
-- Borders: `--panel-border` (3px solid ink), `--panel-shadow` (4px 4px 0 shadow)
+The whole UI was reskinned to a **Pokémon Platinum (Gen 4 DS) look**. The base palette (`--pp-*`) is still in `tokens.css` but `--pp-paper` (cream) and `--pp-hot` (orange) are NOT to be used as backgrounds — they survive only as text colors / shadows. The active surface palette is the `--ds-*` block.
 
-Global utility classes in `app.css`: `.btn`, `.btn--hot`, `.input` (+ `.input:focus` with electric border), `.panel`, `.panel--dark`, `.panel__chip`, `.kicker`, `.hero-code`.
+`tokens.css` key variables:
+- **DS chrome** (use these for all new UI): `--ds-dialog-bg`, `--ds-dialog-bg-2`, `--ds-dialog-outer` (azul borde), `--ds-dialog-inner`, `--ds-dialog-ink`
+- **DS menu colors** (FIGHT/POKéMON/BAG/RUN): `--ds-menu-red[-d]`, `--ds-menu-blue[-d]`, `--ds-menu-green[-d]`, `--ds-menu-yellow[-d]`
+- **HP bar**: `--ds-hp-bg`, `--ds-hp-frame`, `--ds-hp-highlight`
+- **Trainer card**: `--ds-trainer-bg[-2]`, `--ds-trainer-gold`
+- **Radios**: `--ds-radius-sm/md/lg` (6/10/14 px — esquinas DS redondeadas, no clip-path angular)
+- **Cursor**: `--ds-cursor-red`, `--ds-cursor-shadow`
+- **Safe area**: `--avatar-safe-area: 64px` — `.topbar` reserva este padding-right en `lobby`/`battle` para no chocar con el `UserAvatar`.
 
-Auth-specific styles live in `routes/auth.module.css` (card, OTP grid, tabs, Google button, error box).
+Background palette (texto/sombras): `--pp-night`, `--pp-deep`, `--pp-steel`, `--pp-platinum`, `--pp-electric` (yellow para focus / accents).
+
+Typography:
+- `--font-display`: Press Start 2P (titulares hero / chips / labels uppercase). Mantener para todos los títulos.
+- `--font-game`: **'Pokemon DPPt'** (webfont real del juego, auto-hospedada en `public/fonts/pokemon-dppt.otf` con `@font-face` + `font-display: swap`). Es la fuente principal in-game (HP boxes, diálogos, nombres de Pokémon, inputs).
+- `--font-sub`: Jersey 15 (fallback / poco uso).
+- `--font-body`: VT323 (fallback de `--font-game`).
+
+Global utility classes in `app.css`:
+- `.btn` (panel DS claro), `.btn--hot` (gradient `--ds-menu-red`), `.btn--blue` (gradient `--ds-menu-blue`) — todos con doble borde DS + rounded
+- `.input` — fondo `--ds-dialog-bg`, caret rojo DS
+- `.panel`, `.panel--dark`, `.panel__chip` — chrome DS rounded con chip flotante
+- `.topbar-back` — chip de "← Exit/Back" con flecha ◀ roja, usado por todas las rutas en su esquina superior izquierda
+- `.kicker`, `.hero-code` (sombras con `--ds-dialog-outer` + `--ds-menu-red-d`)
+
+**Componentes nuevos** (en `apps/web/src/components/`, todos `Platinum-fiel`):
+- `DialogBox.tsx` — cuadro con typewriter, speaker chip (ej "Prof. Rowan"), flecha ▼ parpadeante. Usado en home (no), auth, create/join, lobby (waiting), battle (BattleLog interno), victory
+- `PixelCursor.tsx` — flecha roja idle-bob, respeta `prefers-reduced-motion`. Usada en menús (index, ActionMenu, MoveGrid)
+- `MenuFrame.tsx` — panel `tone: 'light' | 'dark' | 'blue'` con 4 esquinas pixel (`/ui/corner-*.svg`)
+- `TrainerCard.tsx` — tarjeta azul HGSS-style con avatar/inicial, ID#, status dot, badge gold si premium. Usada en lobby (2 enfrentadas) y `UserAvatar` interno
+- `ActionMenu.tsx` — grid 2×2 FIGHT/HELP/POKéMON/RUN (colores rojo/yellow/green/blue Platinum)
+- `MoveGrid.tsx` — 2×2 moves con tipo/categoría/PP, responsive con breakpoints en 900px y 520px (oculta Pwr en mobile)
+
+**Assets pixel** (`apps/web/public/ui/`): `cursor-arrow.svg`, `dialog-arrow.svg`, `corner-{tl,tr,bl,br}.svg`, `slot-{filled,empty}.svg`, `pokeball-mini.svg`, `music-{on,off}.svg`, `trainer-bg-pattern.svg`. Todos con `shape-rendering="crispEdges"`.
+
+Auth-specific styles live in `routes/auth.module.css` (card, OTP grid, tabs, Google button, error box) — todo en DS chrome.
+
+**UserAvatar** (`__root.tsx`): el avatar de perfil está en `position: absolute` (no `fixed`) — se queda arriba a la derecha del documento y hace scroll con la página. Cambio intencional para que no quede "sticky". El `MusicManager` SÍ sigue `fixed` (bottom-right).
 
 ## Importer notes (`apps/api/src/importer/`)
 
 - Fetches the first **340** Pokémon from PokéAPI. Net result on a clean run: ~325 Pokémon, ~338 moves, 18 types.
 - "Usable move" = `damageClass in {physical, special}` with `power > 0`, **or** `damageClass === 'status'` with an effect we can model (`burn` / `poison` / `paralysis` / `atk-` / `def-` / `spe-`). See `mapMove.tryMapMove`.
 - Concurrency is 10 with exponential-backoff retry. Each upsert is keyed by `pokedexId` / `moveId` / `type.name` so reruns are safe.
-- Each Pokémon document has both `spriteUrl` (normal) and `shinySpriteUrl` (shiny) fields populated by the importer.
+- Each Pokémon document has **4 sprite fields** populated by the importer: `spriteUrl` (front normal), `shinySpriteUrl` (front shiny), `backSpriteUrl` (back normal), `backShinySpriteUrl` (back shiny). Cada uno con cascada Platinum → HGSS → DP → fallback al front. **Si agregás campos de sprite, hay que rerun el importer** (`bun --filter @pokept/api import` o `docker compose exec api bun run import`) para repoblar los Pokémon ya almacenados.
 
 ## Generated files
 
@@ -220,6 +256,8 @@ STRIPE_PRICE_ID=price_...
 ```
 VITE_CLERK_PUBLISHABLE_KEY=pk_test_...
 ```
+
+**Disciplina con secrets**: nunca imprimas/dumpees el contenido de archivos `.env*` en chat, ni siquiera redactado con `sed` u otro filtro. El usuario rechazó explícitamente intentos de listar nombres de variables aunque los valores estuvieran ofuscados. Si necesitás saber qué hay, pregúntale al usuario o asumí que las claves del bloque de arriba están configuradas. Tampoco hagas `cat .env` ni listes el archivo, aunque sea para verificación.
 
 ## Git
 
