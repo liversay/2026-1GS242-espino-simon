@@ -1,0 +1,239 @@
+.shell {
+  min-height: 100vh;
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 2vh 3vw 3vh;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.topbar {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-right: var(--avatar-safe-area);
+}
+.vs {
+  font-family: var(--font-game);
+  font-size: clamp(16px, 2.4vw, 24px);
+  color: var(--pp-platinum);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.vs strong {
+  color: var(--pp-paper);
+  font-family: var(--font-game);
+  font-size: clamp(18px, 2.6vw, 26px);
+  padding: 2px 8px;
+  border: 2px solid transparent;
+  transition: border-color 200ms, color 200ms;
+}
+.vsLabel { font-family: var(--font-display); font-size: 11px; letter-spacing: 0.18em; color: var(--pp-steel); }
+.activePlayer {
+  color: var(--pp-electric);
+  border-color: var(--ds-menu-red);
+  box-shadow: 3px 3px 0 var(--pp-shadow);
+}
+
+.field {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 8;
+  min-height: 370px;
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
+  overflow: hidden;
+}
+
+.foeBox {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  z-index: 4;
+}
+.allyBox {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  z-index: 4;
+}
+
+.flash {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+  mix-blend-mode: screen;
+}
+.flashSuper { background: rgba(255, 91, 62, 0.7); }
+.flashLow   { background: rgba(82, 147, 236, 0.4); }
+.flashNone  { background: rgba(185, 196, 216, 0.55); }
+
+.separator {
+  height: 5px;
+  background: var(--ds-dialog-outer);
+  border-top: 3px solid var(--ds-menu-red);
+  border-bottom: 1px solid rgba(255,255,255,0.12);
+  margin: -4px 0 0;
+  position: relative;
+  border-radius: 2px;
+}
+.separator::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%, rgba(248,225,108,0.15) 20%,
+    rgba(248,225,108,0.3) 50%,
+    rgba(248,225,108,0.15) 80%, transparent 100%
+  );
+}
+
+/* ── 3-zone battle controls: dialog | menu ───────────────────────────── */
+.controls {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: stretch;
+}
+
+@media (max-width: 880px) {
+  .controls { grid-template-columns: 1fr; }
+}
+
+.dialogZone {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.menuZone {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  color: var(--pp-paper);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
+  min-width: 0;
+}
+
+.turnInfo {
+  font-family: var(--font-game);
+  font-size: clamp(16px, 1.9vw, 20px);
+  color: var(--pp-platinum);
+  line-height: 1.25;
+  margin: 0;
+  padding-bottom: 8px;
+  border-bottom: 2px dashed rgba(185, 196, 216, 0.22);
+}
+.turnInfoMine {
+  color: var(--pp-electric);
+}
+
+.waiting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-game);
+  font-size: 20px;
+  color: var(--pp-platinum);
+  padding: 18px 4px;
+}
+
+.waitingDot {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--pp-electric);
+  box-shadow: 0 0 12px var(--pp-electric);
+  animation: waiting-pulse 1.1s ease-in-out infinite;
+}
+
+@keyframes waiting-pulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.85); }
+  50%      { opacity: 1;   transform: scale(1.1); }
+}
+
+/* ── Surrender confirmation ────────────────────────────────────────────── */
+.confirmBox {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 0;
+}
+.confirmMsg {
+  font-family: var(--font-game);
+  font-size: 20px;
+  color: var(--ds-menu-red);
+  margin: 0;
+}
+.confirmBtns {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.error {
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--ds-menu-red);
+  margin: 0;
+}
+
+/* ── KO acknowledgment button (inline al lado del log) ──────────────── */
+.koAckBtn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, var(--ds-menu-red) 0%, var(--ds-menu-red-d) 100%);
+  color: var(--pp-paper);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+  box-shadow:
+    inset 0 -4px 0 rgba(0,0,0,0.3),
+    inset 0 4px 0 rgba(255,255,255,0.18),
+    3px 3px 0 var(--pp-shadow);
+  animation: ko-ack-pulse 0.9s ease-in-out infinite alternate;
+}
+.koAckBtn:hover { filter: brightness(1.12); }
+.koAckBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 3px;
+}
+.koAckLabel {
+  font-family: var(--font-game);
+  font-size: clamp(16px, 1.8vw, 20px);
+  line-height: 1.2;
+}
+.koAckCaret {
+  font-size: 20px;
+  animation: ko-ack-bounce 0.9s ease-in-out infinite alternate;
+}
+@keyframes ko-ack-pulse {
+  from { opacity: 0.82; box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.18), 3px 3px 0 var(--pp-shadow); }
+  to   { opacity: 1;    box-shadow: inset 0 -4px 0 rgba(0,0,0,0.3), inset 0 4px 0 rgba(255,255,255,0.18), 5px 5px 0 var(--pp-shadow), 0 0 14px rgba(208,72,72,0.55); }
+}
+@keyframes ko-ack-bounce {
+  from { transform: translateY(0); }
+  to   { transform: translateY(4px); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .waitingDot, .koAckBtn, .koAckCaret { animation: none !important; }
+}

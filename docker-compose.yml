@@ -1,0 +1,53 @@
+name: pokept-evolution
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: pp-mongo
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.runCommand({ ping: 1 }).ok"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    container_name: pp-api
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    env_file:
+      - ./apps/api/.env.local
+    environment:
+      MONGO_URL: "mongodb://mongo:27017"
+      MONGO_DB: "pokept"
+      PORT: "3001"
+      FRONTEND_URL: "http://localhost:3000"
+    ports:
+      - "3001:3001"
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+      args:
+        VITE_API_BASE: "http://localhost:3001"
+        VITE_CLERK_PUBLISHABLE_KEY: ${VITE_CLERK_PUBLISHABLE_KEY:?Pegá tu key en PokePt_Evolution/.env (VITE_CLERK_PUBLISHABLE_KEY=pk_test_...)}
+    container_name: pp-web
+    restart: unless-stopped
+    depends_on:
+      - api
+    ports:
+      - "3000:3000"
+
+volumes:
+  mongo-data:

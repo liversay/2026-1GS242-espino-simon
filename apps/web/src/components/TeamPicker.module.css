@@ -1,0 +1,385 @@
+.wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.h3 {
+  font-family: var(--font-display);
+  font-size: clamp(16px, 2.2vw, 22px);
+  color: var(--pp-paper);
+  line-height: 1.2;
+  letter-spacing: 0.04em;
+  text-shadow: 2px 2px 0 var(--ds-dialog-outer);
+}
+.muted { color: var(--pp-platinum); font-family: var(--font-game); }
+.error { color: var(--ds-menu-red); font-family: var(--font-game); }
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 14px;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding-right: 6px;
+}
+.grid::-webkit-scrollbar { width: 8px; }
+.grid::-webkit-scrollbar-thumb { background: var(--pp-steel); }
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 8px;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
+  text-align: center;
+  font-family: var(--font-game);
+  transition: transform 100ms, box-shadow 100ms, filter 100ms;
+  cursor: pointer;
+}
+.card img {
+  width: 96px;
+  height: 96px;
+  image-rendering: pixelated;
+  filter: drop-shadow(2px 2px 0 rgba(0,0,0,0.2));
+}
+.card:hover:not(:disabled) {
+  transform: translate(-1px, -3px);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 6px 0 var(--pp-shadow),
+    0 0 16px var(--type-glow, var(--pp-electric));
+}
+.card:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
+.card:disabled { opacity: 0.35; cursor: not-allowed; }
+.cardPicked {
+  background: linear-gradient(180deg, var(--pp-electric) 0%, #d8b830 100%);
+  outline: 3px solid var(--ds-menu-red);
+  outline-offset: -3px;
+}
+.checkmark {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  color: #ffffff;
+  background: linear-gradient(180deg, var(--ds-menu-red) 0%, var(--ds-menu-red-d) 100%);
+  border: 2px solid var(--ds-dialog-outer);
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-shadow: 1px 1px 0 rgba(0,0,0,0.4);
+  box-shadow: 1px 1px 0 var(--pp-shadow);
+}
+
+.legendaryBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  font-size: 14px;
+  line-height: 1;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.4));
+}
+
+.cardLegendary {
+  outline: 2px solid #d4af37;
+  outline-offset: -2px;
+  box-shadow: 0 0 10px rgba(212, 175, 55, 0.45), var(--panel-shadow);
+}
+
+.legendaryNote {
+  font-family: var(--font-game);
+  font-size: 16px;
+  color: #d4af37;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.02em;
+}
+.dexId {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  color: var(--ds-dialog-outer);
+  font-variant-numeric: tabular-nums;
+  background: rgba(40, 48, 80, 0.08);
+  padding: 2px 5px;
+  border-radius: 3px;
+}
+.name {
+  font-family: var(--font-game);
+  font-size: 22px;
+  text-transform: capitalize;
+  letter-spacing: 0.02em;
+  color: var(--ds-dialog-ink);
+}
+.types {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pager {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.pageInfo {
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  letter-spacing: 0.02em;
+}
+
+/* Info button — visible on touch, hidden on hover-capable devices */
+.infoBtn {
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  font-family: var(--font-display);
+  font-size: 8px;
+  background: var(--pp-steel);
+  color: var(--pp-paper);
+  border: 2px solid var(--pp-ink);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  z-index: 1;
+}
+@media (hover: hover) and (pointer: fine) {
+  .infoBtn { display: none; }
+}
+
+/* Stats tooltip (rendered via portal into document.body) */
+.statTooltip {
+  position: fixed;
+  z-index: 9999;
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    4px 4px 0 var(--pp-shadow);
+  padding: 12px 14px;
+  pointer-events: none;
+}
+
+.statTooltipName {
+  font-family: var(--font-game);
+  font-size: 20px;
+  color: var(--pp-paper);
+  text-transform: capitalize;
+  margin-bottom: 8px;
+  padding-bottom: 5px;
+  border-bottom: 2px dashed rgba(185, 196, 216, 0.3);
+}
+
+.statTable {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.statLabel {
+  font-family: var(--font-display);
+  font-size: 8px;
+  letter-spacing: 0.04em;
+  color: var(--pp-platinum);
+  width: 34px;
+  padding: 3px 4px 3px 0;
+  vertical-align: middle;
+  white-space: nowrap;
+}
+
+.statVal {
+  font-family: var(--font-body);
+  font-size: 16px;
+  color: var(--pp-paper);
+  width: 30px;
+  text-align: right;
+  padding-right: 7px;
+  vertical-align: middle;
+}
+
+.statBarCell {
+  vertical-align: middle;
+  width: 100%;
+}
+
+.statBar {
+  height: 7px;
+  border: 1px solid var(--pp-ink);
+  min-width: 3px;
+}
+
+/* Shiny variant styles */
+.cardShiny {
+  outline: 3px solid #f8d030;
+  outline-offset: -3px;
+  box-shadow: 0 0 16px rgba(248, 208, 48, 0.55), var(--panel-shadow);
+}
+
+/* Shiny button — siempre visible (icono pequeño) */
+.shinyBtn {
+  position: absolute;
+  bottom: 24px;
+  right: 4px;
+  width: 18px;
+  height: 18px;
+  font-size: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.45;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 100ms;
+}
+.shinyBtn:hover { opacity: 1; }
+.shinyBtnPremium { opacity: 0.8; }
+.shinyBtnPremium:hover { opacity: 1; }
+
+/* Shiny selection modal (portal) */
+.shinyOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(14, 18, 48, 0.75);
+  z-index: 9998;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.shinyModal {
+  position: relative;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    6px 6px 0 var(--pp-shadow);
+  padding: 24px 26px 20px;
+  text-align: center;
+  min-width: 280px;
+  max-width: 380px;
+  animation: pop-in 200ms cubic-bezier(.34,1.56,.64,1) backwards;
+}
+
+@keyframes pop-in {
+  0%   { opacity: 0; transform: scale(0.88); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+.shinyModalTitle {
+  font-family: var(--font-game);
+  font-size: 26px;
+  color: var(--ds-dialog-outer);
+  text-transform: capitalize;
+  margin: 0 0 4px;
+  letter-spacing: 0.02em;
+}
+
+.shinyModalSub {
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--ds-dialog-ink);
+  margin: 0 0 16px;
+  opacity: 0.85;
+}
+
+.shinyChoices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  margin-bottom: 14px;
+}
+
+.shinyChoice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
+  cursor: pointer;
+  transition: transform 100ms, filter 150ms;
+}
+.shinyChoice:hover { transform: translateY(-3px); filter: brightness(1.06); }
+.shinyChoice:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
+
+.shinyChoiceShiny {
+  background: linear-gradient(180deg, #2a2060 0%, #1a1040 100%);
+  color: var(--pp-paper);
+  border-color: var(--pp-electric);
+  box-shadow:
+    inset 0 0 0 2px var(--pp-electric),
+    0 0 14px rgba(248, 225, 108, 0.45),
+    3px 3px 0 var(--pp-shadow);
+}
+
+.shinySprite {
+  width: 80px;
+  height: 80px;
+  image-rendering: pixelated;
+}
+
+.shinyChoiceLabel {
+  font-family: var(--font-game);
+  font-size: 18px;
+  letter-spacing: 0.02em;
+}
+
+.shinyClose {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ds-dialog-outer);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 6px 10px;
+  transition: color 120ms;
+}
+.shinyClose:hover { color: var(--ds-menu-red); }
+.shinyClose:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}

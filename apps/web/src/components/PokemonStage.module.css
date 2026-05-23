@@ -1,0 +1,185 @@
+.stage {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+.ally {
+  bottom: 6%;
+  left: 8%;
+  width: 26%;
+}
+.foe {
+  top: 8%;
+  right: 8%;
+  width: 22%;
+}
+
+.spriteWrap {
+  position: relative;
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.platform {
+  position: absolute;
+  bottom: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 98%;
+  height: 22px;
+  border-radius: 50%;
+  z-index: 0;
+}
+.platformAlly {
+  background:
+    radial-gradient(ellipse 100% 100% at 50% 100%, #1f4010 0%, #2d6018 30%, #4a8c28 52%, transparent 72%),
+    radial-gradient(ellipse 90% 60% at 50% 95%, rgba(0,0,0,0.6) 0%, transparent 70%);
+}
+.platformFoe {
+  background:
+    radial-gradient(ellipse 100% 100% at 50% 100%, #3b2408 0%, #6b4518 30%, #a07238 52%, transparent 72%),
+    radial-gradient(ellipse 90% 60% at 50% 95%, rgba(0,0,0,0.55) 0%, transparent 70%);
+}
+
+.sprite {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+  filter: drop-shadow(4px 6px 0 rgba(0,0,0,0.35));
+  transform-origin: bottom center;
+  z-index: 1;
+}
+.fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sub);
+  color: var(--pp-paper);
+}
+
+.dmg {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-display);
+  font-size: 32px;
+  text-shadow: 2px 2px 0 var(--pp-ink), 0 0 16px rgba(0,0,0,0.5);
+  white-space: nowrap;
+  z-index: 5;
+}
+.critTag {
+  font-size: 12px;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+.statusOverlay {
+  position: absolute;
+  inset: 20% 10%;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+.burn {
+  background: radial-gradient(ellipse at 50% 80%, rgba(238, 121, 73, 0.7) 0%, transparent 60%);
+}
+.poisonBubble {
+  position: absolute;
+  top: 30%;
+  left: 60%;
+  width: 14px;
+  height: 14px;
+  background: #a040a0;
+  border: 2px solid var(--pp-ink);
+  border-radius: 50%;
+  pointer-events: none;
+}
+.paralysis {
+  position: absolute;
+  inset: 10%;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 30%, var(--pp-electric) 0 3px, transparent 4px),
+    radial-gradient(circle at 75% 60%, var(--pp-electric) 0 3px, transparent 4px),
+    radial-gradient(circle at 40% 80%, var(--pp-electric) 0 3px, transparent 4px);
+}
+
+/* ── Pokeball throw animation ───────────────────────────────────────────── */
+
+.spriteHidden { opacity: 0; }
+
+.pokeball {
+  position: absolute;
+  bottom: 30%;
+  left: 50%;
+  width: clamp(28px, 6%, 48px);
+  height: clamp(28px, 6%, 48px);
+  transform: translateX(-50%);
+  image-rendering: pixelated;
+  pointer-events: none;
+  z-index: 6;
+}
+
+/* Ally: pokeball entra desde abajo-izquierda */
+.pokeballAlly {
+  animation: pokeball-throw-ally 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+/* Foe: pokeball entra desde arriba-derecha */
+.pokeballFoe {
+  animation: pokeball-throw-foe 0.9s cubic-bezier(0.2, 0.8, 0.4, 1) forwards;
+}
+
+@keyframes pokeball-throw-ally {
+  /* Throw: entra desde la izquierda con arco ascendente */
+  0%   { transform: translate(-200%, 120%) rotate(-120deg) scale(0.6); opacity: 1; }
+  10%  { transform: translate(-120%, 20%)  rotate(-70deg)  scale(0.8); opacity: 1; }
+  /* Aterrizaje */
+  44%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Shake: 3 sacudidas */
+  52%  { transform: translate(-50%, 0%)    rotate(18deg)   scale(1);   opacity: 1; }
+  60%  { transform: translate(-50%, 0%)    rotate(-18deg)  scale(1);   opacity: 1; }
+  68%  { transform: translate(-50%, 0%)    rotate(12deg)   scale(1);   opacity: 1; }
+  78%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Open: flash y desaparece */
+  88%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1.5); opacity: 0.6; filter: brightness(3); }
+  100% { transform: translate(-50%, 0%)    rotate(0deg)    scale(2.2); opacity: 0; filter: brightness(5); }
+}
+
+@keyframes pokeball-throw-foe {
+  /* Throw: entra desde la derecha con arco descendente */
+  0%   { transform: translate(150%, -130%) rotate(130deg)  scale(0.6); opacity: 1; }
+  10%  { transform: translate(80%, -40%)   rotate(80deg)   scale(0.8); opacity: 1; }
+  /* Aterrizaje */
+  44%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Shake */
+  52%  { transform: translate(-50%, 0%)    rotate(18deg)   scale(1);   opacity: 1; }
+  60%  { transform: translate(-50%, 0%)    rotate(-18deg)  scale(1);   opacity: 1; }
+  68%  { transform: translate(-50%, 0%)    rotate(12deg)   scale(1);   opacity: 1; }
+  78%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1);   opacity: 1; }
+  /* Open: flash y desaparece */
+  88%  { transform: translate(-50%, 0%)    rotate(0deg)    scale(1.5); opacity: 0.6; filter: brightness(3); }
+  100% { transform: translate(-50%, 0%)    rotate(0deg)    scale(2.2); opacity: 0; filter: brightness(5); }
+}
+
+/* El sprite aparece con fade-in justo cuando la pokeball "se abre" (delay 78% de 900ms = ~700ms) */
+.spriteAppear {
+  animation: sprite-appear 0.25s ease-out forwards;
+  animation-delay: 700ms;
+  opacity: 0;
+}
+@keyframes sprite-appear {
+  from { opacity: 0; transform: scale(0.7); filter: brightness(4); }
+  to   { opacity: 1; transform: scale(1);   filter: none; }
+}

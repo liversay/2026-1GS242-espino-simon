@@ -1,0 +1,30 @@
+/* Stage base: fills its relative container absolutely. */
+
+.stage {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.scenarioBg {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+/* Subtle gradient overlay to keep sprites and HUD legible on any scenario.
+   Top/bottom edges are darkened; the centre battle area stays close to the original. */
+.overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.22) 0%,
+    rgba(0, 0, 0, 0.06) 35%,
+    rgba(0, 0, 0, 0.06) 65%,
+    rgba(0, 0, 0, 0.28) 100%
+  );
+  pointer-events: none;
+}

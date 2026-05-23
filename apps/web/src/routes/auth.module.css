@@ -1,0 +1,309 @@
+/* Auth screens — sign-in, sign-up, sso-callback */
+
+.shell {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 24px 16px;
+  gap: 16px;
+}
+
+.dialogIntro {
+  width: 100%;
+  max-width: 440px;
+  margin-bottom: 18px;
+}
+
+/* ── Card ─────────────────────────────────────────────────────────────── */
+
+.card {
+  position: relative;
+  background: linear-gradient(180deg, var(--pp-deep) 0%, var(--pp-night) 100%);
+  color: var(--pp-paper);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-lg);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    6px 6px 0 var(--pp-shadow);
+  padding: 32px 28px 28px;
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.chip {
+  position: absolute;
+  top: -14px;
+  right: 22px;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: var(--ds-dialog-outer);
+  color: var(--ds-dialog-bg);
+  padding: 5px 10px 4px;
+  border-radius: var(--ds-radius-sm);
+  box-shadow: 2px 2px 0 var(--pp-shadow);
+}
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.logo {
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--pp-electric);
+}
+
+.title {
+  font-family: var(--font-display);
+  font-size: 32px;
+  color: var(--pp-paper);
+  text-shadow:
+    3px 3px 0 var(--ds-dialog-outer),
+    5px 5px 0 var(--ds-menu-red-d);
+  line-height: 1.05;
+  margin: 0;
+  letter-spacing: 0.03em;
+}
+
+/* ── Field ────────────────────────────────────────────────────────────── */
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--pp-electric);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* ── Tabs ─────────────────────────────────────────────────────────────── */
+
+.tabs {
+  display: flex;
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  overflow: hidden;
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    3px 3px 0 var(--pp-shadow);
+}
+
+.tab {
+  flex: 1;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 12px 8px;
+  background: var(--pp-night);
+  color: var(--pp-platinum);
+  border: none;
+  border-right: 2px solid var(--ds-dialog-outer);
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.tab:last-child { border-right: none; }
+.tab:hover:not(.tabActive) {
+  background: var(--pp-steel);
+  color: var(--pp-paper);
+}
+.tabActive {
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+}
+
+/* ── Divider ──────────────────────────────────────────────────────────── */
+
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--pp-platinum);
+}
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 2px;
+  background: rgba(185, 196, 216, 0.3);
+}
+.dividerText {
+  font-family: var(--font-display);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  color: var(--pp-platinum);
+}
+
+/* ── Google button ────────────────────────────────────────────────────── */
+
+.googleBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: var(--font-display);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background: linear-gradient(180deg, var(--ds-dialog-bg) 0%, var(--ds-dialog-bg-2) 100%);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-md);
+  box-shadow:
+    inset 0 -3px 0 rgba(0,0,0,0.12),
+    inset 0 3px 0 rgba(255,255,255,0.5),
+    3px 3px 0 var(--pp-shadow);
+  padding: 12px 22px 11px;
+  width: 100%;
+  cursor: pointer;
+  transition: filter 160ms, transform 80ms, box-shadow 80ms;
+}
+.googleBtn:hover:not(:disabled) { filter: brightness(1.05); }
+.googleBtn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow:
+    inset 0 -2px 0 rgba(0,0,0,0.12),
+    inset 0 2px 0 rgba(255,255,255,0.4),
+    1px 1px 0 var(--pp-shadow);
+}
+.googleBtn:disabled { opacity: 0.45; cursor: not-allowed; }
+.googleBtn:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+}
+
+/* ── OTP grid ─────────────────────────────────────────────────────────── */
+
+.otpRow {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+}
+
+.otpSep {
+  width: 10px;
+  height: 3px;
+  background: var(--pp-platinum);
+  flex-shrink: 0;
+  border-radius: 2px;
+}
+
+.otpBox {
+  width: 48px;
+  height: 56px;
+  font-family: var(--font-display);
+  font-size: 24px;
+  text-align: center;
+  background: var(--ds-dialog-bg);
+  color: var(--ds-dialog-ink);
+  border: 3px solid var(--ds-dialog-outer);
+  border-radius: var(--ds-radius-sm);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    inset 2px 2px 0 rgba(28, 36, 70, 0.1);
+  caret-color: var(--ds-menu-red);
+  transition: border-color 100ms, box-shadow 100ms;
+}
+.otpBox:focus {
+  outline: none;
+  border-color: var(--pp-electric);
+  box-shadow:
+    inset 0 0 0 2px var(--ds-dialog-inner),
+    0 0 0 2px var(--pp-electric);
+}
+
+/* ── Error / success ──────────────────────────────────────────────────── */
+
+.errorBox {
+  background: rgba(208, 72, 72, 0.12);
+  border: 2px solid var(--ds-menu-red);
+  border-radius: var(--ds-radius-sm);
+  padding: 10px 14px;
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--ds-menu-red);
+  line-height: 1.3;
+}
+
+/* ── Bottom switch link ───────────────────────────────────────────────── */
+
+.authSwitch {
+  text-align: center;
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  margin: 0;
+}
+.authSwitch a {
+  color: var(--pp-electric);
+  text-decoration: underline;
+}
+
+/* ── OTP hint ─────────────────────────────────────────────────────────── */
+
+.otpHint {
+  font-family: var(--font-game);
+  font-size: 18px;
+  color: var(--pp-platinum);
+  text-align: center;
+  line-height: 1.4;
+  margin: 0;
+}
+.otpHint strong { color: var(--pp-paper); }
+
+/* ── Back link inside card ────────────────────────────────────────────── */
+
+.cardBack {
+  background: transparent;
+  border: none;
+  font-family: var(--font-display);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--pp-platinum);
+  cursor: pointer;
+  text-align: center;
+  padding: 4px 8px;
+  transition: color 100ms;
+}
+.cardBack:hover { color: var(--pp-electric); }
+.cardBack:focus-visible {
+  outline: 3px solid var(--pp-electric);
+  outline-offset: 2px;
+  border-radius: var(--ds-radius-sm);
+}
+
+/* ── Loading blink ────────────────────────────────────────────────────── */
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.25; }
+}
+.blink { animation: blink 0.85s ease-in-out infinite; }
