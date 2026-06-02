@@ -1,0 +1,18 @@
+{
+  "name": "quings",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Quings 👑 — Damas con IA (A*) y microservicios",
+  "workspaces": [
+    "packages/*",
+    "frontend",
+    "backend",
+    "ai-service"
+  ],
+  "scripts": {
+    "test:engine": "bun test packages/game-engine",
+    "dev:ai": "bun --cwd ai-service run dev",
+    "dev:backend": "bun --cwd backend run dev",
+    "dev:frontend": "bun --cwd frontend run dev"
+  }
+}

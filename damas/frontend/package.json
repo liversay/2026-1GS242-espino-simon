@@ -1,0 +1,14 @@
+{
+  "name": "@quings/frontend",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "node .output/server/index.mjs"
+  },
+  "dependencies": {
+    "@quings/game-engine": "workspace:*"
+  }
+}

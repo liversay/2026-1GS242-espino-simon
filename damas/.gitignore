@@ -1,0 +1,38 @@
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# env files — NEVER commit secrets
+**/.env
+**/.env.*
+!**/.env.schema
+
+# builds
+dist/
+build/
+.output/
+.vinxi/
+.nitro/
+.tanstack/
+**/routeTree.gen.ts
+
+# caches
+.turbo/
+.cache/
+.vite/
+*.tsbuildinfo
+
+# logs
+*.log
+npm-debug.log*
+bun-debug.log*
+
+# OS / editor
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# docker
+**/.docker-data/
