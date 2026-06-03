@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { clerkAppearance } from "@/lib/clerkAppearance";
 import { ProfileProvider } from "@/lib/profile";
 import { SettingsProvider } from "@/lib/settings";
+import { GoldTransitionProvider } from "@/lib/transition";
 import appCss from "@/styles/quings.css?url";
 
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY ?? "";
@@ -31,7 +32,9 @@ function RootComponent() {
         <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={clerkAppearance}>
           <SettingsProvider>
             <ProfileProvider>
-              <Outlet />
+              <GoldTransitionProvider>
+                <Outlet />
+              </GoldTransitionProvider>
             </ProfileProvider>
           </SettingsProvider>
         </ClerkProvider>

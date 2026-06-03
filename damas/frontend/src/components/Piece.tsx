@@ -1,5 +1,6 @@
 /** Render de una ficha según la skin equipada (jugador) o el estilo fijo del rival (IA). */
 
+import { Crown } from "lucide-react";
 import type { CSSProperties } from "react";
 import type { PieceStyle } from "@/lib/types";
 
@@ -41,9 +42,7 @@ export function Piece({
     >
       <span className="ring" />
       {isQueen ? (
-        <span className="crown" style={{ color: style.crownColor }}>
-          👑
-        </span>
+        <Crown className="crown-icon" color={style.crownColor} strokeWidth={2.4} absoluteStrokeWidth />
       ) : style.icon ? (
         <span className="glyph">{style.icon}</span>
       ) : null}

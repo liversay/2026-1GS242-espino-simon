@@ -1,5 +1,6 @@
 import { type Move, applyMove, hasAnyCapture } from "@quings/game-engine";
-import { Link, createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { Bot, Crown, Flag, ScrollText, Skull, Swords, Target } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Board } from "@/components/Board";
 import { Layout } from "@/components/Layout";
@@ -7,6 +8,7 @@ import { useApi } from "@/lib/api";
 import { useProfile } from "@/lib/profile";
 import { useSettings } from "@/lib/settings";
 import { playSfx } from "@/lib/sound";
+import { useGoldNavigate } from "@/lib/transition";
 import type { Game, PieceStyle, Skin } from "@/lib/types";
 
 export const Route = createFileRoute("/play/$id")({ component: PlayPage });
@@ -27,9 +29,9 @@ const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 function PlayPage() {
   const { id } = Route.useParams();
   const api = useApi();
-  const navigate = useNavigate();
+  const go = useGoldNavigate();
   const { profile, refresh } = useProfile();
-  const { speed, sound, setSpeed, toggleSound } = useSettings();
+  const { speed, setSpeed } = useSettings();
 
   const [game, setGame] = useState<Game | null>(null);
   const [skins, setSkins] = useState<Skin[]>([]);
@@ -136,12 +138,12 @@ function PlayPage() {
 
   if (loadError) {
     return (
-      <Layout>
-        <div className="notice center stack">
+      <Layout title="Partida">
+        <div className="notice center stack" style={{ alignItems: "center" }}>
           <h2 style={{ fontSize: 28 }}>Partida no encontrada</h2>
-          <Link to="/" className="btn">
-            Volver al lobby
-          </Link>
+          <button className="btn" onClick={() => go({ to: "/" }, "back")}>
+            Volver al menú
+          </button>
         </div>
       </Layout>
     );
@@ -149,8 +151,8 @@ function PlayPage() {
 
   if (!game) {
     return (
-      <Layout>
-        <p className="muted">Cargando partida…</p>
+      <Layout title="Partida">
+        <div className="skeleton" style={{ height: 420, maxWidth: 560 }} />
       </Layout>
     );
   }
@@ -159,7 +161,7 @@ function PlayPage() {
   const mustCapture = playerTurn && hasAnyCapture(game.board, "player");
 
   return (
-    <Layout>
+    <Layout title="Partida">
       <div className="row spread wrap" style={{ alignItems: "flex-start", gap: 24 }}>
         <div style={{ position: "relative", display: "inline-block" }}>
           <Board
@@ -185,7 +187,7 @@ function PlayPage() {
               <h2 style={{ fontSize: 28 }}>{game.status === "won" ? "¡Victoria!" : "Derrota"}</h2>
             ) : aiThinking ? (
               <span className="thinking">
-                🤖 IA pensando (A*)
+                <Bot size={18} strokeWidth={2.2} /> IA pensando (A*)
                 <span className="dots">
                   <span />
                   <span />
@@ -197,10 +199,10 @@ function PlayPage() {
             )}
             <div className="statline">
               <span className="pill gold" data-tooltip="Tus movimientos: menos = más Coronas y mejor ranking">
-                🎯 {game.moveCount} movimientos
+                <Target size={13} strokeWidth={2.4} /> {game.moveCount} movimientos
               </span>
               <span className="pill" data-tooltip="Jugadas totales en la partida (tuyas y de la IA)">
-                📜 {game.history.length} jugadas
+                <ScrollText size={13} strokeWidth={2.4} /> {game.history.length} jugadas
               </span>
             </div>
             {mustCapture && (
@@ -209,7 +211,7 @@ function PlayPage() {
                 data-tooltip="Si hay una captura disponible, estás obligado a capturar"
                 style={{ background: "rgba(226,113,138,0.2)", borderColor: "rgba(226,113,138,0.6)" }}
               >
-                ⚔️ ¡Captura obligatoria!
+                <Swords size={14} strokeWidth={2.4} /> ¡Captura obligatoria!
               </div>
             )}
             {error && <p style={{ color: "var(--rose-400)" }}>{error}</p>}
@@ -222,16 +224,13 @@ function PlayPage() {
               onClick={() => setConfirmResign(true)}
               disabled={game.status !== "in_progress"}
             >
-              🏳️ Abandonar
+              <Flag size={17} strokeWidth={2.2} /> Rendirse
             </button>
-            <Link to="/" className="btn secondary">
-              ← Lobby
-            </Link>
           </div>
 
           <div className="card stack">
             <div className="label" data-tooltip="Comprime o acelera las animaciones">
-              Ajustes
+              Velocidad
             </div>
             <div className="row wrap" style={{ gap: 8 }}>
               {[
@@ -244,15 +243,13 @@ function PlayPage() {
                   key={o.v}
                   className={`pill${speed === o.v ? " gold" : ""}`}
                   onClick={() => setSpeed(o.v)}
+                  onMouseEnter={() => playSfx("hover")}
                   style={{ cursor: "pointer" }}
                 >
                   {o.t}
                 </button>
               ))}
             </div>
-            <button className="pill" onClick={toggleSound} style={{ cursor: "pointer", width: "fit-content" }}>
-              {sound ? "🔊 Sonido on" : "🔇 Sonido off"}
-            </button>
           </div>
         </div>
       </div>
@@ -260,8 +257,8 @@ function PlayPage() {
       {confirmResign && (
         <div className="overlay" onClick={() => setConfirmResign(false)}>
           <div className="panel stack" style={{ minWidth: 300 }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontSize: 48 }}>🏳️</div>
-            <h2 style={{ fontSize: 30 }}>¿Abandonar la partida?</h2>
+            <Flag size={44} strokeWidth={1.8} color="var(--rose-400)" style={{ margin: "0 auto" }} />
+            <h2 style={{ fontSize: 30 }}>¿Rendirse?</h2>
             <p className="muted">Contará como derrota.</p>
             <div className="row" style={{ justifyContent: "center", marginTop: 4 }}>
               <button className="btn danger" onClick={doResign}>
@@ -280,9 +277,11 @@ function PlayPage() {
           status={game.status}
           moveCount={game.moveCount}
           onNew={async () => {
+            playSfx("select");
             const g = await api.createGame();
-            navigate({ to: "/play/$id", params: { id: g._id } });
+            go({ to: "/play/$id", params: { id: g._id } });
           }}
+          onLobby={() => go({ to: "/" }, "back")}
         />
       )}
     </Layout>
@@ -293,32 +292,40 @@ function EndOverlay({
   status,
   moveCount,
   onNew,
+  onLobby,
 }: {
   status: "won" | "lost";
   moveCount: number;
   onNew: () => void;
+  onLobby: () => void;
 }) {
   const won = status === "won";
   return (
     <div className="overlay">
-      <div className="panel stack" style={{ minWidth: 320 }}>
-        <div style={{ fontSize: 64 }}>{won ? "👑" : "💀"}</div>
+      <div className="panel stack" style={{ minWidth: 320, alignItems: "center" }}>
+        {won ? (
+          <Crown size={72} strokeWidth={1.6} color="var(--gold-400)" />
+        ) : (
+          <Skull size={72} strokeWidth={1.6} color="var(--rose-400)" />
+        )}
         <h1 style={{ fontSize: 52, color: won ? "var(--gold-400)" : "var(--rose-400)" }}>
           {won ? "¡VICTORIA!" : "DERROTA"}
         </h1>
-        <p className="muted">Ganaste en {moveCount} movimientos.</p>
+        <p className="muted">
+          {won ? `Ganaste en ${moveCount} movimientos.` : "La IA se llevó esta partida."}
+        </p>
         {won && (
-          <div className="coronas" style={{ margin: "0 auto" }}>
-            <span className="crown">👑</span>+{winReward(moveCount)} Coronas
+          <div className="coronas-pill" style={{ margin: "0 auto" }}>
+            <Crown size={16} strokeWidth={2.4} /> +{winReward(moveCount)} Coronas
           </div>
         )}
         <div className="row" style={{ justifyContent: "center", marginTop: 8 }}>
           <button className="btn" onClick={onNew}>
-            ▶ Nueva partida
+            <Swords size={18} strokeWidth={2.2} /> Nueva partida
           </button>
-          <Link to="/" className="btn secondary">
-            Lobby
-          </Link>
+          <button className="btn secondary" onClick={onLobby}>
+            Menú
+          </button>
         </div>
       </div>
     </div>

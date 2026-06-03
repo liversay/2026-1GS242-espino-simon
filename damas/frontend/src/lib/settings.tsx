@@ -1,7 +1,7 @@
 /** Ajustes globales: velocidad de animación y SFX (persistidos en localStorage). */
 
 import { createContext, useContext, useEffect, useState, type ReactNode } from "react";
-import { setSoundEnabled } from "./sound";
+import { setSoundEnabled, unlockAudio } from "./sound";
 
 interface Settings {
   speed: number; // multiplicador: >1 acelera animaciones
@@ -33,6 +33,17 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     setSoundEnabled(sound);
   }, [sound]);
+
+  // Desbloquear el AudioContext en la primera interacción del usuario.
+  useEffect(() => {
+    const unlock = () => unlockAudio();
+    window.addEventListener("pointerdown", unlock, { once: true });
+    window.addEventListener("keydown", unlock, { once: true });
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+    };
+  }, []);
 
   function setSpeed(s: number) {
     setSpeedState(s);

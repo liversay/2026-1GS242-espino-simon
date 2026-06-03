@@ -738,3 +738,326 @@ table.rank .rk {
   .board-wrap { padding: 10px; border-radius: 14px; }
   [data-tooltip]::after { display: none; } /* en móvil no hay hover */
 }
+
+/* ============================================================
+   REDISEÑO — infraestructura visual compartida
+   ============================================================ */
+
+/* iconos lucide alineados con el texto */
+.btn svg,
+.pill svg,
+.hud-icon-btn svg,
+.menu-item svg,
+.coronas-pill svg { display: inline-block; vertical-align: middle; flex: none; }
+
+/* ---- Fondo ambiental: partículas de polvo + parallax ---- */
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.ambient-layer { position: absolute; inset: -20px; will-change: transform; }
+.dust {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(248, 216, 107, 0.9), rgba(248, 216, 107, 0));
+  animation-name: drift;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+@keyframes drift {
+  0% { transform: translate(0, 0); }
+  25% { transform: translate(16px, -22px); }
+  50% { transform: translate(-12px, -40px); }
+  75% { transform: translate(10px, -22px); }
+  100% { transform: translate(0, 0); }
+}
+
+/* ---- Transición de ruta dorada ---- */
+.gold-wipe {
+  position: fixed;
+  inset: 0;
+  z-index: 9500;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(120% 80% at 50% 50%, rgba(248, 216, 107, 0.5), transparent 70%),
+    linear-gradient(180deg, rgba(6, 33, 26, 0.0), rgba(6, 20, 15, 0.85));
+  transition: opacity 220ms ease;
+}
+.gold-wipe.on { opacity: 1; }
+
+/* ---- HUD ---- */
+.topbar-emblem { width: 34px; height: 34px; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5)); }
+.topbar-title {
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.06em;
+  color: var(--gold-400);
+}
+.hud-icon-btn {
+  display: inline-grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 11px;
+  color: var(--paper-100);
+  background: rgba(6, 33, 26, 0.5);
+  border: 1px solid rgba(248, 216, 107, 0.28);
+  transition: transform 120ms ease, box-shadow 160ms ease, color 160ms ease;
+}
+.hud-icon-btn:hover {
+  color: var(--gold-400);
+  transform: translateY(-1px);
+  box-shadow: 0 0 14px rgba(248, 216, 107, 0.4);
+}
+
+.coronas-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  color: var(--ink-900);
+  background: linear-gradient(180deg, var(--gold-400), var(--gold-500));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.4), 0 4px 10px rgba(0, 0, 0, 0.35);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.coronas-pill.pulse {
+  animation: coronas-pulse 600ms ease;
+}
+@keyframes coronas-pulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 rgba(248,216,107,0); }
+  35% { transform: scale(1.12); box-shadow: 0 0 22px rgba(248, 216, 107, 0.85); }
+  100% { transform: scale(1); }
+}
+
+/* ---- Avatar propio + dropdown ---- */
+.avatar-wrap { position: relative; }
+.avatar-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  padding: 0;
+  border: 2px solid var(--gold-500);
+  background: linear-gradient(180deg, var(--felt-700), var(--felt-900));
+  color: var(--gold-400);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  box-shadow: 0 0 0 2px rgba(6, 33, 26, 0.8), 0 0 12px rgba(248, 216, 107, 0.35);
+  transition: transform 140ms ease, box-shadow 180ms ease;
+}
+.avatar-btn:hover { transform: scale(1.06); box-shadow: 0 0 0 2px rgba(6,33,26,0.8), 0 0 18px rgba(248,216,107,0.6); }
+.avatar-btn img { width: 100%; height: 100%; object-fit: cover; }
+.avatar-initials { font-family: var(--font-display); font-size: 17px; letter-spacing: 0.04em; }
+
+.avatar-menu {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  min-width: 220px;
+  z-index: 300;
+  padding: 8px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(15, 74, 55, 0.98), rgba(8, 37, 28, 0.98));
+  border: 1px solid rgba(248, 216, 107, 0.3);
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.6);
+  transform-origin: top right;
+}
+.avatar-menu-head { padding: 8px 10px 10px; border-bottom: 1px solid rgba(248,216,107,0.15); margin-bottom: 6px; }
+.avatar-menu-name { font-weight: 800; color: var(--paper-100); }
+.avatar-menu-email { font-size: 12px; color: rgba(244, 238, 221, 0.6); }
+.avatar-menu-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 10px;
+  border: none;
+  background: transparent;
+  color: var(--paper-100);
+  border-radius: 9px;
+  font-weight: 600;
+  font-size: 14px;
+  text-align: left;
+  transition: background 120ms ease, color 120ms ease;
+}
+.avatar-menu-item:hover { background: rgba(248, 216, 107, 0.14); color: var(--gold-400); }
+.avatar-menu-item.danger:hover { background: rgba(226, 113, 138, 0.16); color: var(--rose-400); }
+
+/* ============================================================
+   LOBBY cinemático
+   ============================================================ */
+.lobby {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.lobby-hud {
+  position: fixed;
+  top: 18px;
+  right: 22px;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lobby-inner {
+  width: min(720px, 92vw);
+  margin: 0 auto;
+  padding: clamp(40px, 9vh, 96px) 0 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+.lobby-emblem { width: clamp(96px, 16vh, 150px); height: auto; filter: drop-shadow(0 8px 20px rgba(0,0,0,0.55)); }
+
+.title-row { display: flex; align-items: center; justify-content: center; gap: 18px; margin-top: 10px; }
+.title-row .filigree { width: clamp(80px, 16vw, 160px); height: auto; }
+.wordmark {
+  font-family: var(--font-display);
+  font-size: clamp(64px, 13vw, 132px);
+  line-height: 0.9;
+  letter-spacing: 0.1em;
+  background: linear-gradient(100deg, #C8922B 0%, #F8D86B 25%, #FFF6D8 50%, #F8D86B 75%, #C8922B 100%);
+  background-size: 250% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: shimmer-text 6s linear infinite;
+}
+@keyframes shimmer-text { to { background-position: 250% 0; } }
+
+.welcome { margin-top: 14px; color: var(--paper-100); opacity: 0.85; letter-spacing: 0.18em; font-size: 13px; text-transform: uppercase; }
+.lobby-stats { margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+
+.menu { margin-top: clamp(24px, 5vh, 48px); width: min(440px, 86vw); display: flex; flex-direction: column; gap: 12px; }
+
+.menu-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 22px;
+  border-radius: 14px;
+  border: 1px solid rgba(248, 216, 107, 0.3);
+  background: rgba(8, 37, 28, 0.5);
+  color: var(--paper-100);
+  font-family: var(--font-display);
+  font-size: 26px;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  overflow: hidden;
+  transition: transform 140ms ease, box-shadow 200ms ease, border-color 200ms ease, background 200ms ease;
+}
+.menu-item .orn { opacity: 0; transition: opacity 180ms ease, transform 180ms ease; color: var(--gold-400); }
+.menu-item .orn.l { transform: translateX(-8px); }
+.menu-item .orn.r { transform: translateX(8px); }
+.menu-item::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-120%);
+  background: linear-gradient(100deg, transparent 30%, rgba(248, 216, 107, 0.22) 50%, transparent 70%);
+}
+.menu-item:hover,
+.menu-item.active {
+  transform: translateY(-2px) scale(1.02);
+  border-color: var(--gold-400);
+  background: rgba(15, 74, 55, 0.7);
+  box-shadow: 0 0 24px rgba(248, 216, 107, 0.35);
+  color: var(--gold-400);
+}
+.menu-item:hover .orn,
+.menu-item.active .orn { opacity: 1; transform: translateX(0); }
+.menu-item:hover::before,
+.menu-item.active::before { animation: shimmer-sweep 700ms ease; }
+@keyframes shimmer-sweep { to { transform: translateX(120%); } }
+
+/* opción primaria JUGAR */
+.menu-item.primary {
+  background: linear-gradient(180deg, var(--gold-400), var(--gold-600));
+  color: var(--ink-900);
+  border-color: transparent;
+  font-size: 34px;
+  padding: 20px 22px;
+  box-shadow: 0 6px 0 rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.menu-item.primary .orn { color: var(--ink-900); }
+.menu-item.primary:hover { color: var(--ink-900); box-shadow: 0 6px 0 rgba(0,0,0,0.32), 0 0 30px rgba(248,216,107,0.6); }
+.menu-item.primary:active { transform: translateY(2px) scale(0.99); }
+.menu-continue {
+  margin-top: -4px;
+  background: none;
+  border: none;
+  color: rgba(244, 238, 221, 0.78);
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  align-self: center;
+  transition: color 140ms ease;
+}
+.menu-continue:hover { color: var(--gold-400); }
+
+/* ---- panel hover (estándar) ---- */
+.card { transition: transform 160ms ease, box-shadow 220ms ease, border-color 220ms ease; }
+a.card:hover, .card.hoverable:hover {
+  transform: translateY(-3px);
+  border-color: var(--gold-400);
+  box-shadow: var(--shadow-card), 0 0 24px rgba(248, 216, 107, 0.28);
+}
+
+/* ---- skeleton shimmer ---- */
+.skeleton {
+  border-radius: var(--radius);
+  background: linear-gradient(100deg, rgba(15,74,55,0.5) 30%, rgba(248,216,107,0.14) 50%, rgba(15,74,55,0.5) 70%);
+  background-size: 250% 100%;
+  animation: skeleton-shimmer 1.3s linear infinite;
+}
+@keyframes skeleton-shimmer { to { background-position: -250% 0; } }
+
+/* reward: lluvia de coronas */
+.coin-rain { position: fixed; inset: 0; z-index: 250; pointer-events: none; overflow: hidden; }
+.coin-rain .coin {
+  position: absolute;
+  top: -40px;
+  color: var(--gold-400);
+  animation: coin-fall linear forwards;
+}
+@keyframes coin-fall {
+  to { transform: translateY(110vh) rotate(540deg); opacity: 0.2; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wordmark, .menu-item::before, .dust, .coin { animation: none !important; }
+  .gold-wipe { transition: opacity 120ms ease; }
+}
+
+/* iconos lucide en más contenedores */
+.equipped-tag svg, .thinking svg, .skin-card .btn svg, .notice svg, .rarity-badge svg { display: inline-block; vertical-align: middle; }
+.equipped-tag { display: inline-flex; align-items: center; gap: 4px; }
+.thinking { align-items: center; }
+.skin-card .btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; }
+
+/* spinner */
+.spin { animation: spin 0.9s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* la preview de skin admite contorno verde "mine" sin recortarse */
+.preview { overflow: visible; }
+
+/* corona (lucide) dentro de la ficha reina */
+.piece .crown-icon { width: 48%; height: 48%; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }

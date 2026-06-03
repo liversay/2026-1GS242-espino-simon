@@ -1,51 +1,71 @@
-/** Layout con topbar (marca, Coronas, UserButton) y contenedor. */
+/** Marco/shell común de las pantallas (no del lobby): ambiente, header con Volver + título y HUD. */
 
-import { RedirectToSignIn, UserButton, useAuth } from "@clerk/tanstack-react-start";
-import { Link } from "@tanstack/react-router";
+import { RedirectToSignIn, useAuth } from "@clerk/tanstack-react-start";
+import { ArrowLeft } from "lucide-react";
 import type { ReactNode } from "react";
-import { clerkAppearance } from "@/lib/clerkAppearance";
+import { AmbientBackground } from "@/components/ui/AmbientBackground";
+import { CoronasPill } from "@/components/ui/CoronasPill";
+import { SoundToggle } from "@/components/ui/SoundToggle";
+import { UserAvatar } from "@/components/ui/UserAvatar";
 import { useProfile } from "@/lib/profile";
+import { playSfx } from "@/lib/sound";
+import { useGoldNavigate } from "@/lib/transition";
 
-export function CoronasChip({ amount }: { amount: number }) {
+function Splash() {
   return (
-    <span className="coronas" data-tooltip="Tu saldo de Coronas — gánalas jugando o cómpralas">
-      <span className="crown">👑</span>
-      {amount.toLocaleString("es")}
-    </span>
+    <div className="layout">
+      <main className="container center">
+        <img
+          src="/quings-logo.svg"
+          alt="Quings"
+          className="spin-slow"
+          style={{ width: 80, height: 80, marginTop: 80 }}
+        />
+      </main>
+    </div>
   );
 }
 
-export function Layout({ children }: { children: ReactNode }) {
+export function Layout({
+  title,
+  children,
+  back = true,
+}: {
+  title?: string;
+  children: ReactNode;
+  back?: boolean;
+}) {
   const { isLoaded, isSignedIn } = useAuth();
   const { profile } = useProfile();
+  const go = useGoldNavigate();
 
-  if (!isLoaded) {
-    return (
-      <div className="layout">
-        <main className="container center">
-          <img
-            src="/quings-logo.svg"
-            alt="Quings"
-            className="spin-slow"
-            style={{ width: 80, height: 80, marginTop: 80 }}
-          />
-        </main>
-      </div>
-    );
-  }
+  if (!isLoaded) return <Splash />;
   if (!isSignedIn) return <RedirectToSignIn />;
 
   return (
     <div className="layout">
+      <AmbientBackground />
       <header className="topbar">
         <div className="inner">
-          <Link to="/" className="brand">
-            <img src="/quings-logo.svg" alt="Quings" />
-            <span className="name">QUINGS</span>
-          </Link>
-          <div className="row">
-            {profile && <CoronasChip amount={profile.coronas} />}
-            <UserButton appearance={clerkAppearance} />
+          <div className="row" style={{ gap: 12 }}>
+            {back && (
+              <button
+                className="hud-icon-btn"
+                onMouseEnter={() => playSfx("hover")}
+                onClick={() => go({ to: "/" }, "back")}
+                data-tooltip="Volver al menú"
+                aria-label="Volver"
+              >
+                <ArrowLeft size={18} strokeWidth={2.2} />
+              </button>
+            )}
+            <img className="topbar-emblem" src="/quings-logo.svg" alt="Quings" />
+            {title && <span className="topbar-title">{title}</span>}
+          </div>
+          <div className="row" style={{ gap: 10 }}>
+            {profile && <CoronasPill amount={profile.coronas} />}
+            <SoundToggle />
+            <UserAvatar />
           </div>
         </div>
       </header>

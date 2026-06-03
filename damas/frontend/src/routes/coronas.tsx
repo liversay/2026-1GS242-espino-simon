@@ -1,8 +1,11 @@
 import { createFileRoute, useSearch } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { Crown, Loader2 } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
 import { Layout } from "@/components/Layout";
+import { Stagger, StaggerItem } from "@/components/ui/Stagger";
 import { ApiError, useApi } from "@/lib/api";
 import { useProfile } from "@/lib/profile";
+import { playSfx } from "@/lib/sound";
 import type { CoronaPack } from "@/lib/types";
 
 export const Route = createFileRoute("/coronas")({
@@ -13,6 +16,33 @@ export const Route = createFileRoute("/coronas")({
   component: CoronasPage,
 });
 
+function CoinRain() {
+  const coins = useMemo(
+    () =>
+      Array.from({ length: 26 }, (_, i) => ({
+        id: i,
+        left: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 0.8}s`,
+        duration: `${1.6 + Math.random() * 1.4}s`,
+        size: 18 + Math.random() * 16,
+      })),
+    [],
+  );
+  return (
+    <div className="coin-rain" aria-hidden>
+      {coins.map((c) => (
+        <span
+          key={c.id}
+          className="coin"
+          style={{ left: c.left, animationDelay: c.delay, animationDuration: c.duration }}
+        >
+          <Crown size={c.size} strokeWidth={2.2} />
+        </span>
+      ))}
+    </div>
+  );
+}
+
 function CoronasPage() {
   const api = useApi();
   const { profile, refresh } = useProfile();
@@ -20,6 +50,7 @@ function CoronasPage() {
   const [packs, setPacks] = useState<CoronaPack[]>([]);
   const [busy, setBusy] = useState<string | null>(null);
   const [toast, setToast] = useState<{ text: string; bad?: boolean } | null>(null);
+  const [reward, setReward] = useState(false);
 
   useEffect(() => {
     api.coronaPacks().then(setPacks).catch(() => undefined);
@@ -31,16 +62,18 @@ function CoronasPage() {
     return () => clearTimeout(t);
   }, [toast]);
 
-  // Al volver de Stripe, confirmar la sesión y acreditar (fallback fiable si el webhook no llega).
   useEffect(() => {
     if (search.status === "success" && search.session_id) {
       void (async () => {
         try {
           const { credited } = await api.confirmCheckout(search.session_id!);
           await refresh();
-          setToast({
-            text: credited > 0 ? `¡+${credited} Coronas acreditadas! 👑` : "Pago confirmado.",
-          });
+          if (credited > 0) {
+            playSfx("reward");
+            setReward(true);
+            setTimeout(() => setReward(false), 3200);
+          }
+          setToast({ text: credited > 0 ? `¡+${credited} Coronas acreditadas!` : "Pago confirmado." });
         } catch {
           setToast({ text: "No se pudo confirmar el pago todavía.", bad: true });
         }
@@ -52,48 +85,64 @@ function CoronasPage() {
 
   async function buy(pack: CoronaPack) {
     setBusy(pack._id);
+    playSfx("select");
     try {
       const { url } = await api.checkout(pack._id);
       window.location.href = url;
     } catch (e) {
-      setToast({
-        text: e instanceof ApiError ? e.message : "Error al iniciar el pago",
-        bad: true,
-      });
+      setToast({ text: e instanceof ApiError ? e.message : "Error al iniciar el pago", bad: true });
       setBusy(null);
     }
   }
 
+  // Mejor relación Coronas/USD.
+  const bestId = useMemo(() => {
+    let best: string | null = null;
+    let ratio = -1;
+    for (const p of packs) {
+      const r = p.coronas / p.priceUsd;
+      if (r > ratio) {
+        ratio = r;
+        best = p._id;
+      }
+    }
+    return best;
+  }, [packs]);
+
   return (
-    <Layout>
-      <div className="row spread wrap" style={{ marginBottom: 20 }}>
-        <h1 style={{ fontSize: 40 }}>Comprar Coronas</h1>
-        {profile && (
-          <span className="coronas">
-            <span className="crown">👑</span>
-            {profile.coronas.toLocaleString("es")}
-          </span>
-        )}
-      </div>
+    <Layout title="Comprar Coronas">
       <p className="muted" style={{ marginBottom: 20 }}>
-        Recarga con tarjeta (Stripe, modo prueba). Usa las Coronas para comprar skins.
+        Recarga con Stripe (modo prueba). Usa las Coronas para comprar skins.
       </p>
 
-      <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))" }}>
+      <Stagger
+        className="grid"
+        style={{ gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))" }}
+      >
         {packs.map((pack) => (
-          <div key={pack._id} className="card skin-card">
-            <div style={{ fontSize: 48 }}>👑</div>
-            <h3 style={{ fontSize: 26 }}>{pack.name}</h3>
-            <div className="pill gold" style={{ fontSize: 16 }}>
-              {pack.coronas.toLocaleString("es")} Coronas
+          <StaggerItem key={pack._id}>
+            <div className="card skin-card" onMouseEnter={() => playSfx("hover")} style={{ position: "relative" }}>
+              {pack._id === bestId && <span className="equipped-tag">Mejor valor</span>}
+              <Crown size={44} strokeWidth={1.8} color="var(--gold-400)" />
+              <h3 style={{ fontSize: 26 }}>{pack.name}</h3>
+              <div className="pill gold" style={{ fontSize: 16 }}>
+                {pack.coronas.toLocaleString("es")} Coronas
+              </div>
+              <button className="btn block" disabled={busy === pack._id} onClick={() => buy(pack)}>
+                {busy === pack._id ? (
+                  <>
+                    <Loader2 size={16} className="spin" strokeWidth={2.4} /> Redirigiendo…
+                  </>
+                ) : (
+                  `$${pack.priceUsd.toFixed(2)}`
+                )}
+              </button>
             </div>
-            <button className="btn block" disabled={busy === pack._id} onClick={() => buy(pack)}>
-              {busy === pack._id ? "Redirigiendo…" : `$${pack.priceUsd.toFixed(2)}`}
-            </button>
-          </div>
+          </StaggerItem>
         ))}
-      </div>
+      </Stagger>
 
+      {reward && <CoinRain />}
       {toast && <div className={`toast${toast.bad ? " bad" : ""}`}>{toast.text}</div>}
     </Layout>
   );
