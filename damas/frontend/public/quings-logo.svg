@@ -1,0 +1,105 @@
+<svg viewBox="0 0 400 440" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Quings logo: rostro mitad reina mitad rey">
+  <defs>
+    <radialGradient id="bg" cx="50%" cy="42%" r="70%">
+      <stop offset="0%" stop-color="#0F4A37"/>
+      <stop offset="70%" stop-color="#0A3327"/>
+      <stop offset="100%" stop-color="#06211A"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F8D86B"/>
+      <stop offset="50%" stop-color="#EBB63F"/>
+      <stop offset="100%" stop-color="#C8922B"/>
+    </linearGradient>
+    <linearGradient id="rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#F6CFDA"/>
+      <stop offset="100%" stop-color="#E29FB6"/>
+    </linearGradient>
+    <linearGradient id="steel" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#CCDCEC"/>
+      <stop offset="100%" stop-color="#9FBBD8"/>
+    </linearGradient>
+    <radialGradient id="vignette" cx="50%" cy="45%" r="65%">
+      <stop offset="60%" stop-color="#000000" stop-opacity="0"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0.45"/>
+    </radialGradient>
+    <clipPath id="badgeClip"><circle cx="200" cy="200" r="180"/></clipPath>
+  </defs>
+
+  <!-- Badge -->
+  <circle cx="200" cy="200" r="182" fill="url(#bg)"/>
+
+  <g clip-path="url(#badgeClip)">
+    <!-- subtle CRT scanlines -->
+    <g stroke="#FFFFFF" stroke-opacity="0.05" stroke-width="2">
+      <line x1="20" y1="70" x2="380" y2="70"/>
+      <line x1="20" y1="120" x2="380" y2="120"/>
+      <line x1="20" y1="170" x2="380" y2="170"/>
+      <line x1="20" y1="220" x2="380" y2="220"/>
+      <line x1="20" y1="270" x2="380" y2="270"/>
+      <line x1="20" y1="320" x2="380" y2="320"/>
+    </g>
+
+    <!-- Face: queen half (left) -->
+    <path d="M200 168 C170 165 134 192 132 236 C130 286 166 326 200 330 L200 168 Z" fill="url(#rose)"/>
+    <!-- Face: king half (right) -->
+    <path d="M200 168 C230 165 268 192 270 236 C272 286 234 326 200 330 L200 168 Z" fill="url(#steel)"/>
+    <!-- seam -->
+    <line x1="200" y1="170" x2="200" y2="330" stroke="url(#gold)" stroke-width="3" stroke-linecap="round"/>
+
+    <!-- King beard hint (right chin) -->
+    <path d="M203 296 C214 322 232 322 246 300 C238 318 218 330 203 330 Z" fill="#8FA9C6" fill-opacity="0.55"/>
+
+    <!-- Eyes -->
+    <ellipse cx="166" cy="234" rx="11" ry="7" fill="#FFFFFF"/>
+    <circle cx="166" cy="234" r="4.2" fill="#2A2440"/>
+    <ellipse cx="234" cy="234" rx="11" ry="7" fill="#FFFFFF"/>
+    <circle cx="234" cy="234" r="4.2" fill="#2A2440"/>
+
+    <!-- Brows: queen thin arched, king thick straight -->
+    <path d="M152 220 Q166 213 180 218" stroke="#2A2440" stroke-width="2.4" fill="none" stroke-linecap="round"/>
+    <path d="M220 217 L250 219" stroke="#2A2440" stroke-width="4.2" fill="none" stroke-linecap="round"/>
+
+    <!-- Queen eyelash flick -->
+    <path d="M156 230 l-6 -3 M177 230 l5 -3" stroke="#2A2440" stroke-width="1.8" stroke-linecap="round"/>
+
+    <!-- Nose -->
+    <path d="M200 244 L195 272 Q200 277 205 272" stroke="#2A2440" stroke-width="2" fill="none" stroke-linecap="round"/>
+
+    <!-- Mouth: queen lips (left), king mustache + line (right) -->
+    <path d="M178 296 Q190 290 200 296 L200 300 Q190 305 178 300 Z" fill="#D9466F"/>
+    <path d="M200 296 q11 -6 22 0 q-11 8 -22 4 Z" fill="#7E96B4"/>
+    <path d="M200 302 L222 302" stroke="#2A2440" stroke-width="2" stroke-linecap="round" stroke-opacity="0.7"/>
+
+    <!-- Queen earring -->
+    <circle cx="130" cy="290" r="4.5" fill="#FCF3DB" stroke="url(#gold)" stroke-width="1.5"/>
+
+    <!-- Crown band -->
+    <rect x="120" y="144" width="160" height="26" rx="8" fill="url(#gold)"/>
+    <!-- Crown spikes -->
+    <path d="M120 150 L132 98 L152 140 L172 90 L200 120 L228 90 L248 140 L268 102 L280 150 Z" fill="url(#gold)"/>
+    <!-- Central duality gem -->
+    <path d="M200 150 L208 157 L200 164 L192 157 Z" fill="url(#rose)"/>
+    <path d="M200 150 L208 157 L200 164 Z" fill="url(#steel)"/>
+    <!-- Queen pearls on left tips -->
+    <circle cx="132" cy="98" r="7" fill="#FCF3DB" stroke="#C8922B" stroke-width="1.5"/>
+    <circle cx="172" cy="90" r="7" fill="#FCF3DB" stroke="#C8922B" stroke-width="1.5"/>
+    <!-- King cross on right tip -->
+    <g fill="url(#gold)">
+      <rect x="225" y="64" width="6" height="26" rx="1.5"/>
+      <rect x="218" y="71" width="20" height="6" rx="1.5"/>
+    </g>
+
+    <!-- vignette on top -->
+    <rect x="0" y="0" width="400" height="400" fill="url(#vignette)"/>
+  </g>
+
+  <!-- Badge rings -->
+  <circle cx="200" cy="200" r="180" fill="none" stroke="url(#gold)" stroke-width="6"/>
+  <circle cx="200" cy="200" r="168" fill="none" stroke="url(#gold)" stroke-width="1.5" stroke-opacity="0.5"/>
+
+  <!-- Wordmark -->
+  <text x="200" y="420" text-anchor="middle"
+        font-family="'Arial Black', 'Helvetica Neue', system-ui, sans-serif"
+        font-weight="900" font-size="48" letter-spacing="7"
+        fill="url(#gold)" stroke="#06211A" stroke-width="1">QUINGS</text>
+</svg>

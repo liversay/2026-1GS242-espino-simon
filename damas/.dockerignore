@@ -1,0 +1,12 @@
+**/node_modules
+**/.output
+**/.vinxi
+**/.nitro
+**/.tanstack
+**/dist
+**/build
+**/routeTree.gen.ts
+.git
+**/.env
+**/*.log
+.DS_Store
