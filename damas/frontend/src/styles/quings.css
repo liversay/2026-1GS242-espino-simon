@@ -644,3 +644,97 @@ table.rank .rk {
 }
 
 .toast.bad { border-color: rgba(226, 113, 138, 0.6); color: var(--rose-400); }
+
+/* ============================================================
+   M7 — Pulido: flash de captura, popup de score, tooltips, responsive
+   ============================================================ */
+
+/* Flash al capturar */
+.board-wrap .flash-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: 20px;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 50%, rgba(248, 216, 107, 0.55), transparent 70%);
+  animation: flash calc(420ms / var(--speed)) ease-out forwards;
+  z-index: 5;
+}
+
+@keyframes flash {
+  0% { opacity: 0.9; }
+  100% { opacity: 0; }
+}
+
+/* Popup "+N" al capturar */
+.capture-pop {
+  position: absolute;
+  top: 14%;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+  font-family: var(--font-display);
+  font-size: clamp(34px, 6vw, 56px);
+  color: var(--gold-400);
+  text-shadow: 0 2px 0 #6b4a10, 0 0 18px rgba(248, 216, 107, 0.8);
+  pointer-events: none;
+  animation: pop-up calc(820ms / var(--speed)) cubic-bezier(0.2, 1.2, 0.4, 1) forwards;
+}
+
+@keyframes pop-up {
+  0% { transform: translate(-50%, 8px) scale(0.6); opacity: 0; }
+  25% { transform: translate(-50%, -6px) scale(1.15); opacity: 1; }
+  70% { opacity: 1; }
+  100% { transform: translate(-50%, -34px) scale(1); opacity: 0; }
+}
+
+/* Tooltips on-hover (divulgación progresiva) */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%) translateY(4px);
+  white-space: nowrap;
+  background: rgba(6, 20, 15, 0.96);
+  color: var(--paper-100);
+  border: 1px solid rgba(248, 216, 107, 0.4);
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 140ms ease, transform 140ms ease;
+  z-index: 400;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* Responsive */
+@media (max-width: 760px) {
+  .topbar .inner { height: 56px; }
+  .brand .name { font-size: 24px; }
+  .container { padding: 16px 0 40px; }
+  .board { --cell: clamp(34px, 11.5vw, 56px); }
+}
+
+@media (max-width: 520px) {
+  .brand img { width: 32px; height: 32px; }
+  .brand .name { font-size: 20px; letter-spacing: 0.08em; }
+  .btn { padding: 11px 16px; font-size: 14px; }
+  .btn.lg { padding: 14px 18px; font-size: 16px; }
+  .row { gap: 10px; }
+  .board-wrap { padding: 10px; border-radius: 14px; }
+  [data-tooltip]::after { display: none; } /* en móvil no hay hover */
+}

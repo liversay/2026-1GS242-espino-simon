@@ -37,6 +37,8 @@ function PlayPage() {
   const [aiThinking, setAiThinking] = useState(false);
   const [lastMove, setLastMove] = useState<Move | null>(null);
   const [shake, setShake] = useState(false);
+  const [flashKey, setFlashKey] = useState(0);
+  const [capturePop, setCapturePop] = useState<{ n: number; k: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState(false);
   const [confirmResign, setConfirmResign] = useState(false);
@@ -66,10 +68,16 @@ function PlayPage() {
   const equipped =
     skins.find((s) => s._id === profile?.equippedSkinId)?.pieceStyle ?? CLASSIC_STYLE;
 
-  const triggerShake = useCallback(() => {
-    setShake(true);
-    setTimeout(() => setShake(false), 360 / speed);
-  }, [speed]);
+  const captureFeedback = useCallback(
+    (count: number) => {
+      setShake(true);
+      setTimeout(() => setShake(false), 360 / speed);
+      setFlashKey((k) => k + 1);
+      setCapturePop({ n: count, k: Date.now() });
+      setTimeout(() => setCapturePop(null), 820 / speed);
+    },
+    [speed],
+  );
 
   const handleMove = useCallback(
     async (move: Move) => {
@@ -85,7 +93,7 @@ function PlayPage() {
       setGame((g) => (g ? { ...g, board: local.board, turn: local.turn, status: local.status, moveCount: local.moveCount } : g));
       setLastMove(move);
       playSfx(move.captures.length ? "capture" : "move");
-      if (move.captures.length) triggerShake();
+      if (move.captures.length) captureFeedback(move.captures.length);
       const aiTurn = local.status === "in_progress" && local.turn === "ai";
       setAiThinking(aiTurn);
 
@@ -95,7 +103,7 @@ function PlayPage() {
           await sleep(420 / speed);
           setLastMove(result.aiMove);
           playSfx(result.aiMove.captures.length ? "capture" : "move");
-          if (result.aiMove.captures.length) triggerShake();
+          if (result.aiMove.captures.length) captureFeedback(result.aiMove.captures.length);
           await sleep(120 / speed);
         }
         setGame(result.game);
@@ -114,7 +122,7 @@ function PlayPage() {
         setAiThinking(false);
       }
     },
-    [api, busy, game, id, refresh, speed, triggerShake],
+    [api, busy, game, id, refresh, speed, captureFeedback],
   );
 
   async function doResign() {
@@ -153,14 +161,22 @@ function PlayPage() {
   return (
     <Layout>
       <div className="row spread wrap" style={{ alignItems: "flex-start", gap: 24 }}>
-        <Board
-          board={game.board}
-          interactive={playerTurn}
-          skin={equipped}
-          lastMove={lastMove}
-          shake={shake}
-          onMove={handleMove}
-        />
+        <div style={{ position: "relative", display: "inline-block" }}>
+          <Board
+            board={game.board}
+            interactive={playerTurn}
+            skin={equipped}
+            lastMove={lastMove}
+            shake={shake}
+            flashKey={flashKey}
+            onMove={handleMove}
+          />
+          {capturePop && (
+            <div className="capture-pop" key={capturePop.k}>
+              +{capturePop.n}
+            </div>
+          )}
+        </div>
 
         <div className="stack" style={{ flex: "1 1 280px", minWidth: 260 }}>
           <div className="card stack">
@@ -180,11 +196,19 @@ function PlayPage() {
               <h2 style={{ fontSize: 28 }}>{game.turn === "player" ? "Tu turno" : "Turno de la IA"}</h2>
             )}
             <div className="statline">
-              <span className="pill gold">🎯 {game.moveCount} movimientos</span>
-              <span className="pill">📜 {game.history.length} jugadas</span>
+              <span className="pill gold" data-tooltip="Tus movimientos: menos = más Coronas y mejor ranking">
+                🎯 {game.moveCount} movimientos
+              </span>
+              <span className="pill" data-tooltip="Jugadas totales en la partida (tuyas y de la IA)">
+                📜 {game.history.length} jugadas
+              </span>
             </div>
             {mustCapture && (
-              <div className="pill" style={{ background: "rgba(226,113,138,0.2)", borderColor: "rgba(226,113,138,0.6)" }}>
+              <div
+                className="pill"
+                data-tooltip="Si hay una captura disponible, estás obligado a capturar"
+                style={{ background: "rgba(226,113,138,0.2)", borderColor: "rgba(226,113,138,0.6)" }}
+              >
                 ⚔️ ¡Captura obligatoria!
               </div>
             )}
@@ -206,7 +230,9 @@ function PlayPage() {
           </div>
 
           <div className="card stack">
-            <div className="label">Ajustes</div>
+            <div className="label" data-tooltip="Comprime o acelera las animaciones">
+              Ajustes
+            </div>
             <div className="row wrap" style={{ gap: 8 }}>
               {[
                 { v: 0.75, t: "Lento" },

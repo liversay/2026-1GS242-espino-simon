@@ -11,6 +11,7 @@ export function Board({
   skin,
   lastMove,
   shake,
+  flashKey,
   onMove,
 }: {
   board: number[][];
@@ -18,6 +19,8 @@ export function Board({
   skin: PieceStyle;
   lastMove: Move | null;
   shake: boolean;
+  /** Cambia de valor en cada captura para re-disparar el flash. */
+  flashKey: number;
   onMove: (move: Move) => void;
 }) {
   const [selected, setSelected] = useState<Coord | null>(null);
@@ -66,6 +69,7 @@ export function Board({
 
   return (
     <div className={`board-wrap${shake ? " shake" : ""}`}>
+      {flashKey > 0 && <div className="flash-layer" key={flashKey} />}
       <div className="board">
         {board.map((rowArr, r) =>
           rowArr.map((value, c) => {

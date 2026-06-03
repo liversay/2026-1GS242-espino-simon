@@ -8,7 +8,7 @@ import { useProfile } from "@/lib/profile";
 
 export function CoronasChip({ amount }: { amount: number }) {
   return (
-    <span className="coronas" title="Saldo de Coronas">
+    <span className="coronas" data-tooltip="Tu saldo de Coronas — gánalas jugando o cómpralas">
       <span className="crown">👑</span>
       {amount.toLocaleString("es")}
     </span>
