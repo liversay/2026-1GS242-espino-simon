@@ -39,6 +39,7 @@ function PlayPage() {
   const [shake, setShake] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loadError, setLoadError] = useState(false);
+  const [confirmResign, setConfirmResign] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -117,8 +118,8 @@ function PlayPage() {
   );
 
   async function doResign() {
+    setConfirmResign(false);
     if (!game || game.status !== "in_progress") return;
-    if (!confirm("¿Abandonar la partida? Contará como derrota.")) return;
     const updated = await api.resign(id);
     setGame(updated);
     playSfx("lose");
@@ -192,7 +193,11 @@ function PlayPage() {
 
           <div className="card stack">
             <div className="label">Controles</div>
-            <button className="btn danger" onClick={doResign} disabled={game.status !== "in_progress"}>
+            <button
+              className="btn danger"
+              onClick={() => setConfirmResign(true)}
+              disabled={game.status !== "in_progress"}
+            >
               🏳️ Abandonar
             </button>
             <Link to="/" className="btn secondary">
@@ -225,6 +230,24 @@ function PlayPage() {
           </div>
         </div>
       </div>
+
+      {confirmResign && (
+        <div className="overlay" onClick={() => setConfirmResign(false)}>
+          <div className="panel stack" style={{ minWidth: 300 }} onClick={(e) => e.stopPropagation()}>
+            <div style={{ fontSize: 48 }}>🏳️</div>
+            <h2 style={{ fontSize: 30 }}>¿Abandonar la partida?</h2>
+            <p className="muted">Contará como derrota.</p>
+            <div className="row" style={{ justifyContent: "center", marginTop: 4 }}>
+              <button className="btn danger" onClick={doResign}>
+                Sí, abandonar
+              </button>
+              <button className="btn secondary" onClick={() => setConfirmResign(false)}>
+                Seguir jugando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {game.status !== "in_progress" && (
         <EndOverlay

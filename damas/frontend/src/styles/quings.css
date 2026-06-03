@@ -441,6 +441,14 @@ button {
   filter: brightness(1.12);
 }
 
+/* Contorno verde: indica que la ficha es tuya (evita confundirla con la IA). */
+.piece.mine {
+  outline: 3px solid #2fe06a;
+  outline-offset: -1px;
+  box-shadow: 0 5px 9px rgba(0, 0, 0, 0.5), inset 0 -3px 6px rgba(0, 0, 0, 0.35),
+    inset 0 3px 5px rgba(255, 255, 255, 0.25), 0 0 10px rgba(47, 224, 106, 0.55);
+}
+
 .piece .ring {
   position: absolute;
   inset: 12%;

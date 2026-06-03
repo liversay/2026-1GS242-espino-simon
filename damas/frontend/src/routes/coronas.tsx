@@ -6,7 +6,10 @@ import { useProfile } from "@/lib/profile";
 import type { CoronaPack } from "@/lib/types";
 
 export const Route = createFileRoute("/coronas")({
-  validateSearch: (s: Record<string, unknown>) => ({ status: (s.status as string) ?? undefined }),
+  validateSearch: (s: Record<string, unknown>) => ({
+    status: (s.status as string) ?? undefined,
+    session_id: (s.session_id as string) ?? undefined,
+  }),
   component: CoronasPage,
 });
 
@@ -22,18 +25,30 @@ function CoronasPage() {
     api.coronaPacks().then(setPacks).catch(() => undefined);
   }, [api]);
 
-  // Al volver de Stripe, refrescar el saldo (el webhook acredita las Coronas).
   useEffect(() => {
-    if (search.status === "success") {
-      setToast({ text: "¡Pago recibido! Tus Coronas se acreditarán en un momento." });
-      const t = setInterval(() => void refresh(), 1500);
-      setTimeout(() => clearInterval(t), 9000);
-      return () => clearInterval(t);
-    }
-    if (search.status === "cancel") {
+    if (!toast) return;
+    const t = setTimeout(() => setToast(null), 3500);
+    return () => clearTimeout(t);
+  }, [toast]);
+
+  // Al volver de Stripe, confirmar la sesión y acreditar (fallback fiable si el webhook no llega).
+  useEffect(() => {
+    if (search.status === "success" && search.session_id) {
+      void (async () => {
+        try {
+          const { credited } = await api.confirmCheckout(search.session_id!);
+          await refresh();
+          setToast({
+            text: credited > 0 ? `¡+${credited} Coronas acreditadas! 👑` : "Pago confirmado.",
+          });
+        } catch {
+          setToast({ text: "No se pudo confirmar el pago todavía.", bad: true });
+        }
+      })();
+    } else if (search.status === "cancel") {
       setToast({ text: "Pago cancelado.", bad: true });
     }
-  }, [search.status, refresh]);
+  }, [search.status, search.session_id, api, refresh]);
 
   async function buy(pack: CoronaPack) {
     setBusy(pack._id);

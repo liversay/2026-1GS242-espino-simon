@@ -88,7 +88,14 @@ export function Board({
               .join(" ");
             return (
               <div key={key} className={classes} onClick={() => clickCell(r, c)}>
-                {value !== 0 && <Piece value={value} skin={skin} selected={isSelected} />}
+                {value !== 0 && (
+                  <Piece
+                    value={value}
+                    skin={skin}
+                    selected={isSelected}
+                    mine={value === 1 || value === 3}
+                  />
+                )}
                 {dest !== undefined && <span className={`dot${dest ? " capture" : ""}`} />}
               </div>
             );

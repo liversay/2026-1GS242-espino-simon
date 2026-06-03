@@ -84,6 +84,11 @@ export function useApi() {
           method: "POST",
           body: JSON.stringify({ packId }),
         }),
+      confirmCheckout: (sessionId: string) =>
+        request<{ coronas: number; credited: number }>("/api/checkout/confirm", {
+          method: "POST",
+          body: JSON.stringify({ sessionId }),
+        }),
     }),
     [request],
   );

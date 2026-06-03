@@ -43,7 +43,7 @@ export async function createCheckout(userId: ObjectId, packId: string): Promise<
       packId: pack._id,
       coronas: String(pack.coronas),
     },
-    success_url: `${env.FRONTEND_URL}/coronas?status=success`,
+    success_url: `${env.FRONTEND_URL}/coronas?status=success&session_id={CHECKOUT_SESSION_ID}`,
     cancel_url: `${env.FRONTEND_URL}/coronas?status=cancel`,
   });
 
@@ -51,23 +51,20 @@ export async function createCheckout(userId: ObjectId, packId: string): Promise<
   return { url: session.url };
 }
 
-/** Procesa el webhook de Stripe: acredita Coronas al confirmarse el pago. */
-export async function handleStripeEvent(rawBody: string, signature: string): Promise<void> {
-  const event = getStripe().webhooks.constructEvent(rawBody, signature, env.STRIPE_WEBHOOK_SECRET);
-
-  if (event.type !== "checkout.session.completed") return;
-
-  const session = event.data.object as Stripe.Checkout.Session;
+/** Acredita las Coronas de una sesión pagada (idempotente por stripeSessionId). */
+async function creditPurchase(session: {
+  id: string;
+  metadata?: Record<string, string> | null;
+}): Promise<number | null> {
   const meta = session.metadata ?? {};
-  if (!meta.userId || !meta.coronas) return;
+  if (!meta.userId || !meta.coronas) return null;
 
   const userId = new ObjectId(meta.userId);
   const coronas = Number(meta.coronas);
 
-  // Idempotencia: no acreditar dos veces la misma sesión.
   const txCol = await transactions();
   const already = await txCol.findOne({ stripeSessionId: session.id });
-  if (already) return;
+  if (already) return null; // ya acreditado
 
   await (await users()).updateOne(
     { _id: userId },
@@ -80,4 +77,41 @@ export async function handleStripeEvent(rawBody: string, signature: string): Pro
     stripeSessionId: session.id,
     createdAt: new Date(),
   });
+  return coronas;
+}
+
+/**
+ * Confirma una sesión de checkout al volver del pago (fallback fiable en local, donde el
+ * webhook puede no llegar). Verifica que esté pagada y que pertenezca al usuario; acredita
+ * de forma idempotente (no duplica con el webhook).
+ */
+export async function confirmCheckout(
+  userId: ObjectId,
+  sessionId: string,
+): Promise<{ coronas: number; credited: number }> {
+  const session = await getStripe().checkout.sessions.retrieve(sessionId);
+  if (session.payment_status !== "paid") {
+    throw new HttpError(402, "El pago aún no se ha completado");
+  }
+  if (session.metadata?.userId !== userId.toString()) {
+    throw new HttpError(403, "La sesión no pertenece a este usuario");
+  }
+  const credited = await creditPurchase({ id: session.id, metadata: session.metadata });
+  const user = await (await users()).findOne({ _id: userId });
+  return { coronas: user?.coronas ?? 0, credited: credited ?? 0 };
+}
+
+/** Procesa el webhook de Stripe: acredita Coronas al confirmarse el pago. */
+export async function handleStripeEvent(rawBody: string, signature: string): Promise<void> {
+  // constructEventAsync: necesario en runtimes (Bun/edge) donde Stripe usa SubtleCrypto (async).
+  const event = await getStripe().webhooks.constructEventAsync(
+    rawBody,
+    signature,
+    env.STRIPE_WEBHOOK_SECRET,
+  );
+
+  if (event.type !== "checkout.session.completed") return;
+
+  const session = event.data.object as Stripe.Checkout.Session;
+  await creditPurchase({ id: session.id, metadata: session.metadata });
 }

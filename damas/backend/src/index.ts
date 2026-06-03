@@ -21,7 +21,7 @@ import {
 } from "./services/games";
 import { getRanking } from "./services/ranking";
 import { buySkin, equipSkin, listSkins } from "./services/skins";
-import { createCheckout, handleStripeEvent, listPacks } from "./services/coronas";
+import { confirmCheckout, createCheckout, handleStripeEvent, listPacks } from "./services/coronas";
 
 const app = new Hono<{ Variables: AuthVariables }>();
 
@@ -147,6 +147,12 @@ app.get("/api/corona-packs", async (c) => c.json(await listPacks()));
 app.post("/api/checkout", async (c) => {
   const body = (await c.req.json()) as { packId: string };
   const res = await createCheckout(c.get("user")._id!, body.packId);
+  return c.json(res);
+});
+
+app.post("/api/checkout/confirm", async (c) => {
+  const body = (await c.req.json()) as { sessionId: string };
+  const res = await confirmCheckout(c.get("user")._id!, body.sessionId);
   return c.json(res);
 });
 

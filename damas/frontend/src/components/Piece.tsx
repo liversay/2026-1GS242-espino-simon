@@ -15,10 +15,13 @@ export function Piece({
   value,
   skin,
   selected,
+  mine,
 }: {
   value: number;
   skin: PieceStyle;
   selected?: boolean;
+  /** Marca la ficha como del jugador humano (contorno verde para distinguirla). */
+  mine?: boolean;
 }) {
   if (value === 0) return null;
   const isPlayer = value === 1 || value === 3;
@@ -32,7 +35,10 @@ export function Piece({
   };
 
   return (
-    <div className={`piece ${style.material}${selected ? " sel" : ""}`} style={css}>
+    <div
+      className={`piece ${style.material}${selected ? " sel" : ""}${mine ? " mine" : ""}`}
+      style={css}
+    >
       <span className="ring" />
       {isQueen ? (
         <span className="crown" style={{ color: style.crownColor }}>
