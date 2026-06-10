@@ -11,8 +11,8 @@
   ],
   "scripts": {
     "test:engine": "bun test packages/game-engine",
-    "dev:ai": "bun --cwd ai-service run dev",
-    "dev:backend": "bun --cwd backend run dev",
-    "dev:frontend": "bun --cwd frontend run dev"
+    "dev:ai": "bun run --cwd ai-service dev",
+    "dev:backend": "bun run --cwd backend dev",
+    "dev:frontend": "bun run --cwd frontend dev"
   }
 }

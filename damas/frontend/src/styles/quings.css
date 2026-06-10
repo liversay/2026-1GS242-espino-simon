@@ -527,6 +527,117 @@ button {
   animation: drop 280ms cubic-bezier(0.2, 1.4, 0.5, 1);
 }
 
+/* ---------- modal de perfil (UserProfile montado) ---------- */
+.profile-overlay { z-index: 300; padding: 24px; }
+
+.profile-modal {
+  position: relative;
+  max-width: 100%;
+  max-height: 90vh;
+  overflow: auto;
+}
+
+.profile-close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid rgba(248, 216, 107, 0.25);
+  background: rgba(6, 33, 26, 0.8);
+  color: var(--paper-100);
+  cursor: pointer;
+  transition: filter 120ms ease, transform 120ms ease;
+}
+.profile-close:hover { filter: brightness(1.15); transform: translateY(-1px); }
+
+/* Página personalizada "Apodo" dentro del UserProfile */
+.nick-page { color: var(--paper-100); max-width: 420px; }
+
+.nick-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 22px;
+  color: var(--gold-400);
+}
+.nick-head h1 { font-size: 26px; line-height: 1.1; color: var(--gold-400); }
+.nick-head p { margin-top: 4px; font-size: 13px; color: rgba(244, 238, 221, 0.7); }
+
+.nick-form { display: flex; flex-direction: column; gap: 8px; }
+
+.nick-label {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(244, 238, 221, 0.75);
+}
+
+.nick-input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(248, 216, 107, 0.25);
+  background: #06211a;
+  color: var(--paper-100);
+  font-size: 16px;
+  font-weight: 600;
+  outline: none;
+  transition: border-color 120ms ease, box-shadow 120ms ease;
+}
+.nick-input:focus {
+  border-color: var(--gold-400);
+  box-shadow: 0 0 0 3px rgba(248, 216, 107, 0.18);
+}
+
+.nick-hint {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: rgba(244, 238, 221, 0.55);
+  margin-bottom: 8px;
+}
+
+.nick-msg { font-size: 13px; font-weight: 600; margin: 2px 0 6px; }
+.nick-msg.err { color: var(--rose-400); }
+.nick-msg.ok { color: var(--gold-400); }
+
+/* Popout de confirmación al guardar el apodo (flota sobre el modal de Clerk) */
+.nick-confirm {
+  position: fixed;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 400;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px 14px 14px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(15, 74, 55, 0.98), rgba(10, 51, 39, 0.98));
+  border: 1px solid rgba(248, 216, 107, 0.45);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+  color: var(--paper-100);
+}
+.nick-confirm-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  color: var(--ink-900);
+  background: linear-gradient(180deg, var(--gold-400), var(--gold-600));
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.35);
+}
+.nick-confirm div { display: flex; flex-direction: column; line-height: 1.25; }
+.nick-confirm strong { font-size: 15px; color: var(--gold-400); }
+.nick-confirm span { font-size: 13px; color: rgba(244, 238, 221, 0.8); }
+
 /* turno: fondo dinámico */
 body.turn-ai { background-color: #08251c; }
 body.turn-win { background-color: #0c3a24; }
@@ -997,7 +1108,8 @@ table.rank .rk {
 .menu-item.primary:hover { color: var(--ink-900); box-shadow: 0 6px 0 rgba(0,0,0,0.32), 0 0 30px rgba(248,216,107,0.6); }
 .menu-item.primary:active { transform: translateY(2px) scale(0.99); }
 .menu-continue {
-  margin-top: -4px;
+  margin-top: 14px;
+  margin-bottom: 4px;
   background: none;
   border: none;
   color: rgba(244, 238, 221, 0.78);

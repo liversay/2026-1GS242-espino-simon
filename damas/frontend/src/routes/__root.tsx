@@ -1,6 +1,11 @@
 import { ClerkProvider } from "@clerk/tanstack-react-start";
+import { esES } from "@clerk/localizations";
 import { HeadContent, Outlet, Scripts, createRootRoute } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import type { ComponentProps, ReactNode } from "react";
+
+// @clerk/localizations va una versión por delante del SDK; los tipos no calzan exacto
+// aunque en runtime sí. Casteamos al tipo exacto que espera el provider.
+const localization = esES as ComponentProps<typeof ClerkProvider>["localization"];
 import { clerkAppearance } from "@/lib/clerkAppearance";
 import { ProfileProvider } from "@/lib/profile";
 import { SettingsProvider } from "@/lib/settings";
@@ -29,7 +34,7 @@ function RootComponent() {
   return (
     <RootDocument>
       {PUBLISHABLE_KEY ? (
-        <ClerkProvider publishableKey={PUBLISHABLE_KEY} appearance={clerkAppearance}>
+        <ClerkProvider publishableKey={PUBLISHABLE_KEY} localization={localization} appearance={clerkAppearance}>
           <SettingsProvider>
             <ProfileProvider>
               <GoldTransitionProvider>

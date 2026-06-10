@@ -4,7 +4,7 @@ import { useClerk, useUser } from "@clerk/tanstack-react-start";
 import { AnimatePresence, motion } from "motion/react";
 import { LogOut, UserRound } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { clerkAppearance } from "@/lib/clerkAppearance";
+import { ProfileModal } from "@/components/ProfileModal";
 import { playSfx } from "@/lib/sound";
 
 function initials(name?: string | null, email?: string | null): string {
@@ -18,6 +18,7 @@ export function UserAvatar() {
   const { user } = useUser();
   const clerk = useClerk();
   const [open, setOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -47,6 +48,7 @@ export function UserAvatar() {
   }
 
   return (
+    <>
     <div className="avatar-wrap" ref={ref}>
       <button
         className="avatar-btn"
@@ -79,7 +81,7 @@ export function UserAvatar() {
               onMouseEnter={() => playSfx("hover")}
               onClick={() => {
                 setOpen(false);
-                clerk.openUserProfile({ appearance: clerkAppearance });
+                setProfileOpen(true);
               }}
             >
               <UserRound size={16} strokeWidth={2.2} />
@@ -100,5 +102,8 @@ export function UserAvatar() {
         )}
       </AnimatePresence>
     </div>
+
+      {profileOpen && <ProfileModal onClose={() => setProfileOpen(false)} />}
+    </>
   );
 }

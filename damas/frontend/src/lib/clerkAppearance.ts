@@ -7,7 +7,11 @@ export const clerkAppearance = {
   variables: {
     colorPrimary: "#EBB63F",
     colorText: "#F4EEDD",
-    colorTextSecondary: "rgba(244,238,221,0.7)",
+    colorTextSecondary: "rgba(244,238,221,0.82)",
+    // Clerk genera TODOS los grises secundarios (valores de email, cuenta conectada,
+    // "Secured by Clerk", bordes) a partir de colorNeutral; por defecto es negro y queda
+    // ilegible sobre el verde oscuro. Lo ponemos crema para que esos textos se aclaren.
+    colorNeutral: "#F4EEDD",
     colorBackground: "#0A3327",
     colorInputBackground: "#06211A",
     colorInputText: "#F4EEDD",
@@ -30,7 +34,7 @@ export const clerkAppearance = {
       fontSize: "30px",
       color: "#F8D86B",
     },
-    headerSubtitle: { color: "rgba(244,238,221,0.65)" },
+    headerSubtitle: { color: "rgba(244,238,221,0.82)" },
     socialButtonsBlockButton: {
       backgroundColor: "#06211A",
       border: "1px solid rgba(248,216,107,0.25)",
@@ -59,5 +63,30 @@ export const clerkAppearance = {
     },
     userButtonPopoverActionButton: { color: "#F4EEDD" },
     badge: { backgroundColor: "rgba(248,216,107,0.18)", color: "#F8D86B" },
+
+    // Panel "Detalles del perfil" (openUserProfile): forzamos texto crema porque varios
+    // elementos no heredan colorText y quedaban ilegibles sobre el fondo verde.
+    navbar: { background: "transparent" },
+    navbarButton: { color: "#F4EEDD" },
+    navbarButtonText: { color: "#F4EEDD" },
+    navbarButtonIcon: { color: "#F4EEDD" },
+    pageScrollBox: { color: "#F4EEDD" },
+    profileSection: { color: "#F4EEDD" },
+    profileSectionTitleText: { color: "#F8D86B" },
+    profileSectionContent: { color: "#F4EEDD" },
+    profileSectionPrimaryButton: { color: "#F8D86B" },
+    accordionTriggerButton: { color: "#F4EEDD" },
+    accordionContent: { color: "#F4EEDD" },
+    menuButton: { color: "#F4EEDD" },
+    // Identificadores: el correo primario y el correo de la cuenta conectada (Google)
+    // salían en gris oscuro. Los forzamos a crema legible.
+    userPreviewMainIdentifier: { color: "#F4EEDD" },
+    userPreviewSecondaryIdentifier: { color: "rgba(244,238,221,0.9)" },
+    breadcrumbsItem: { color: "rgba(244,238,221,0.75)" },
+    breadcrumbsItemCurrent: { color: "#F8D86B" },
+    // Valores de datos (texto del correo/teléfono en cada fila) y pie "Secured by Clerk".
+    formFieldSuccessText: { color: "rgba(244,238,221,0.85)" },
+    formFieldInfoText: { color: "rgba(244,238,221,0.75)" },
+    footerActionText: { color: "rgba(244,238,221,0.8)" },
   },
 } as const;
