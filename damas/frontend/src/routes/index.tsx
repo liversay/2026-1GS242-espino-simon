@@ -224,7 +224,7 @@ function Lobby() {
 
 function SignedOutHero() {
   return (
-    <div className="lobby">
+    <div className="lobby lobby--hero">
       <AmbientBackground />
       <div className="lobby-inner">
         <motion.img
