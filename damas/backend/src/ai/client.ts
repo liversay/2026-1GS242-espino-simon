@@ -3,11 +3,15 @@
 import type { Move, Player } from "@quings/game-engine";
 import { env } from "../env";
 
-export async function requestAiMove(board: number[][], currentPlayer: Player = "ai"): Promise<Move> {
+export async function requestAiMove(
+  board: number[][],
+  currentPlayer: Player = "ai",
+  difficulty = 3,
+): Promise<Move> {
   const res = await fetch(`${env.AI_SERVICE_URL}/move`, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ board, currentPlayer }),
+    body: JSON.stringify({ board, currentPlayer, difficulty }),
   });
 
   if (!res.ok) {

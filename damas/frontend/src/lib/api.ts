@@ -6,6 +6,7 @@
 import { useAuth } from "@clerk/tanstack-react-start";
 import { useCallback, useMemo } from "react";
 import type {
+  Board,
   CoronaPack,
   Game,
   Move,
@@ -58,13 +59,17 @@ export function useApi() {
       setUsername: (username: string) =>
         request<Profile>("/api/me", { method: "PATCH", body: JSON.stringify({ username }) }),
 
-      createGame: () => request<Game>("/api/games", { method: "POST" }),
+      createGame: (difficulty?: number) =>
+        request<Game>("/api/games", {
+          method: "POST",
+          body: JSON.stringify({ difficulty }),
+        }),
       listGames: () => request<Game[]>("/api/games"),
       getGame: (id: string) => request<Game>(`/api/games/${id}`),
-      move: (id: string, move: Move) =>
+      move: (id: string, move: Move, difficulty?: number) =>
         request<MoveResult>(`/api/games/${id}/move`, {
           method: "POST",
-          body: JSON.stringify(move),
+          body: JSON.stringify({ ...move, difficulty }),
         }),
       resign: (id: string) => request<Game>(`/api/games/${id}/resign`, { method: "POST" }),
 
@@ -77,6 +82,14 @@ export function useApi() {
         }),
       equipSkin: (id: string) =>
         request<{ equippedSkinId: string }>(`/api/skins/${id}/equip`, { method: "POST" }),
+
+      boards: () => request<Board[]>("/api/boards"),
+      buyBoard: (id: string) =>
+        request<{ coronas: number; ownedBoardIds: string[] }>(`/api/boards/${id}/buy`, {
+          method: "POST",
+        }),
+      equipBoard: (id: string) =>
+        request<{ equippedBoardId: string }>(`/api/boards/${id}/equip`, { method: "POST" }),
 
       coronaPacks: () => request<CoronaPack[]>("/api/corona-packs"),
       checkout: (packId: string) =>

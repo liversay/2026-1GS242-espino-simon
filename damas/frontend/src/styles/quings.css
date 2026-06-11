@@ -343,7 +343,7 @@ button {
   display: inline-block;
   padding: 16px;
   border-radius: 20px;
-  background: linear-gradient(180deg, #1c130a, #0d0905);
+  background: var(--board-frame, linear-gradient(180deg, #1c130a, #0d0905));
   box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6), inset 0 0 0 2px rgba(248, 216, 107, 0.25);
 }
 
@@ -376,9 +376,9 @@ button {
   place-items: center;
 }
 
-.cell.light { background: #d8c19a; }
-.cell.dark { background: #3a6b4f; }
-.cell.dark.alt { background: #356046; }
+.cell.light { background: var(--sq-light, #d8c19a); }
+.cell.dark { background: var(--sq-dark, #3a6b4f); }
+.cell.dark.alt { background: var(--sq-dark-alt, #356046); }
 
 .cell.playable { cursor: default; }
 .cell.selectable { cursor: pointer; }
@@ -1189,3 +1189,100 @@ a.card:hover, .card.hoverable:hover {
 
 /* corona (lucide) dentro de la ficha reina */
 .piece .crown-icon { width: 48%; height: 48%; filter: drop-shadow(0 1px 1px rgba(0,0,0,0.6)); }
+
+/* ---- Cards de paquetes de Coronas (atractivo escalado por precio) ---- */
+.corona-card {
+  justify-content: flex-start;
+  transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.corona-card:hover { transform: translateY(-5px); }
+
+.corona-crown {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 8px 0 2px;
+  color: var(--crown, var(--gold-400));
+}
+.corona-crown svg { filter: drop-shadow(0 3px 8px rgba(0, 0, 0, 0.45)); z-index: 1; }
+
+.corona-halo {
+  position: absolute;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: radial-gradient(circle, var(--halo, transparent) 0%, transparent 68%);
+  opacity: 0.9;
+}
+
+.corona-name {
+  background: linear-gradient(180deg, #fff, var(--crown, var(--gold-400)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Tier 0 — Bronce */
+.corona-card.tier-0 { --crown: #c98f5e; --halo: rgba(201, 143, 94, 0.22); }
+/* Tier 1 — Plata */
+.corona-card.tier-1 { --crown: #cbd5e1; --halo: rgba(203, 213, 225, 0.26); }
+/* Tier 2 — Oro */
+.corona-card.tier-2 {
+  --crown: #f8d86b;
+  --halo: rgba(248, 216, 107, 0.3);
+  box-shadow: var(--shadow-card), inset 0 0 0 1.5px rgba(248, 216, 107, 0.55);
+}
+/* Tier 3 — Diamante */
+.corona-card.tier-3 {
+  --crown: #8fe9ff;
+  --halo: rgba(143, 233, 255, 0.34);
+  box-shadow: var(--shadow-card), inset 0 0 0 2px rgba(143, 233, 255, 0.6),
+    0 0 28px rgba(143, 233, 255, 0.22);
+}
+/* Tier 4 — Imperial (lo más caro y vistoso) */
+.corona-card.tier-4 {
+  --crown: #ffd23b;
+  --halo: rgba(255, 210, 59, 0.42);
+  box-shadow: var(--shadow-card), inset 0 0 0 2px rgba(255, 210, 59, 0.85),
+    0 0 40px rgba(255, 159, 28, 0.4);
+}
+.corona-card.tier-4 .corona-halo { animation: corona-pulse 2.2s ease-in-out infinite; }
+.corona-card.tier-4::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, transparent 30%, rgba(255, 240, 200, 0.28) 50%, transparent 70%);
+  transform: translateX(-120%);
+  animation: corona-shine 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes corona-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.12); opacity: 1; }
+}
+@keyframes corona-shine {
+  0%, 60% { transform: translateX(-120%); }
+  100% { transform: translateX(120%); }
+}
+
+.corona-ribbon {
+  position: absolute;
+  top: 12px;
+  left: -34px;
+  transform: rotate(-45deg);
+  width: 130px;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  padding: 4px 0;
+  color: #1a1206;
+  background: linear-gradient(180deg, var(--crown, var(--gold-400)), #d99a2b);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .corona-card.tier-4 .corona-halo,
+  .corona-card.tier-4::before { animation: none !important; }
+}

@@ -30,6 +30,13 @@ import { evaluate } from "./heuristic";
 export const MAX_DEPTH = 3;
 const TERMINAL = 1_000_000;
 
+export interface SearchOptions {
+  /** Profundidad máxima de búsqueda (g(n) límite). A mayor, más fuerte la IA. */
+  maxDepth?: number;
+  /** Probabilidad [0..1] de jugar un movimiento legal al azar (errores intencionados). */
+  blunderChance?: number;
+}
+
 export interface BestMoveResult {
   move: Move | null;
   score: number;
@@ -82,8 +89,18 @@ function backup(node: SearchNode, ai: Player): number {
 
 /**
  * Ejecuta A* y devuelve el mejor movimiento para `aiPlayer`.
+ *
+ * `options` ajusta la fuerza de la IA según la dificultad elegida:
+ *  - `maxDepth`: cuánto mira hacia adelante (por defecto 3).
+ *  - `blunderChance`: probabilidad de jugar al azar en lugar de lo óptimo (niveles fáciles).
  */
-export function findBestMove(board: number[][], aiPlayer: Player): BestMoveResult {
+export function findBestMove(
+  board: number[][],
+  aiPlayer: Player,
+  options: SearchOptions = {},
+): BestMoveResult {
+  const maxDepth = Math.max(1, options.maxDepth ?? MAX_DEPTH);
+  const blunderChance = Math.min(1, Math.max(0, options.blunderChance ?? 0));
   const root = makeNode(board, aiPlayer, 0, null);
 
   // Frontera (cola de prioridad). Best-first: se expande el nodo más prometedor para
@@ -98,7 +115,7 @@ export function findBestMove(board: number[][], aiPlayer: Player): BestMoveResul
     const node = frontier.shift()!;
     nodesExplored++;
 
-    if (node.depth >= MAX_DEPTH) {
+    if (node.depth >= maxDepth) {
       node.isLeaf = true;
       continue;
     }
@@ -128,7 +145,7 @@ export function findBestMove(board: number[][], aiPlayer: Player): BestMoveResul
   }
 
   if (root.children.length === 0) {
-    return { move: null, score: leafValue(root, aiPlayer), nodesExplored, depth: MAX_DEPTH };
+    return { move: null, score: leafValue(root, aiPlayer), nodesExplored, depth: maxDepth };
   }
 
   // Propagación hacia la raíz: la IA elige el primer movimiento de mejor valor (MAX).
@@ -142,5 +159,14 @@ export function findBestMove(board: number[][], aiPlayer: Player): BestMoveResul
     }
   }
 
-  return { move: bestMove, score: bestScore, nodesExplored, depth: MAX_DEPTH };
+  // Niveles fáciles: a veces juega una jugada legal al azar (error intencionado).
+  if (blunderChance > 0 && Math.random() < blunderChance) {
+    const rootMoves = root.children.map((c) => c.rootMove).filter((m): m is Move => m !== null);
+    if (rootMoves.length > 0) {
+      const random = rootMoves[Math.floor(Math.random() * rootMoves.length)];
+      return { move: random, score: bestScore, nodesExplored, depth: maxDepth };
+    }
+  }
+
+  return { move: bestMove, score: bestScore, nodesExplored, depth: maxDepth };
 }

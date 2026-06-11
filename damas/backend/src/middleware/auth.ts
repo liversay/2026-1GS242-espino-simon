@@ -8,7 +8,7 @@ import { verifyToken } from "@clerk/backend";
 import type { Context, Next } from "hono";
 import { env } from "../env";
 import { type UserDoc, users } from "../db/collections";
-import { DEFAULT_SKIN_ID } from "../db/seed-data";
+import { DEFAULT_BOARD_ID, DEFAULT_SKIN_ID } from "../db/seed-data";
 
 export interface AuthVariables {
   clerkUserId: string;
@@ -26,7 +26,18 @@ function bearer(c: Context): string | null {
 async function ensureUser(clerkUserId: string, claims: Record<string, unknown>): Promise<UserDoc> {
   const col = await users();
   const existing = await col.findOne({ clerkUserId });
-  if (existing) return existing;
+  if (existing) {
+    // Migración para cuentas previas a las skins de tablero.
+    if (existing.equippedBoardId === undefined) {
+      await col.updateOne(
+        { _id: existing._id },
+        { $set: { ownedBoardIds: [DEFAULT_BOARD_ID], equippedBoardId: DEFAULT_BOARD_ID } },
+      );
+      existing.ownedBoardIds = [DEFAULT_BOARD_ID];
+      existing.equippedBoardId = DEFAULT_BOARD_ID;
+    }
+    return existing;
+  }
 
   const username =
     (typeof claims.username === "string" && claims.username) ||
@@ -43,6 +54,8 @@ async function ensureUser(clerkUserId: string, claims: Record<string, unknown>):
     totalGames: 0,
     ownedSkinIds: [DEFAULT_SKIN_ID],
     equippedSkinId: DEFAULT_SKIN_ID,
+    ownedBoardIds: [DEFAULT_BOARD_ID],
+    equippedBoardId: DEFAULT_BOARD_ID,
     createdAt: now,
     updatedAt: now,
   };

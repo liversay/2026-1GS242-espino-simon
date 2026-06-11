@@ -14,6 +14,8 @@ export interface UserDoc {
   totalGames: number;
   ownedSkinIds: string[];
   equippedSkinId: string;
+  ownedBoardIds: string[];
+  equippedBoardId: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -26,6 +28,8 @@ export interface GameDoc {
   status: GameStatus;
   moveCount: number;
   history: Move[];
+  /** Nivel de dificultad de la IA 1–4. */
+  difficulty?: number;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -51,6 +55,27 @@ export interface SkinDoc {
   description: string;
 }
 
+export interface BoardStyle {
+  /** Casillas claras. */
+  light: string;
+  /** Casillas oscuras. */
+  dark: string;
+  /** Casillas oscuras alternas (patrón sutil). */
+  darkAlt: string;
+  /** Fondo del marco (CSS background del board-wrap). */
+  frame: string;
+}
+
+export interface BoardDoc {
+  _id: string;
+  name: string;
+  rarity: SkinRarity;
+  priceCoronas: number;
+  boardStyle: BoardStyle;
+  thumbnail: string;
+  description: string;
+}
+
 export interface CoronaPackDoc {
   _id: string;
   name: string;
@@ -59,7 +84,7 @@ export interface CoronaPackDoc {
   stripePriceLabel: string;
 }
 
-export type TransactionType = "purchase_coronas" | "buy_skin" | "win_reward";
+export type TransactionType = "purchase_coronas" | "buy_skin" | "buy_board" | "win_reward";
 
 export interface TransactionDoc {
   _id?: ObjectId;
@@ -67,6 +92,7 @@ export interface TransactionDoc {
   type: TransactionType;
   amount: number;
   skinId?: string;
+  boardId?: string;
   stripeSessionId?: string;
   createdAt: Date;
 }
@@ -79,6 +105,9 @@ export async function games(): Promise<Collection<GameDoc>> {
 }
 export async function skins(): Promise<Collection<SkinDoc>> {
   return (await getDb()).collection<SkinDoc>("skins");
+}
+export async function boards(): Promise<Collection<BoardDoc>> {
+  return (await getDb()).collection<BoardDoc>("boards");
 }
 export async function coronaPacks(): Promise<Collection<CoronaPackDoc>> {
   return (await getDb()).collection<CoronaPackDoc>("coronaPacks");

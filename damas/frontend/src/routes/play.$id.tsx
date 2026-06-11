@@ -1,7 +1,7 @@
-import { type Move, applyMove, hasAnyCapture } from "@quings/game-engine";
+import { type Coord, type Move, applyMove, hasAnyCapture } from "@quings/game-engine";
 import { createFileRoute } from "@tanstack/react-router";
-import { Bot, Crown, Flag, ScrollText, Skull, Swords, Target } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Bot, Crown, Flag, NotebookPen, ScrollText, Skull, Swords, Target } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Board } from "@/components/Board";
 import { Layout } from "@/components/Layout";
 import { useApi } from "@/lib/api";
@@ -9,7 +9,7 @@ import { useProfile } from "@/lib/profile";
 import { useSettings } from "@/lib/settings";
 import { playSfx } from "@/lib/sound";
 import { useGoldNavigate } from "@/lib/transition";
-import type { Game, PieceStyle, Skin } from "@/lib/types";
+import type { Board as BoardSkin, BoardStyle, Game, PieceStyle, Skin } from "@/lib/types";
 
 export const Route = createFileRoute("/play/$id")({ component: PlayPage });
 
@@ -19,6 +19,29 @@ const CLASSIC_STYLE: PieceStyle = {
   crownColor: "#EBB63F",
   material: "matte",
 };
+
+const CLASSIC_BOARD: BoardStyle = {
+  light: "#d8c19a",
+  dark: "#3a6b4f",
+  darkAlt: "#356046",
+  frame: "linear-gradient(180deg, #1c130a, #0d0905)",
+};
+
+/**
+ * Nombre de casilla en notación algebraica (columna a–h, fila 1–8), como en el ajedrez.
+ * Tu lado (abajo) es la fila 1; el de la IA (arriba) la fila 8.
+ */
+function squareName(coord: Coord): string {
+  const file = String.fromCharCode(97 + coord.col); // 0→a … 7→h
+  const rank = 8 - coord.row; // fila 7 (abajo) → 1, fila 0 (arriba) → 8
+  return `${file}${rank}`;
+}
+
+/** Notación de un movimiento: "c3-d4" simple, "c3xe5" si hay captura. */
+function moveNotation(move: Move): string {
+  const sep = move.captures.length ? "x" : "-";
+  return `${squareName(move.from)}${sep}${squareName(move.to)}`;
+}
 
 function winReward(moveCount: number): number {
   return 50 + Math.max(0, (80 - moveCount) * 2);
@@ -31,10 +54,11 @@ function PlayPage() {
   const api = useApi();
   const go = useGoldNavigate();
   const { profile, refresh } = useProfile();
-  const { speed, setSpeed } = useSettings();
+  const { speed, setSpeed, difficulty, setDifficulty } = useSettings();
 
   const [game, setGame] = useState<Game | null>(null);
   const [skins, setSkins] = useState<Skin[]>([]);
+  const [boards, setBoards] = useState<BoardSkin[]>([]);
   const [busy, setBusy] = useState(false);
   const [aiThinking, setAiThinking] = useState(false);
   const [lastMove, setLastMove] = useState<Move | null>(null);
@@ -52,6 +76,7 @@ function PlayPage() {
       .then((g) => alive && setGame(g))
       .catch(() => alive && setLoadError(true));
     api.skins().then((s) => alive && setSkins(s)).catch(() => undefined);
+    api.boards().then((b) => alive && setBoards(b)).catch(() => undefined);
     return () => {
       alive = false;
     };
@@ -69,6 +94,8 @@ function PlayPage() {
 
   const equipped =
     skins.find((s) => s._id === profile?.equippedSkinId)?.pieceStyle ?? CLASSIC_STYLE;
+  const equippedBoard =
+    boards.find((b) => b._id === profile?.equippedBoardId)?.boardStyle ?? CLASSIC_BOARD;
 
   const captureFeedback = useCallback(
     (count: number) => {
@@ -92,7 +119,7 @@ function PlayPage() {
         { board: game.board, turn: game.turn, status: game.status, moveCount: game.moveCount, history: game.history },
         move,
       );
-      setGame((g) => (g ? { ...g, board: local.board, turn: local.turn, status: local.status, moveCount: local.moveCount } : g));
+      setGame((g) => (g ? { ...g, board: local.board, turn: local.turn, status: local.status, moveCount: local.moveCount, history: local.history } : g));
       setLastMove(move);
       playSfx(move.captures.length ? "capture" : "move");
       if (move.captures.length) captureFeedback(move.captures.length);
@@ -100,7 +127,7 @@ function PlayPage() {
       setAiThinking(aiTurn);
 
       try {
-        const result = await api.move(id, move);
+        const result = await api.move(id, move, difficulty);
         if (result.aiMove) {
           await sleep(420 / speed);
           setLastMove(result.aiMove);
@@ -124,7 +151,7 @@ function PlayPage() {
         setAiThinking(false);
       }
     },
-    [api, busy, game, id, refresh, speed, captureFeedback],
+    [api, busy, game, id, refresh, speed, difficulty, captureFeedback],
   );
 
   async function doResign() {
@@ -168,6 +195,7 @@ function PlayPage() {
             board={game.board}
             interactive={playerTurn}
             skin={equipped}
+            boardStyle={equippedBoard}
             lastMove={lastMove}
             shake={shake}
             flashKey={flashKey}
@@ -217,6 +245,8 @@ function PlayPage() {
             {error && <p style={{ color: "var(--rose-400)" }}>{error}</p>}
           </div>
 
+          <MoveLog history={game.history} />
+
           <div className="card stack">
             <div className="label">Controles</div>
             <button
@@ -226,6 +256,36 @@ function PlayPage() {
             >
               <Flag size={17} strokeWidth={2.2} /> Rendirse
             </button>
+          </div>
+
+          <div className="card stack">
+            <div className="label" data-tooltip="Qué tan profundo piensa la IA con A* (más alto = más fuerte)">
+              Dificultad de la IA
+            </div>
+            <div className="row wrap" style={{ gap: 8 }}>
+              {[
+                { v: 1, t: "Principiante" },
+                { v: 2, t: "Aprendiz" },
+                { v: 3, t: "Hábil" },
+                { v: 4, t: "Maestro" },
+              ].map((o) => (
+                <button
+                  key={o.v}
+                  className={`pill${difficulty === o.v ? " gold" : ""}`}
+                  onClick={() => {
+                    setDifficulty(o.v);
+                    playSfx("select");
+                  }}
+                  onMouseEnter={() => playSfx("hover")}
+                  style={{ cursor: "pointer" }}
+                >
+                  {o.t}
+                </button>
+              ))}
+            </div>
+            <span className="muted" style={{ fontSize: 12 }}>
+              Se aplica desde tu próxima jugada.
+            </span>
           </div>
 
           <div className="card stack">
@@ -278,13 +338,90 @@ function PlayPage() {
           moveCount={game.moveCount}
           onNew={async () => {
             playSfx("select");
-            const g = await api.createGame();
+            const g = await api.createGame(difficulty);
             go({ to: "/play/$id", params: { id: g._id } });
           }}
           onLobby={() => go({ to: "/" }, "back")}
         />
       )}
     </Layout>
+  );
+}
+
+/**
+ * Planilla de movimientos en notación de damas (como en torneos): número de jugada,
+ * movimiento del jugador y respuesta de la IA. "-" simple, "x" captura.
+ */
+function MoveLog({ history }: { history: Move[] }) {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  // Empareja jugada del humano (índice par) con la de la IA (índice impar).
+  const rows: { n: number; player?: Move; ai?: Move }[] = [];
+  for (let i = 0; i < history.length; i += 2) {
+    rows.push({ n: i / 2 + 1, player: history[i], ai: history[i + 1] });
+  }
+
+  // Auto-scroll al final cuando se agregan movimientos.
+  useEffect(() => {
+    const el = listRef.current;
+    if (el) el.scrollTop = el.scrollHeight;
+  }, [history.length]);
+
+  return (
+    <div className="card stack">
+      <div className="label" data-tooltip="Notación algebraica (columna a–h, fila 1–8). x = captura">
+        <NotebookPen size={13} strokeWidth={2.4} style={{ verticalAlign: "-2px", marginRight: 6 }} />
+        Planilla de movimientos
+      </div>
+      {rows.length === 0 ? (
+        <p className="muted" style={{ fontSize: 13 }}>
+          Aún no hay movimientos. La planilla se irá registrando aquí.
+        </p>
+      ) : (
+        <div
+          ref={listRef}
+          style={{
+            maxHeight: 220,
+            overflowY: "auto",
+            fontVariantNumeric: "tabular-nums",
+            fontSize: 14,
+          }}
+        >
+          <div
+            className="muted"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "32px 1fr 1fr",
+              gap: 6,
+              fontSize: 11,
+              textTransform: "uppercase",
+              letterSpacing: "0.06em",
+              paddingBottom: 4,
+            }}
+          >
+            <span>#</span>
+            <span>Tú</span>
+            <span>IA</span>
+          </div>
+          {rows.map((r) => (
+            <div
+              key={r.n}
+              style={{
+                display: "grid",
+                gridTemplateColumns: "32px 1fr 1fr",
+                gap: 6,
+                padding: "3px 0",
+                borderTop: "1px solid rgba(255,255,255,0.06)",
+              }}
+            >
+              <span className="muted">{r.n}.</span>
+              <span style={{ color: "var(--gold-400)" }}>{r.player ? moveNotation(r.player) : ""}</span>
+              <span>{r.ai ? moveNotation(r.ai) : ""}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

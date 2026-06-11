@@ -19,11 +19,17 @@ export function winReward(moveCount: number): number {
   return 50 + Math.max(0, (80 - moveCount) * 2);
 }
 
+/** Restringe la dificultad al rango válido 1–4. */
+function clampDifficulty(level: number | undefined): number {
+  if (!Number.isFinite(level)) return 3;
+  return Math.min(4, Math.max(1, Math.round(level as number)));
+}
+
 function toState(g: GameDoc): GameState {
   return { board: g.board, turn: g.turn, status: g.status, moveCount: g.moveCount, history: g.history };
 }
 
-export async function createGame(userId: ObjectId): Promise<GameDoc> {
+export async function createGame(userId: ObjectId, difficulty = 3): Promise<GameDoc> {
   const s = createInitialGameState();
   const now = new Date();
   const doc: GameDoc = {
@@ -33,6 +39,7 @@ export async function createGame(userId: ObjectId): Promise<GameDoc> {
     status: s.status,
     moveCount: s.moveCount,
     history: s.history,
+    difficulty: clampDifficulty(difficulty),
     createdAt: now,
     updatedAt: now,
   };
@@ -111,6 +118,7 @@ export async function playHumanMove(
   userId: ObjectId,
   gameId: string,
   requested: Move,
+  difficulty?: number,
 ): Promise<MoveResult> {
   const game = await getGame(userId, gameId);
   if (!game) throw new HttpError(404, "Partida no encontrada");
@@ -122,12 +130,15 @@ export async function playHumanMove(
     throw new HttpError(422, "Movimiento ilegal");
   }
 
+  // Dificultad: la enviada en esta jugada manda; si no, la guardada en la partida.
+  const level = clampDifficulty(difficulty ?? game.difficulty);
+
   let state = applyMove(toState(game), requested);
   let aiMove: Move | null = null;
 
   // Si la partida sigue y toca a la IA, pedir su jugada al microservicio A*.
   if (state.status === "in_progress" && state.turn === "ai") {
-    aiMove = await requestAiMove(state.board, "ai");
+    aiMove = await requestAiMove(state.board, "ai", level);
     if (!findLegalMove(state.board, "ai", aiMove)) {
       throw new HttpError(502, "La IA devolvió un movimiento ilegal");
     }
@@ -135,6 +146,10 @@ export async function playHumanMove(
   }
 
   await persist(game._id!, state);
+  // Recordar la dificultad elegida para las siguientes jugadas.
+  if (level !== game.difficulty) {
+    await (await games()).updateOne({ _id: game._id! }, { $set: { difficulty: level } });
+  }
   if (state.status !== "in_progress") {
     await finalize(userId, state);
   }

@@ -6,24 +6,30 @@ import { setSoundEnabled, unlockAudio } from "./sound";
 interface Settings {
   speed: number; // multiplicador: >1 acelera animaciones
   sound: boolean;
+  difficulty: number; // nivel de IA 1–4
   setSpeed: (s: number) => void;
   toggleSound: () => void;
+  setDifficulty: (d: number) => void;
 }
 
 const Ctx = createContext<Settings | null>(null);
 
 const SPEED_KEY = "quings.speed";
 const SOUND_KEY = "quings.sound";
+const DIFFICULTY_KEY = "quings.difficulty";
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
   const [speed, setSpeedState] = useState(1);
   const [sound, setSound] = useState(true);
+  const [difficulty, setDifficultyState] = useState(3);
 
   useEffect(() => {
     const s = Number(localStorage.getItem(SPEED_KEY));
     if (s) setSpeedState(s);
     const snd = localStorage.getItem(SOUND_KEY);
     if (snd !== null) setSound(snd === "1");
+    const dif = Number(localStorage.getItem(DIFFICULTY_KEY));
+    if (dif >= 1 && dif <= 4) setDifficultyState(dif);
   }, []);
 
   useEffect(() => {
@@ -55,9 +61,15 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
       return !v;
     });
   }
+  function setDifficulty(d: number) {
+    setDifficultyState(d);
+    localStorage.setItem(DIFFICULTY_KEY, String(d));
+  }
 
   return (
-    <Ctx.Provider value={{ speed, sound, setSpeed, toggleSound }}>{children}</Ctx.Provider>
+    <Ctx.Provider value={{ speed, sound, difficulty, setSpeed, toggleSound, setDifficulty }}>
+      {children}
+    </Ctx.Provider>
   );
 }
 

@@ -1,14 +1,16 @@
 /** Tablero arcade interactivo. Usa @quings/game-engine para resaltar jugadas legales. */
 
 import { type Coord, type Move, generateLegalMoves, isDarkSquare } from "@quings/game-engine";
+import type { CSSProperties } from "react";
 import { useEffect, useMemo, useState } from "react";
-import type { PieceStyle } from "@/lib/types";
+import type { BoardStyle, PieceStyle } from "@/lib/types";
 import { Piece } from "./Piece";
 
 export function Board({
   board,
   interactive,
   skin,
+  boardStyle,
   lastMove,
   shake,
   flashKey,
@@ -17,6 +19,8 @@ export function Board({
   board: number[][];
   interactive: boolean;
   skin: PieceStyle;
+  /** Skin del tablero equipada (colores de casillas y marco). */
+  boardStyle?: BoardStyle;
   lastMove: Move | null;
   shake: boolean;
   /** Cambia de valor en cada captura para re-disparar el flash. */
@@ -67,8 +71,17 @@ export function Board({
     }
   }
 
+  const boardVars = boardStyle
+    ? ({
+        ["--sq-light"]: boardStyle.light,
+        ["--sq-dark"]: boardStyle.dark,
+        ["--sq-dark-alt"]: boardStyle.darkAlt,
+        ["--board-frame"]: boardStyle.frame,
+      } as CSSProperties)
+    : undefined;
+
   return (
-    <div className={`board-wrap${shake ? " shake" : ""}`}>
+    <div className={`board-wrap${shake ? " shake" : ""}`} style={boardVars}>
       {flashKey > 0 && <div className="flash-layer" key={flashKey} />}
       <div className="board">
         {board.map((rowArr, r) =>

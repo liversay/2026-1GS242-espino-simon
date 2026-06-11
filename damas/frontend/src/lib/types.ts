@@ -13,6 +13,8 @@ export interface Profile {
   totalGames: number;
   ownedSkinIds: string[];
   equippedSkinId: string;
+  ownedBoardIds: string[];
+  equippedBoardId: string;
 }
 
 export interface Game {
@@ -50,6 +52,23 @@ export interface Skin {
   rarity: SkinRarity;
   priceCoronas: number;
   pieceStyle: PieceStyle;
+  thumbnail: string;
+  description: string;
+}
+
+export interface BoardStyle {
+  light: string;
+  dark: string;
+  darkAlt: string;
+  frame: string;
+}
+
+export interface Board {
+  _id: string;
+  name: string;
+  rarity: SkinRarity;
+  priceCoronas: number;
+  boardStyle: BoardStyle;
   thumbnail: string;
   description: string;
 }

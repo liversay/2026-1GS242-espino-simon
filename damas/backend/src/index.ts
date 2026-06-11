@@ -21,6 +21,7 @@ import {
 } from "./services/games";
 import { getRanking } from "./services/ranking";
 import { buySkin, equipSkin, listSkins } from "./services/skins";
+import { buyBoard, equipBoard, listBoards } from "./services/boards";
 import { confirmCheckout, createCheckout, handleStripeEvent, listPacks } from "./services/coronas";
 
 const app = new Hono<{ Variables: AuthVariables }>();
@@ -70,6 +71,8 @@ function profile(user: UserDoc) {
     totalGames: user.totalGames,
     ownedSkinIds: user.ownedSkinIds,
     equippedSkinId: user.equippedSkinId,
+    ownedBoardIds: user.ownedBoardIds ?? [],
+    equippedBoardId: user.equippedBoardId ?? "classic-board",
   };
 }
 
@@ -92,7 +95,8 @@ app.patch("/api/me", async (c) => {
 
 // ---- Partidas ----
 app.post("/api/games", async (c) => {
-  const game = await createGame(c.get("user")._id!);
+  const body = (await c.req.json().catch(() => ({}))) as { difficulty?: number };
+  const game = await createGame(c.get("user")._id!, body.difficulty);
   return c.json(game, 201);
 });
 
@@ -108,12 +112,17 @@ app.get("/api/games/:id", async (c) => {
 });
 
 app.post("/api/games/:id/move", async (c) => {
-  const body = (await c.req.json()) as Move;
-  const result = await playHumanMove(c.get("user")._id!, c.req.param("id"), {
-    from: body.from,
-    to: body.to,
-    captures: body.captures ?? [],
-  });
+  const body = (await c.req.json()) as Move & { difficulty?: number };
+  const result = await playHumanMove(
+    c.get("user")._id!,
+    c.req.param("id"),
+    {
+      from: body.from,
+      to: body.to,
+      captures: body.captures ?? [],
+    },
+    body.difficulty,
+  );
   return c.json(result);
 });
 
@@ -138,6 +147,19 @@ app.post("/api/skins/:id/buy", async (c) => {
 
 app.post("/api/skins/:id/equip", async (c) => {
   const res = await equipSkin(c.get("user")._id!, c.req.param("id"));
+  return c.json(res);
+});
+
+// ---- Marketplace de tableros ----
+app.get("/api/boards", async (c) => c.json(await listBoards()));
+
+app.post("/api/boards/:id/buy", async (c) => {
+  const res = await buyBoard(c.get("user")._id!, c.req.param("id"));
+  return c.json(res);
+});
+
+app.post("/api/boards/:id/equip", async (c) => {
+  const res = await equipBoard(c.get("user")._id!, c.req.param("id"));
   return c.json(res);
 });
 

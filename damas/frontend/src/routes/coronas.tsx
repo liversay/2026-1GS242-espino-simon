@@ -109,37 +109,59 @@ function CoronasPage() {
     return best;
   }, [packs]);
 
+  // Orden ascendente por precio → tier 0 (más barato) … 4 (más caro y atractivo).
+  const ordered = useMemo(() => [...packs].sort((a, b) => a.priceUsd - b.priceUsd), [packs]);
+  const CROWN_SIZE = [38, 46, 54, 62, 74];
+  const RIBBON: Record<number, string> = { 3: "PREMIUM", 4: "ÉLITE" };
+
   return (
     <Layout title="Comprar Coronas">
       <p className="muted" style={{ marginBottom: 20 }}>
-        Recarga con Stripe (modo prueba). Usa las Coronas para comprar skins.
+        Recarga con Stripe (modo prueba). Usa las Coronas para comprar skins y tableros.
       </p>
 
       <Stagger
         className="grid"
-        style={{ gridTemplateColumns: "repeat(auto-fill,minmax(200px,1fr))" }}
+        style={{ gridTemplateColumns: "repeat(auto-fill,minmax(210px,1fr))", alignItems: "stretch" }}
       >
-        {packs.map((pack) => (
-          <StaggerItem key={pack._id}>
-            <div className="card skin-card" onMouseEnter={() => playSfx("hover")} style={{ position: "relative" }}>
-              {pack._id === bestId && <span className="equipped-tag">Mejor valor</span>}
-              <Crown size={44} strokeWidth={1.8} color="var(--gold-400)" />
-              <h3 style={{ fontSize: 26 }}>{pack.name}</h3>
-              <div className="pill gold" style={{ fontSize: 16 }}>
-                {pack.coronas.toLocaleString("es")} Coronas
+        {ordered.map((pack, i) => {
+          const tier = Math.min(i, 4);
+          return (
+            <StaggerItem key={pack._id}>
+              <div
+                className={`card skin-card corona-card tier-${tier}`}
+                onMouseEnter={() => playSfx("hover")}
+              >
+                {RIBBON[tier] && <span className="corona-ribbon">{RIBBON[tier]}</span>}
+                {pack._id === bestId && <span className="equipped-tag">Mejor valor</span>}
+                <div className="corona-crown">
+                  <span className="corona-halo" />
+                  <Crown size={CROWN_SIZE[tier]} strokeWidth={1.7} />
+                </div>
+                <h3 className="corona-name" style={{ fontSize: 26 }}>
+                  {pack.name}
+                </h3>
+                <div className="pill gold" style={{ fontSize: 16 }}>
+                  {pack.coronas.toLocaleString("es")} Coronas
+                </div>
+                <button
+                  className="btn block"
+                  disabled={busy === pack._id}
+                  onClick={() => buy(pack)}
+                  style={{ marginTop: "auto" }}
+                >
+                  {busy === pack._id ? (
+                    <>
+                      <Loader2 size={16} className="spin" strokeWidth={2.4} /> Redirigiendo…
+                    </>
+                  ) : (
+                    `$${pack.priceUsd.toFixed(2)}`
+                  )}
+                </button>
               </div>
-              <button className="btn block" disabled={busy === pack._id} onClick={() => buy(pack)}>
-                {busy === pack._id ? (
-                  <>
-                    <Loader2 size={16} className="spin" strokeWidth={2.4} /> Redirigiendo…
-                  </>
-                ) : (
-                  `$${pack.priceUsd.toFixed(2)}`
-                )}
-              </button>
-            </div>
-          </StaggerItem>
-        ))}
+            </StaggerItem>
+          );
+        })}
       </Stagger>
 
       {reward && <CoinRain />}
