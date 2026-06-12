@@ -5,6 +5,17 @@ Webapp de **damas 8×8** donde juegas contra la computadora. La IA decide con el
 ranking global, marketplace de skins con moneda virtual (**Coronas**) y pagos con Stripe.
 Estética minimalista pero arcade, inspirada en **Balatro**.
 
+## Variante elegida
+
+- **Juego:** **Damas (checkers) 8×8** clásicas, **humano vs. la máquina**.
+- **Técnica de IA:** **A\*** (`f(n) = g(n) + h(n)`) con respaldo MIN/MAX para alternar el
+  turno del rival. **Sin LLMs, sin redes neuronales y sin aprendizaje por refuerzo**: la IA
+  es una **función pura** y determinista (salvo el *blunder* aleatorio de los niveles fáciles).
+- **Arquitectura:** **app web + microservicio de IA** separados. El microservicio A\* es
+  **stateless** y no toca la base de datos; la app (frontend + backend) lo invoca por REST.
+- **Extras:** lobby con persistencia multi-dispositivo, ranking global, marketplace de skins
+  con moneda virtual (**Coronas**) y compra de Coronas con **Stripe**.
+
 ## Arquitectura
 
 ```
@@ -119,6 +130,56 @@ SSR con **TanStack Start** (Vite). Enrutado por archivos en `routes/`
 y `depends_on`. En Docker se sobre-escriben `MONGODB_URI` (→ `mongo:27017`) y
 `AI_SERVICE_URL` (→ `ai-service:7070`) con los hostnames de la red interna.
 
+## Invocación del microservicio A\*
+
+El microservicio de IA expone **un solo endpoint de decisión**, `POST /move`, y un
+`GET /health`. Es **stateless**: recibe el tablero y devuelve el mejor movimiento, sin
+guardar nada. Quién lo llama y cómo:
+
+1. **Quién lo invoca:** **solo el backend**, nunca el frontend ni la BD. El cliente está en
+   [`backend/src/ai/client.ts`](backend/src/ai/client.ts) → `requestAiMove(board, currentPlayer, difficulty)`,
+   que hace `POST ${AI_SERVICE_URL}/move`. En Docker `AI_SERVICE_URL = http://ai-service:7070`;
+   en local, `http://localhost:7070`.
+2. **Cuándo:** tras validar el movimiento del jugador, el backend pide al ai-service la
+   respuesta de la máquina (ver «Flujo de una jugada» arriba).
+
+**Contrato HTTP:**
+
+```jsonc
+// POST http://localhost:7070/move
+// Request
+{
+  "board": [[0,2,0,2,0,2,0,2], ...],  // matriz 8×8 (0 vacío · 1 peón humano · 2 peón IA · 3 reina humano · 4 reina IA)
+  "currentPlayer": "ai",              // opcional, por defecto "ai"
+  "difficulty": 3                      // opcional 1–4 (def. 3) → profundidad A* y prob. de error
+}
+
+// 200 OK
+{
+  "from": { "row": 5, "col": 2 },
+  "to":   { "row": 3, "col": 4 },
+  "captures": [ { "row": 4, "col": 3 } ],         // [] si no hubo captura
+  "analysis": { "score": 42, "nodesExplored": 137, "depth": 3 }
+}
+// 400 → JSON inválido o tablero que no es 8×8 · 422 → sin movimientos legales
+```
+
+**Niveles de dificultad** (`ai-service/src/index.ts`): `1` fácil (profundidad 1, 60% de
+*blunder*), `2` aprendiz (prof. 2, 25%), `3` hábil (prof. 3, 0% — comportamiento clásico),
+`4` maestro (prof. 5, 0%).
+
+**Probarlo a mano** (con el ai-service levantado en `:7070`):
+
+```bash
+curl -s localhost:7070/health
+curl -s -X POST localhost:7070/move \
+  -H 'content-type: application/json' \
+  -d '{"board":[[0,2,0,2,0,2,0,2],[2,0,2,0,2,0,2,0],[0,2,0,2,0,2,0,2],[0,0,0,0,0,0,0,0],[0,0,0,0,0,0,0,0],[1,0,1,0,1,0,1,0],[0,1,0,1,0,1,0,1],[1,0,1,0,1,0,1,0]],"currentPlayer":"ai","difficulty":3}'
+```
+
+Detalle del algoritmo (`f=g+h`, heurística, respaldo MIN/MAX) en
+[`ai-service/README.md`](ai-service/README.md).
+
 ## Configuración (rellena los `.env`)
 
 Los `.env` ya existen (con claves **vacías**) y están en `.gitignore`. Complétalos:
@@ -152,17 +213,67 @@ Abre <http://localhost:3000>.
 
 ## Docker
 
+Un solo comando levanta **toda** la pila —app (frontend + backend), microservicio de IA y
+MongoDB— **sin configurar nada**:
+
 ```bash
-# rellena los .env y luego:
 docker compose up --build
 # frontend :3000 · backend :8080 · ai-service :7070 · mongo :27017
 ```
 
-Tras el primer arranque, carga el catálogo:
+- Los `.env` son **opcionales** (`required: false`): el **ai-service** y **Mongo** funcionan
+  sin ninguna clave. Para **iniciar sesión** (Clerk) y **comprar Coronas** (Stripe) rellena
+  `backend/.env` y `frontend/.env` antes de levantar.
+- El **catálogo se carga solo**: el servicio `seed` (de un solo uso) inserta skins, tableros
+  y paquetes de Coronas cuando Mongo está listo y luego termina.
+- Healthchecks + `depends_on` garantizan el orden: `mongo` → `ai-service` → `backend` →
+  (`seed`, `frontend`).
+
+Para re-sembrar manualmente cuando ya está levantado:
 
 ```bash
-docker compose exec backend bun run src/db/seed.ts
+docker compose run --rm seed
 ```
+
+## Tests
+
+Pruebas unitarias con el runner de **Bun** (`bun test`). **22 pruebas** en 2 archivos, sin
+necesidad de BD ni servicios levantados (todo es lógica pura):
+
+```bash
+bun install            # una vez, desde la raíz del monorepo (damas/)
+
+bun test               # TODA la suite: motor + IA  → 22 pass
+bun run test:engine    # solo el motor de damas (packages/game-engine) → 18 pruebas
+bun --cwd ai-service test   # solo el A* y la heurística (ai-service) → 4 pruebas
+```
+
+| Archivo | Cubre |
+|---|---|
+| [`packages/game-engine/src/engine.test.ts`](packages/game-engine/src/engine.test.ts) | Movimientos legales, captura obligatoria y múltiple, regla de retroceso del peón, promoción y fin de partida (18). |
+| [`ai-service/src/astar.test.ts`](ai-service/src/astar.test.ts) | Búsqueda A\* y heurística: elige captura disponible, evita exponer fichas, devuelve un movimiento legal (4). |
+
+Salida esperada: `22 pass · 0 fail`.
+
+## Limitaciones conocidas
+
+- **A\* a profundidad fija (1–5 según dificultad), sin tabla de transposición ni poda
+  alfa-beta.** En profundidad 5 (nivel "maestro") la respuesta puede tardar perceptiblemente
+  en posiciones con muchas ramas; no hay límite de tiempo por jugada.
+- **La IA no es imbatible:** la heurística es estática (material + amenazas + centro +
+  promoción) y no aprende. Los niveles fáciles, además, juegan mal *a propósito* (*blunder*
+  aleatorio).
+- **Auth y pagos dependen de servicios externos:** sin claves de **Clerk** no se puede
+  iniciar sesión y sin **Stripe** (claves *test* + webhook) no se completan compras de
+  Coronas. Las skins (Coronas) sí funcionan sin Stripe una vez autenticado.
+- **Sin multijugador humano vs. humano ni partidas en tiempo real:** siempre es humano contra
+  la máquina. No hay matchmaking ni websockets.
+- **El frontend en Docker corre el servidor de desarrollo de Vite** (no un build de
+  producción), pensado para evaluar local, no para desplegar.
+- **El seed no es automático:** tras el primer arranque hay que ejecutarlo a mano para que
+  aparezcan skins, tableros y paquetes de Coronas.
+- **Pruebas centradas en la lógica pura** (motor + A\*); no hay tests de integración HTTP de
+  los endpoints del backend ni de la UI.
 
 ## Reglas del juego
 

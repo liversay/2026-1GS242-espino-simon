@@ -1,6 +1,13 @@
 # Quings — orquestación de microservicios.
-# Levanta: mongo, ai-service (A*), backend (API) y frontend (TanStack Start).
-# Uso: rellena los .env de cada servicio y luego `docker compose up --build`.
+# Levanta: mongo, ai-service (A*), backend (API), frontend (TanStack Start) y un seed
+# de un solo uso que carga el catálogo automáticamente.
+#
+# Arranque mínimo (app + IA + Mongo) sin configurar nada:
+#     docker compose up --build
+#   → frontend :3000 · backend :8080 · ai-service :7070 · mongo :27017
+#
+# Los .env son OPCIONALES (required: false): el ai-service y Mongo funcionan sin config.
+# Para iniciar sesión (Clerk) y comprar Coronas (Stripe) rellena backend/.env y frontend/.env.
 
 services:
   mongo:
@@ -17,13 +24,15 @@ services:
       retries: 5
       start_period: 20s
 
+  # Microservicio de IA (A*). Stateless, sin BD y sin configuración: PORT por defecto 7070.
   ai-service:
     build:
       context: .
       dockerfile: ai-service/Dockerfile
+    image: quings-ai-service:local
     restart: unless-stopped
-    env_file:
-      - ai-service/.env
+    environment:
+      PORT: "7070"
     ports:
       - "7070:7070"
     healthcheck:
@@ -37,13 +46,17 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
+    image: quings-backend:local
     restart: unless-stopped
+    # .env opcional: sin él el backend arranca igual (solo avisa que faltan claves).
     env_file:
-      - backend/.env
+      - path: backend/.env
+        required: false
     environment:
       # En Docker usamos los hostnames de la red interna (sobre-escriben el .env local).
       MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/quings}
       AI_SERVICE_URL: http://ai-service:7070
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
     ports:
       - "8080:8080"
     depends_on:
@@ -58,13 +71,35 @@ services:
       retries: 5
       start_period: 15s
 
+  # Seed de un solo uso: carga skins, tableros y paquetes de Coronas tras levantar Mongo.
+  # Reutiliza la imagen del backend (la lógica de seed vive ahí) y termina al acabar.
+  seed:
+    image: quings-backend:local
+    restart: "no"
+    env_file:
+      - path: backend/.env
+        required: false
+    environment:
+      MONGODB_URI: ${MONGODB_URI:-mongodb://mongo:27017/quings}
+    command: ["bun", "run", "src/db/seed.ts"]
+    depends_on:
+      mongo:
+        condition: service_healthy
+      backend:
+        condition: service_healthy
+
   frontend:
     build:
       context: .
       dockerfile: frontend/Dockerfile
+    image: quings-frontend:local
     restart: unless-stopped
+    # .env opcional: el cliente apunta al backend por defecto; Clerk requiere sus claves.
     env_file:
-      - frontend/.env
+      - path: frontend/.env
+        required: false
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-http://localhost:8080}
     ports:
       - "3000:3000"
     depends_on:
